@@ -161,9 +161,9 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            {errors.email && (
+            {errors.email ? (
               <Text style={styles.errorText}>{errors.email}</Text>
-            )}
+            ) : null}
           </View>
 
           {/* Password Input */}
@@ -208,10 +208,11 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             </View>
 
             {/* Password Strength Indicator */}
-            {password.length > 0 && (
+            {password.length > 0 ? (
               <View style={styles.strengthContainer}>
+                {' '}
                 <Text style={styles.strengthText}>
-                  Password strength:{' '}
+                  Password strength:
                   <Text style={{ color: passwordStrength.color }}>
                     {passwordStrength.strength}
                   </Text>
@@ -233,11 +234,11 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                   />
                 </View>
               </View>
-            )}
+            ) : null}
 
-            {errors.password && (
+            {errors.password ? (
               <Text style={styles.errorText}>{errors.password}</Text>
-            )}
+            ) : null}
           </View>
 
           {/* Confirm Password Input */}
@@ -280,9 +281,9 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                 />
               </TouchableOpacity>
             </View>
-            {errors.confirmPassword && (
+            {errors.confirmPassword ? (
               <Text style={styles.errorText}>{errors.confirmPassword}</Text>
-            )}
+            ) : null}
           </View>
 
           {/* Create Account Button */}

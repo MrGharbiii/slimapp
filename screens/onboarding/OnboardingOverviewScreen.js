@@ -118,7 +118,7 @@ const OnboardingOverviewScreen = ({
     const strokeWidth = 8;
     const circumference = 2 * Math.PI * radius;
     const strokeDasharray = circumference;
-    
+
     return (
       <View style={styles.progressRingContainer}>
         <View style={styles.progressRing}>
@@ -152,7 +152,6 @@ const OnboardingOverviewScreen = ({
       </View>
     );
   };
-
   // Render XP display
   const renderXPDisplay = () => {
     return (
@@ -214,15 +213,13 @@ const OnboardingOverviewScreen = ({
               name={section.icon}
               size={30}
               color={isCompleted ? 'white' : '#5603AD'}
-            />
+            />{' '}
           </View>
-
           {/* Content */}
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>{section.title}</Text>
             <Text style={styles.sectionDescription}>{section.description}</Text>
           </View>
-
           {/* Status indicator */}
           <View style={styles.statusContainer}>
             <View
@@ -237,9 +234,9 @@ const OnboardingOverviewScreen = ({
                 <View style={styles.statusDot} />
               )}
             </View>
-            {isCompleted && (
+            {isCompleted ? (
               <Text style={styles.xpReward}>+{section.xpReward} XP</Text>
-            )}
+            ) : null}
           </View>
         </TouchableOpacity>
       </Animated.View>

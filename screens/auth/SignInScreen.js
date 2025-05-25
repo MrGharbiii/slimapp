@@ -138,11 +138,11 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
         {/* Form Section */}
         <View style={styles.formSection}>
           {/* General Error Message */}
-          {errors.auth && (
+          {errors.auth ? (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>{errors.auth}</Text>
             </View>
-          )}
+          ) : null}
 
           {/* Email Input */}
           <View style={styles.inputContainer}>
@@ -178,9 +178,9 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
               autoCorrect={false}
               editable={!isLoading}
             />
-            {errors.email && (
+            {errors.email ? (
               <Text style={styles.errorText}>{errors.email}</Text>
-            )}
+            ) : null}
           </View>
 
           {/* Password Input */}
@@ -225,9 +225,9 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
                 />
               </TouchableOpacity>
             </View>
-            {errors.password && (
+            {errors.password ? (
               <Text style={styles.errorText}>{errors.password}</Text>
-            )}
+            ) : null}
           </View>
 
           {/* Forgot Password Link */}
@@ -254,7 +254,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
           </TouchableOpacity>
 
           {/* Biometric Authentication Option */}
-          {isBiometricSupported && (
+          {isBiometricSupported ? (
             <TouchableOpacity
               style={styles.biometricContainer}
               onPress={handleBiometricAuth}
@@ -269,7 +269,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
                 Sign in with {Platform.OS === 'ios' ? 'Face ID' : 'Fingerprint'}
               </Text>
             </TouchableOpacity>
-          )}
+          ) : null}
         </View>
       </ScrollView>
 

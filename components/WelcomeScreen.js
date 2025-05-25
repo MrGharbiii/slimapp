@@ -1,11 +1,11 @@
 import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
   Dimensions,
-  SafeAreaView 
+  SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -25,7 +25,7 @@ const WelcomeScreen = () => {
 
   return (
     <LinearGradient
-      colors={['#F0FFF1', '#C2F8CB']}
+      colors={['#FFFFFFFF', '#C2F8CB']}
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
@@ -50,7 +50,7 @@ const WelcomeScreen = () => {
 
           {/* Buttons Section */}
           <View style={styles.buttonsContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.createAccountButton}
               onPress={handleCreateAccount}
               activeOpacity={0.8}
@@ -58,7 +58,7 @@ const WelcomeScreen = () => {
               <Text style={styles.createAccountText}>Create Account</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.signInButton}
               onPress={handleSignIn}
               activeOpacity={0.8}
