@@ -213,7 +213,7 @@ const OnboardingOverviewScreen = ({
               name={section.icon}
               size={30}
               color={isCompleted ? 'white' : '#5603AD'}
-            />{' '}
+            />
           </View>
           {/* Content */}
           <View style={styles.sectionContent}>

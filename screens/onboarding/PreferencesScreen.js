@@ -623,7 +623,7 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
                       ]}
                     >
                       {option.label}
-                    </Text>{' '}
+                    </Text>
                     {dietaryRestrictions.includes(option.value) ? (
                       <MaterialIcons
                         name="check-circle"

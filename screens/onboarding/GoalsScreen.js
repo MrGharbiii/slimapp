@@ -456,7 +456,7 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
             </View>
             <Text style={styles.sectionSubtitle}>
               What's your main fitness objective?
-            </Text>{' '}
+            </Text>
             <View style={styles.primaryGoalsGrid}>
               {primaryGoalsData.map((goal, index) =>
                 renderPrimaryGoalCard(goal, index)
@@ -495,7 +495,6 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                         styles.secondaryGoalCheckboxSelected,
                     ]}
                   >
-                    {' '}
                     {secondaryGoals.includes(goal.id) ? (
                       <MaterialIcons name="check" size={16} color="white" />
                     ) : null}
@@ -528,7 +527,7 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
             </View>
             <Text style={styles.sectionSubtitle}>
               How long do you want to achieve your goal?
-            </Text>{' '}
+            </Text>
             <View style={styles.timelineContainer}>
               <View style={styles.timelineHeader}>
                 <Text style={styles.timelineValue}>
@@ -564,7 +563,7 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 ))}
               </View>
             </View>
-          </View>{' '}
+          </View>
           {/* Weight Target Section */}
           {primaryGoal === 'weightLoss' || primaryGoal === 'muscleGain' ? (
             <View style={styles.section}>

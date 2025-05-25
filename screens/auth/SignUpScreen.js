@@ -210,7 +210,6 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             {/* Password Strength Indicator */}
             {password.length > 0 ? (
               <View style={styles.strengthContainer}>
-                {' '}
                 <Text style={styles.strengthText}>
                   Password strength:
                   <Text style={{ color: passwordStrength.color }}>

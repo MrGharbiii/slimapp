@@ -329,7 +329,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
         <Text style={styles.progressText}>1 of 5</Text>
         <View style={styles.progressBar}>
           <View style={styles.progressBarFill} />
-        </View>{' '}
+        </View>
       </View>
       {/* XP Indicator */}
       <View style={styles.xpContainer}>
@@ -370,7 +370,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 onFocus={() => setFocusedField('name')}
                 onBlur={() => setFocusedField('')}
                 maxLength={50}
-              />{' '}
+              />
             </View>
             {errors.name ? (
               <Text style={styles.errorText}>{errors.name}</Text>
@@ -392,7 +392,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 size={20}
                 color="#666"
                 style={styles.inputIcon}
-              />{' '}
+              />
               <Text style={styles.dateText}>{formatDate(dateOfBirth)}</Text>
             </TouchableOpacity>
             {showDatePicker ? (
@@ -406,13 +406,13 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               />
             ) : null}
           </View>
-          {/* Gender Selection */}{' '}
+          {/* Gender Selection */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Gender *</Text>
             {renderGenderRadio()}
             {errors.gender ? (
               <Text style={styles.errorText}>{errors.gender}</Text>
-            ) : null}{' '}
+            ) : null}
           </View>
         </View>
         {/* Physical Stats Section */}
@@ -447,7 +447,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                   onFocus={() => setFocusedField('height')}
                   onBlur={() => setFocusedField('')}
                   keyboardType="numeric"
-                />{' '}
+                />
               </View>
               {renderUnitToggle(heightUnit, ['cm', 'ft'], setHeightUnit)}
             </View>
@@ -481,7 +481,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                   onFocus={() => setFocusedField('weight')}
                   onBlur={() => setFocusedField('')}
                   keyboardType="numeric"
-                />{' '}
+                />
               </View>
               {renderUnitToggle(weightUnit, ['kg', 'lbs'], setWeightUnit)}
             </View>
@@ -500,7 +500,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 color="#666"
                 style={styles.inputIcon}
               />
-              {renderActivityDropdown()}{' '}
+              {renderActivityDropdown()}
             </View>
             {errors.activityLevel ? (
               <Text style={styles.errorText}>{errors.activityLevel}</Text>
@@ -526,7 +526,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
             <Text style={styles.skipButtonText}>Skip for now</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.bottomSpacing} />{' '}
+        <View style={styles.bottomSpacing} />
       </ScrollView>
       {/* Celebration Modal */}
       <Modal visible={showCelebration} transparent={true} animationType="fade">

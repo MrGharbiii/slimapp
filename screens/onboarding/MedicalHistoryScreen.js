@@ -653,7 +653,7 @@ const MedicalHistoryScreen = ({
               <Text style={styles.modalCloseButtonText}>Got it</Text>
             </TouchableOpacity>
           </View>
-        </View>{' '}
+        </View>
       </Modal>
       {/* Celebration Animation */}
       {showCelebration ? (

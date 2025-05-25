@@ -9,6 +9,16 @@ import LifestyleScreen from './screens/onboarding/LifestyleScreen';
 import MedicalHistoryScreen from './screens/onboarding/MedicalHistoryScreen';
 import GoalsScreen from './screens/onboarding/GoalsScreen';
 import PreferencesScreen from './screens/onboarding/PreferencesScreen';
+import DashboardScreen from './screens/DashboardScreen';
+import PlanScreen from './screens/PlanScreen';
+import WorkoutDetailScreen from './screens/WorkoutDetailScreen';
+import NutritionScreen from './screens/NutritionScreen';
+import FoodCalculatorScreen from './screens/FoodCalculatorScreen';
+import CameraFoodScanScreen from './screens/CameraFoodScanScreen';
+import MealBuilderScreen from './screens/MealBuilderScreen';
+import TunisianDishesScreen from './screens/TunisianDishesScreen';
+import NutritionResultsScreen from './screens/NutritionResultsScreen';
+import MapScreen from './screens/MapScreen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
@@ -120,8 +130,8 @@ export default function App() {
     setCurrentXP((prevXP) => prevXP + 25);
     // Mark preferences as completed
     setCompletedSections((prev) => [...prev, 'preferences']);
-    // Navigate to main app or dashboard (for now back to onboarding to see completion)
-    setCurrentScreen('onboarding');
+    // Navigate to main dashboard
+    setCurrentScreen('dashboard');
   };
 
   const handleSkipPreferences = () => {
@@ -199,6 +209,93 @@ export default function App() {
             onComplete={handlePreferencesComplete}
             onSkip={handleSkipPreferences}
             currentXP={currentXP}
+          />
+        );
+      case 'dashboard':
+        return (
+          <DashboardScreen
+            navigation={{
+              goBack: () => setCurrentScreen('onboarding'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'plan':
+        return (
+          <PlanScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'nutrition':
+        return (
+          <NutritionScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'workout-detail':
+        return (
+          <WorkoutDetailScreen
+            navigation={{ goBack: () => setCurrentScreen('plan') }}
+          />
+        );
+      case 'food-calculator':
+        return (
+          <FoodCalculatorScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'camera-scan':
+        return (
+          <CameraFoodScanScreen
+            navigation={{
+              goBack: () => setCurrentScreen('food-calculator'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'meal-builder':
+        return (
+          <MealBuilderScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'tunisian-dishes':
+        return (
+          <TunisianDishesScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'nutrition-results':
+        return (
+          <NutritionResultsScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'map':
+        return (
+          <MapScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
           />
         );
       default:
