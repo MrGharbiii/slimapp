@@ -670,21 +670,10 @@ const PlanScreen = ({ navigation }) => {
         {renderWeeklyGoals()}
         {renderFilterTabs()}
         {renderDayGrid()}
-        {renderMotivationalQuote()}
-        <View style={styles.bottomPadding} />
+        {renderMotivationalQuote()} <View style={styles.bottomPadding} />
       </ScrollView>
 
       {renderDetailModal()}
-
-      <TouchableOpacity style={styles.modifyPlanButton}>
-        <LinearGradient
-          colors={['#667eea', '#764ba2']}
-          style={styles.modifyPlanGradient}
-        >
-          <MaterialIcons name="edit" size={20} color="#FFF" />
-          <Text style={styles.modifyPlanText}>Modify Plan</Text>
-        </LinearGradient>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -720,13 +709,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   weekToggle: {
     flexDirection: 'row',
     backgroundColor: '#FFF',
     borderRadius: 12,
     padding: 4,
-    marginTop: -30,
     marginBottom: 20,
     elevation: 3,
     shadowColor: '#000',
@@ -1030,30 +1019,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 12,
     flex: 1,
-  },
-  modifyPlanButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-  },
-  modifyPlanGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  modifyPlanText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFF',
   },
   bottomPadding: {
     height: 100,

@@ -784,12 +784,12 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   macroContainer: {
     backgroundColor: '#FFF',
     borderRadius: 16,
     padding: 20,
-    marginTop: -30,
     marginBottom: 20,
     elevation: 4,
     shadowColor: '#000',

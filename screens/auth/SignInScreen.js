@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
+import Constants from 'expo-constants';
 
 const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
   const [email, setEmail] = useState('');
@@ -110,17 +111,18 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
   };
 
   const isFormValid = email && password;
-
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Sign In</Text>
-        <View style={styles.headerRight} />
-      </View>
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Sign In</Text>
+          <View style={styles.headerRight} />
+        </View>
+      </SafeAreaView>
 
       <ScrollView
         style={styles.scrollView}
@@ -134,7 +136,6 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
             Sign in to continue your journey
           </Text>
         </View>
-
         {/* Form Section */}
         <View style={styles.formSection}>
           {/* General Error Message */}
@@ -274,19 +275,28 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
       </ScrollView>
 
       {/* Create Account Link */}
-      <View style={styles.createAccountContainer}>
-        <Text style={styles.createAccountText}>Don't have an account? </Text>
-        <TouchableOpacity onPress={onCreateAccount} disabled={isLoading}>
-          <Text style={styles.createAccountLink}>Create one</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeAreaBottom}>
+        <View style={styles.createAccountContainer}>
+          <Text style={styles.createAccountText}>Don't have an account? </Text>
+          <TouchableOpacity onPress={onCreateAccount} disabled={isLoading}>
+            <Text style={styles.createAccountLink}>Create one</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
     backgroundColor: 'white',
   },
   header: {

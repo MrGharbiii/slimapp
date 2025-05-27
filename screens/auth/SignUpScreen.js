@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
-  StatusBar,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 
 const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
   const [email, setEmail] = useState('');
@@ -96,28 +96,26 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
     confirmPassword &&
     password === confirmPassword &&
     password.length >= 6;
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Account</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Step 1 of 6</Text>
-        <View style={styles.progressBar}>
-          <View style={styles.progressBarFill} />
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Create Account</Text>
+          <View style={styles.headerRight} />
         </View>
-      </View>
 
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>Step 1 of 6</Text>
+          <View style={styles.progressBar}>
+            <View style={styles.progressBarFill} />
+          </View>
+        </View>
+      </SafeAreaView>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
@@ -299,21 +297,29 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
       {/* Sign In Link */}
-      <View style={styles.signInContainer}>
-        <Text style={styles.signInText}>Already have an account? </Text>
-        <TouchableOpacity onPress={onSignIn}>
-          <Text style={styles.signInLink}>Sign In</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeAreaBottom}>
+        <View style={styles.signInContainer}>
+          <Text style={styles.signInText}>Already have an account? </Text>
+          <TouchableOpacity onPress={onSignIn}>
+            <Text style={styles.signInLink}>Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
     backgroundColor: 'white',
   },
   header: {

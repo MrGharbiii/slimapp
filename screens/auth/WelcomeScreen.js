@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   Dimensions,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -20,12 +22,20 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
 
   return (
     <LinearGradient
-      colors={['#F0FFF1', '#C2F8CB']}
+      colors={['#FFFFFFFF', '#FFFFFFFF']}
       style={styles.container}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {
+            paddingTop:
+              Platform.OS === 'android' ? Constants.statusBarHeight : 0,
+          },
+        ]}
+      >
         {/* Hero Section - Top 20% */}
         <View style={styles.heroSection}>
           <View style={styles.heroIconContainer}>

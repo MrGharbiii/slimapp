@@ -13,6 +13,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Animatable from 'react-native-animatable';
+import Constants from 'expo-constants';
+import { color } from 'react-native-elements/dist/helpers';
+import { BackgroundImage } from 'react-native-elements/dist/config';
 
 const { width, height } = Dimensions.get('window');
 
@@ -301,7 +304,7 @@ const DashboardScreen = ({ navigation }) => {
       delay={800}
       style={styles.planSection}
     >
-      <Text style={styles.sectionTitle}>Today's Plan</Text>{' '}
+      <Text style={styles.sectionTitle}>Today's Plan</Text>
       {todaysPlan.map((item) => (
         <View key={item.id} style={styles.planItem}>
           <View style={styles.planTime}>
@@ -327,71 +330,54 @@ const DashboardScreen = ({ navigation }) => {
       ))}
     </Animatable.View>
   );
-
   const renderQuickActions = () => (
     <Animatable.View
       animation="fadeInUp"
       delay={1000}
       style={styles.actionsSection}
     >
-      <Text style={styles.sectionTitle}>Quick Actions</Text>{' '}
-      <View style={styles.actionsGrid}>
+      <Text style={styles.sectionTitle}>Quick Actions</Text>
+      <View style={styles.actionsContainer}>
+        {/* My Plan - Full Width at Top */}
         <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#FF6B6B' }]}
-          onPress={() => navigation?.navigate?.('nutrition')}
+          style={[styles.actionButtonFullWidth, { backgroundColor: '#2196F3' }]}
+          onPress={() => navigation?.navigate?.('plan')}
         >
-          <MaterialIcons name="restaurant" size={24} color="#FFF" />
-          <Text style={styles.actionText}>Log Meal</Text>
+          <MaterialIcons name="event-note" size={28} color="#FFF" />
+          <Text style={styles.actionTextLarge}>My Plan</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#4ECDC4' }]}
-          onPress={() => navigation?.navigate?.('food-calculator')}
-        >
-          <MaterialIcons name="calculate" size={24} color="#FFF" />
-          <Text style={styles.actionText}>Food Calculator</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#FF8A65' }]}
-          onPress={() => navigation?.navigate?.('meal-builder')}
-        >
-          <MaterialIcons name="fastfood" size={24} color="#FFF" />
-          <Text style={styles.actionText}>Meal Builder</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#D32F2F' }]}
-          onPress={() => navigation?.navigate?.('tunisian-dishes')}
-        >
-          <Text style={styles.flagIcon}>🇹🇳</Text>
-          <Text style={styles.actionText}>Tunisian Dishes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#5603AD' }]}
-          onPress={() => navigation?.navigate?.('nutrition-results')}
-        >
-          <MaterialIcons name="analytics" size={24} color="#FFF" />{' '}
-          <Text style={styles.actionText}>Nutrition Results</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
-          onPress={() => navigation?.navigate?.('map')}
-        >
-          <Ionicons name="map" size={24} color="#FFF" />
-          <Text style={styles.actionText}>Find Places</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#00BFFF' }]}
-          onPress={() => navigation?.navigate?.('nutrition')}
-        >
-          <Ionicons name="water" size={24} color="#FFF" />
-          <Text style={styles.actionText}>Add Water</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: '#9B59B6' }]}
-          onPress={() => navigation?.navigate?.('workout-detail')}
-        >
-          <MaterialIcons name="fitness-center" size={24} color="#FFF" />
-          <Text style={styles.actionText}>Start Workout</Text>
-        </TouchableOpacity>
+
+        {/* Other Actions in Grid */}
+        <View style={styles.actionsGrid}>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#FF6B6B' }]}
+            onPress={() => navigation?.navigate?.('nutrition')}
+          >
+            <MaterialIcons name="restaurant" size={24} color="#FFF" />
+            <Text style={styles.actionText}>My Meals</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#4ECDC4' }]}
+            onPress={() => navigation?.navigate?.('food-calculator')}
+          >
+            <MaterialIcons name="calculate" size={24} color="#FFF" />
+            <Text style={styles.actionText}>Food Calculator</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#FF9800' }]}
+            onPress={() => navigation?.navigate?.('map')}
+          >
+            <Ionicons name="map" size={24} color="#FFF" />
+            <Text style={styles.actionText}>Find Places</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, { backgroundColor: '#9B59B6' }]}
+            onPress={() => navigation?.navigate?.('workout-detail')}
+          >
+            <MaterialIcons name="fitness-center" size={24} color="#FFF" />
+            <Text style={styles.actionText}>Workout</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </Animatable.View>
   );
@@ -475,10 +461,11 @@ const DashboardScreen = ({ navigation }) => {
       {renderHeader()}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderLevelCard()}
-        {renderProgressRings()}
+        {/* {renderProgressRings()} */}
         {renderQuickStats()}
-        {renderTodaysPlan()}
         {renderQuickActions()}
+        {renderTodaysPlan()}
+
         {renderAchievements()}
         {renderMotivationalQuote()}
         <View style={styles.bottomPadding} />
@@ -556,9 +543,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   levelCard: {
-    marginTop: -30,
     marginBottom: 20,
   },
   levelGradient: {
@@ -703,6 +690,24 @@ const styles = StyleSheet.create({
   actionsSection: {
     marginBottom: 24,
   },
+  actionsContainer: {
+    flexDirection: 'column',
+  },
+  actionButtonFullWidth: {
+    width: '100%',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  actionTextLarge: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFF',
+    marginLeft: 12,
+  },
   actionsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -720,9 +725,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFF',
     marginTop: 8,
-  },
-  flagIcon: {
-    fontSize: 24,
   },
   achievementsSection: {
     marginBottom: 24,

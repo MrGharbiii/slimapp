@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { Platform, View } from 'react-native';
 import WelcomeScreen from './screens/auth/WelcomeScreen';
 import SignUpScreen from './screens/auth/SignUpScreen';
 import SignInScreen from './screens/auth/SignInScreen';
@@ -309,9 +310,13 @@ export default function App() {
   };
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
+      <StatusBar
+        style="dark"
+        backgroundColor="transparent"
+        translucent={Platform.OS === 'android'}
+      />
       {renderCurrentScreen()}
-      <StatusBar style="dark" />
-    </>
+    </View>
   );
 }

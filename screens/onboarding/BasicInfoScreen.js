@@ -203,7 +203,6 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 gender === option && styles.radioSelected,
               ]}
             >
-              {' '}
               {gender === option ? <View style={styles.radioDot} /> : null}
             </View>
             <Text style={styles.radioLabel}>{option}</Text>

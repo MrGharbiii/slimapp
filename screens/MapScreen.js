@@ -25,6 +25,7 @@ import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import * as Animatable from 'react-native-animatable';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -526,10 +527,8 @@ const MapScreen = ({ navigation }) => {
       console.error('Error parsing WebView message:', error);
     }
   };
-
   const renderHeader = () => (
     <SafeAreaView style={styles.headerContainer}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFF" />
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -895,99 +894,6 @@ const MapScreen = ({ navigation }) => {
           </TouchableOpacity>
         </Animatable.View>
       )}
-      {/* Simple List View for Locations */}
-      <View style={styles.simpleBottomSheet}>
-        <View style={styles.bottomSheetHandle} />
-        <View style={styles.bottomSheetHeader}>
-          <Text style={styles.bottomSheetTitle}>
-            {filteredLocations.length} places found
-          </Text>
-          <View style={styles.sortContainer}>
-            <Text style={styles.sortLabel}>Sort:</Text>
-            <TouchableOpacity
-              style={[
-                styles.sortButton,
-                sortBy === 'distance' && styles.sortButtonActive,
-              ]}
-              onPress={() => setSortBy('distance')}
-            >
-              <Text
-                style={[
-                  styles.sortText,
-                  sortBy === 'distance' && styles.sortTextActive,
-                ]}
-              >
-                Distance
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.sortButton,
-                sortBy === 'rating' && styles.sortButtonActive,
-              ]}
-              onPress={() => setSortBy('rating')}
-            >
-              <Text
-                style={[
-                  styles.sortText,
-                  sortBy === 'rating' && styles.sortTextActive,
-                ]}
-              >
-                Rating
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <ScrollView style={styles.locationsScrollView}>
-          {sortedLocations.map((item) => (
-            <View key={item.id} style={styles.locationCard}>
-              <Image
-                source={{ uri: item.image }}
-                style={styles.locationImage}
-              />
-              <View style={styles.locationInfo}>
-                <View style={styles.locationHeader}>
-                  <Text style={styles.locationName}>{item.name}</Text>
-                  <View style={styles.ratingContainer}>
-                    <Ionicons name="star" size={14} color="#FFD700" />
-                    <Text style={styles.ratingText}>{item.rating}</Text>
-                  </View>
-                </View>
-                <Text style={styles.locationDescription}>
-                  {item.description}
-                </Text>
-                <View style={styles.locationDetails}>
-                  <View style={styles.locationDetailItem}>
-                    <Ionicons name="location" size={14} color="#666" />
-                    <Text style={styles.locationDetailText}>
-                      {item.distance}
-                    </Text>
-                  </View>
-                  <View style={styles.locationDetailItem}>
-                    <Ionicons name="time" size={14} color="#666" />
-                    <Text style={styles.locationDetailText}>{item.hours}</Text>
-                  </View>
-                  <View style={styles.locationDetailItem}>
-                    <MaterialIcons name="attach-money" size={14} color="#666" />
-                    <Text style={styles.locationDetailText}>{item.price}</Text>
-                  </View>
-                </View>
-                <View style={styles.locationActions}>
-                  <TouchableOpacity style={styles.callButton}>
-                    <Ionicons name="call" size={16} color="#4CAF50" />
-                    <Text style={styles.callButtonText}>Call</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.directionsButton}>
-                    <Ionicons name="navigate" size={16} color="#2196F3" />
-                    <Text style={styles.directionsButtonText}>Directions</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
     </View>
   );
 };
@@ -1018,6 +924,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     zIndex: 1000,
+    paddingTop: Platform.OS === 'android' ? Constants.statusBarHeight : 0,
   },
   header: {
     flexDirection: 'row',

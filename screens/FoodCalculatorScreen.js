@@ -296,11 +296,16 @@ const FoodCalculatorScreen = ({ navigation }) => {
           delay={600 + index * 200}
           style={styles.optionCard}
         >
+          {' '}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => {
               if (option.id === 1) {
                 navigation?.navigate('camera-scan');
+              } else if (option.id === 2) {
+                navigation?.navigate('meal-builder');
+              } else if (option.id === 3) {
+                navigation?.navigate('tunisian-dishes');
               }
             }}
           >
@@ -334,12 +339,16 @@ const FoodCalculatorScreen = ({ navigation }) => {
                 <View style={styles.optionFooter}>
                   <View style={styles.optionStats}>
                     <Text style={styles.optionCalories}>{option.calories}</Text>
-                  </View>
+                  </View>{' '}
                   <TouchableOpacity
                     style={styles.optionButton}
                     onPress={() => {
                       if (option.id === 1) {
                         navigation?.navigate('camera-scan');
+                      } else if (option.id === 2) {
+                        navigation?.navigate('meal-builder');
+                      } else if (option.id === 3) {
+                        navigation?.navigate('tunisian-dishes');
                       }
                     }}
                   >
@@ -357,139 +366,12 @@ const FoodCalculatorScreen = ({ navigation }) => {
     </Animatable.View>
   );
 
-  const renderTabNavigation = () => (
-    <View style={styles.tabContainer}>
-      <TouchableOpacity
-        style={[styles.tab, selectedTab === 'calculate' && styles.activeTab]}
-        onPress={() => setSelectedTab('calculate')}
-      >
-        <MaterialIcons
-          name="calculate"
-          size={20}
-          color={selectedTab === 'calculate' ? '#667eea' : '#999'}
-        />
-        <Text
-          style={[
-            styles.tabText,
-            selectedTab === 'calculate' && styles.activeTabText,
-          ]}
-        >
-          Calculate
-        </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.tab, selectedTab === 'history' && styles.activeTab]}
-        onPress={() => setSelectedTab('history')}
-      >
-        <MaterialIcons
-          name="history"
-          size={20}
-          color={selectedTab === 'history' ? '#667eea' : '#999'}
-        />
-        <Text
-          style={[
-            styles.tabText,
-            selectedTab === 'history' && styles.activeTabText,
-          ]}
-        >
-          Meal History
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   const renderQuickAccess = () => (
     <Animatable.View
       animation="fadeInUp"
       delay={800}
       style={styles.quickAccessContainer}
-    >
-      {/* Recently Calculated */}
-      <View style={styles.quickSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Recently Calculated</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {recentlyCalculated.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.recentCard}>
-              <Image source={{ uri: item.image }} style={styles.recentImage} />
-              <Text style={styles.recentName}>{item.name}</Text>
-              <Text style={styles.recentCalories}>{item.calories} cal</Text>
-              <Text style={styles.recentTime}>{item.time}</Text>
-              <View style={styles.recentRating}>
-                <Ionicons name="star" size={12} color="#FFD700" />
-                <Text style={styles.recentRatingText}>{item.rating}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Favorite Dishes */}
-      <View style={styles.quickSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Favorite Dishes</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {favoriteDishes.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.favoriteCard}>
-              <Image
-                source={{ uri: item.image }}
-                style={styles.favoriteImage}
-              />
-              <View style={styles.favoriteContent}>
-                <Text style={styles.favoriteName}>{item.name}</Text>
-                <Text style={styles.favoriteCalories}>{item.calories} cal</Text>
-                <View style={styles.favoriteRating}>
-                  <Ionicons name="star" size={12} color="#FFD700" />
-                  <Text style={styles.favoriteRatingText}>
-                    {item.rating} ({item.reviews})
-                  </Text>
-                </View>
-                <Text style={styles.favoritePrice}>{item.price}</Text>
-              </View>
-              <TouchableOpacity
-                style={styles.favoriteAddButton}
-                onPress={() => addToCart(item)}
-              >
-                <Ionicons name="add" size={16} color="#FFF" />
-              </TouchableOpacity>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Popular Items */}
-      <View style={styles.quickSection}>
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Popular Items</Text>
-          <TouchableOpacity>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.popularGrid}>
-          {popularItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.popularItem}
-              onPress={() => addToCart(item)}
-            >
-              <Text style={styles.popularIcon}>{item.icon}</Text>
-              <Text style={styles.popularName}>{item.name}</Text>
-              <Text style={styles.popularCalories}>{item.calories} cal</Text>
-              <Text style={styles.popularUnit}>{item.unit}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-    </Animatable.View>
+    />
   );
 
   const renderMealHistory = () => (
@@ -593,7 +475,6 @@ const FoodCalculatorScreen = ({ navigation }) => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderCaloriBudget()}
         {renderSearchBar()}
-        {renderTabNavigation()}
 
         {selectedTab === 'calculate' ? (
           <>
@@ -659,9 +540,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
   budgetContainer: {
-    marginTop: -30,
     marginBottom: 20,
   },
   budgetCard: {
