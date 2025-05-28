@@ -9,11 +9,14 @@ import {
   Animated,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 
 const OnboardingOverviewScreen = ({
   onStartJourney,
   onBack,
   completedSections = [],
+  currentXP = 0,
+  onNavigateToSection,
 }) => {
   // Animation values
   const [progressAnimation] = useState(new Animated.Value(0));
@@ -21,9 +24,9 @@ const OnboardingOverviewScreen = ({
     Array.from({ length: 5 }, () => new Animated.Value(0))
   );
 
-  // Initial state - Level 0, 0 XP as specified
-  const [userLevel] = useState(0);
-  const [userXP] = useState(0);
+  // Calculate user level based on currentXP (every 100 XP = 1 level)
+  const userLevel = Math.floor(currentXP / 100);
+  const userXP = currentXP % 100; // XP towards next level
 
   // Onboarding sections data
   const sections = [
@@ -106,10 +109,54 @@ const OnboardingOverviewScreen = ({
       onStartJourney(sectionId);
     }
   };
-
   // Get section status
   const getSectionStatus = (sectionId) => {
     return completedSections.includes(sectionId) ? 'completed' : 'not-started';
+  };
+
+  // Find next incomplete section or return null if all complete
+  const getNextIncompleteSection = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    for (const sectionId of requiredSections) {
+      if (!completedSections.includes(sectionId)) {
+        return sectionId;
+      }
+    }
+    return null; // All sections complete
+  };
+
+  // Check if all required sections are completed
+  const checkAllSectionsCompleted = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    return requiredSections.every((section) =>
+      completedSections.includes(section)
+    );
+  };
+
+  // Handle start journey button press
+  const handleStartJourney = () => {
+    if (checkAllSectionsCompleted()) {
+      // All sections complete - navigate to dashboard
+      if (onNavigateToSection) {
+        onNavigateToSection('dashboard');
+      }
+    } else {
+      // Navigate to next incomplete section
+      const nextSection = getNextIncompleteSection();
+      if (nextSection && onStartJourney) {
+        onStartJourney(nextSection);
+      }
+    }
   };
 
   // Render circular progress ring
@@ -242,17 +289,18 @@ const OnboardingOverviewScreen = ({
       </Animated.View>
     );
   };
-
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Complete Your Profile</Text>
-        <View style={styles.headerRight} />
-      </View>
+    <View style={styles.container}>
+      {/* Header SafeAreaView */}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Complete Your Profile</Text>
+          <View style={styles.headerRight} />
+        </View>
+      </SafeAreaView>
 
       <ScrollView
         style={styles.scrollView}
@@ -261,36 +309,36 @@ const OnboardingOverviewScreen = ({
       >
         {/* Progress Ring */}
         {renderProgressRing()}
-
         {/* XP Display */}
         {renderXPDisplay()}
-
         {/* Motivational Message */}
         <View style={styles.motivationalContainer}>
           <Text style={styles.motivationalText}>
             Complete your profile to unlock personalized plans! 🚀
           </Text>
         </View>
-
         {/* Section Cards */}
         <View style={styles.sectionsContainer}>
           <Text style={styles.sectionsTitle}>Profile Sections</Text>
           {sections.map((section, index) => renderSectionCard(section, index))}
-        </View>
-
+        </View>{' '}
         {/* Start Journey Button */}
         <TouchableOpacity
           style={styles.startButton}
-          onPress={() => handleSectionPress('basicInfo')}
+          onPress={handleStartJourney}
           activeOpacity={0.8}
         >
-          <Text style={styles.startButtonText}>Start Journey</Text>
+          <Text style={styles.startButtonText}>
+            {checkAllSectionsCompleted() ? 'Go to Dashboard' : 'Start Journey'}
+          </Text>
           <MaterialIcons name="arrow-forward" size={20} color="white" />
         </TouchableOpacity>
-
         <View style={styles.bottomSpacing} />
       </ScrollView>
-    </SafeAreaView>
+
+      {/* Bottom SafeAreaView */}
+      <SafeAreaView style={styles.safeAreaBottom} />
+    </View>
   );
 };
 
@@ -298,6 +346,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',

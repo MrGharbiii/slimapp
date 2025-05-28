@@ -17,8 +17,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import Slider from '@react-native-community/slider';
 import LottieView from 'lottie-react-native';
+import Constants from 'expo-constants';
 
-const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
+const LifestyleScreen = ({
+  onBack,
+  onContinue,
+  onSkip,
+  currentXP = 0,
+  completedSections = [],
+  onNavigateToSection,
+}) => {
   // Form state
   const [wakeUpTime, setWakeUpTime] = useState(new Date());
   const [sleepTime, setSleepTime] = useState(new Date());
@@ -36,9 +44,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
   const [stressLevel, setStressLevel] = useState(5);
   const [sleepHours, setSleepHours] = useState(8);
   const [sleepQuality, setSleepQuality] = useState('');
-
   const [errors, setErrors] = useState({});
-  const [showCelebration, setShowCelebration] = useState(false);
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -125,6 +131,20 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
     });
   };
 
+  // Check if all required sections are completed
+  const checkAllSectionsCompleted = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    const missingSection = requiredSections.find(
+      (section) => !completedSections.includes(section)
+    );
+    return { allCompleted: !missingSection, missingSection };
+  };
+
   // Validation
   const validateForm = () => {
     const newErrors = {};
@@ -152,29 +172,43 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
-      // Show celebration animation
-      setShowCelebration(true);
+      // Prepare form data
+      const formData = {
+        wakeUpTime: formatTime(wakeUpTime),
+        sleepTime: formatTime(sleepTime),
+        workSchedule,
+        exerciseFrequency,
+        exerciseTime,
+        favoriteActivities,
+        stressLevel,
+        sleepHours,
+        sleepQuality,
+      };
 
-      setTimeout(() => {
-        const formData = {
-          wakeUpTime: formatTime(wakeUpTime),
-          sleepTime: formatTime(sleepTime),
-          workSchedule,
-          exerciseFrequency,
-          exerciseTime,
-          favoriteActivities,
-          stressLevel,
-          sleepHours,
-          sleepQuality,
-        };
+      // Check if all required sections are completed
+      const { allCompleted, missingSection } = checkAllSectionsCompleted();
 
-        console.log('Lifestyle form data:', formData);
+      if (!allCompleted) {
+        // If not all sections completed, continue to next section
+        console.log(
+          `Missing section: ${missingSection}. Continuing with normal flow...`
+        );
         onContinue?.(formData);
-      }, 1000);
+        return;
+      }
+
+      // If all sections completed, navigate directly to dashboard
+      console.log(
+        'All sections completed. Navigating directly to dashboard...'
+      );
+      try {
+        onContinue?.(formData);
+      } catch (error) {
+        console.error('Error during navigation:', error);
+      }
     } else {
       // Animate form to highlight errors
       Animated.sequence([
@@ -213,45 +247,27 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
     exerciseTime &&
     favoriteActivities.length > 0 &&
     sleepQuality;
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <StatusBar barStyle="dark-content" />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Your Lifestyle</Text>
+          <View style={styles.headerRight} />
+        </View>
 
-      {/* Celebration Modal */}
-      <Modal visible={showCelebration} transparent animationType="fade">
-        <View style={styles.celebrationContainer}>
-          <View style={styles.celebrationContent}>
-            <LottieView
-              source={require('../../assets/animations/success-checkmark.json')}
-              autoPlay
-              loop={false}
-              style={styles.celebrationAnimation}
-            />
-            <Text style={styles.celebrationText}>
-              Lifestyle Profile Complete! 🎉
-            </Text>
-            <Text style={styles.celebrationSubtext}>+20 XP earned!</Text>
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>Step 2 of 5</Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressBarFill, { width: '40%' }]} />
           </View>
         </View>
-      </Modal>
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Your Lifestyle</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Step 2 of 5</Text>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressBarFill, { width: '40%' }]} />
-        </View>
-      </View>
+      </SafeAreaView>
 
       {/* XP Display */}
       <View style={styles.xpContainer}>
@@ -302,9 +318,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                     }
                   }}
                 />
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
 
             {/* Sleep Time */}
@@ -337,9 +351,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                     }
                   }}
                 />
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
 
             {/* Work Schedule */}
@@ -368,9 +380,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               </TouchableOpacity>
               {errors.workSchedule ? (
                 <Text style={styles.errorText}>{errors.workSchedule}</Text>
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
           </View>
 
@@ -411,9 +421,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               </View>
               {errors.exerciseFrequency ? (
                 <Text style={styles.errorText}>{errors.exerciseFrequency}</Text>
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
 
             {/* Exercise Time */}
@@ -445,9 +453,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               </View>
               {errors.exerciseTime ? (
                 <Text style={styles.errorText}>{errors.exerciseTime}</Text>
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
 
             {/* Favorite Activities */}
@@ -482,9 +488,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                         color="#5603AD"
                         style={styles.activityCheck}
                       />
-                    ) : (
-                      null
-                    )}
+                    ) : null}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -492,9 +496,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 <Text style={styles.errorText}>
                   {errors.favoriteActivities}
                 </Text>
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
           </View>
 
@@ -589,9 +591,7 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               </View>
               {errors.sleepQuality ? (
                 <Text style={styles.errorText}>{errors.sleepQuality}</Text>
-              ) : (
-                null
-              )}
+              ) : null}
             </View>
           </View>
 
@@ -602,12 +602,11 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 {getMotivationalMessage()}
               </Text>
             </View>
-          ) : (
-            null
-          )}
+          ) : null}
 
           {/* Buttons */}
           <View style={styles.buttonsContainer}>
+            {' '}
             <TouchableOpacity
               style={[
                 styles.continueButton,
@@ -619,10 +618,6 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
             >
               <Text style={styles.continueButtonText}>Save & Continue</Text>
               <MaterialIcons name="arrow-forward" size={20} color="white" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={onSkip} style={styles.skipButton}>
-              <Text style={styles.skipButtonText}>Skip for now</Text>
             </TouchableOpacity>
           </View>
 
@@ -653,15 +648,14 @@ const LifestyleScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
                 <Text style={styles.modalOptionText}>{option.label}</Text>
                 {workSchedule === option.value ? (
                   <MaterialIcons name="check" size={20} color="#5603AD" />
-                ) : (
-                  null
-                )}
+                ) : null}
               </TouchableOpacity>
             ))}
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeAreaBottom} />
+    </View>
   );
 };
 
@@ -1088,6 +1082,13 @@ const styles = StyleSheet.create({
     color: '#B3E9C7',
     textAlign: 'center',
     marginTop: 8,
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: 'white',
   },
 });
 

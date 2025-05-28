@@ -17,6 +17,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Animatable from 'react-native-animatable';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -203,7 +204,6 @@ const NutritionScreen = ({ navigation }) => {
       setWaterGlasses(index + 1);
     }
   };
-
   const renderHeader = () => (
     <LinearGradient
       colors={['#FF6B6B', '#FF8E8E', '#FFA8A8']}
@@ -211,28 +211,26 @@ const NutritionScreen = ({ navigation }) => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView>
-        <View style={styles.headerContent}>
-          <TouchableOpacity
-            onPress={() => navigation?.goBack()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
-          </TouchableOpacity>
+      <View style={styles.headerContent}>
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </TouchableOpacity>
 
-          <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Today's Nutrition</Text>
-            <TouchableOpacity style={styles.dateSelector}>
-              <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-              <Ionicons name="calendar" size={16} color="#FFF" />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity style={styles.settingsButton}>
-            <Ionicons name="settings" size={24} color="#FFF" />
+        <View style={styles.headerCenter}>
+          <Text style={styles.headerTitle}>Today's Nutrition</Text>
+          <TouchableOpacity style={styles.dateSelector}>
+            <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
+            <Ionicons name="calendar" size={16} color="#FFF" />
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+
+        <TouchableOpacity style={styles.settingsButton}>
+          <Ionicons name="settings" size={24} color="#FFF" />
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 
@@ -705,11 +703,12 @@ const NutritionScreen = ({ navigation }) => {
       </Modal>
     );
   };
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#FF6B6B" />
-      {renderHeader()}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        {renderHeader()}
+      </SafeAreaView>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderMacroRings()}
@@ -732,6 +731,7 @@ const NutritionScreen = ({ navigation }) => {
           <Ionicons name="camera" size={24} color="#FFF" />
         </LinearGradient>
       </TouchableOpacity>
+      <SafeAreaView style={styles.safeAreaBottom} />
     </View>
   );
 };
@@ -739,6 +739,13 @@ const NutritionScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  safeAreaHeader: {
+    backgroundColor: '#FF6B6B',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
     backgroundColor: '#F8F9FA',
   },
   header: {

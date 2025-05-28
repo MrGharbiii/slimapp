@@ -16,10 +16,18 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
 import Slider from '@react-native-community/slider';
 import LottieView from 'lottie-react-native';
+import Constants from 'expo-constants';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
+const GoalsScreen = ({
+  onBack,
+  onContinue,
+  onSkip,
+  currentXP = 0,
+  completedSections = [],
+  onNavigateToSection,
+}) => {
   // Form state
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [secondaryGoals, setSecondaryGoals] = useState([]);
@@ -27,9 +35,7 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
   const [currentWeight, setCurrentWeight] = useState('');
   const [targetWeight, setTargetWeight] = useState('');
   const [weeklyGoal, setWeeklyGoal] = useState(1); // lbs per week
-
   const [errors, setErrors] = useState({});
-  const [showCelebration, setShowCelebration] = useState(false);
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
   const [focusedField, setFocusedField] = useState('');
 
@@ -192,6 +198,21 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
       ],
     };
   };
+
+  // Check if all required sections are completed
+  const checkAllSectionsCompleted = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    const missingSection = requiredSections.find(
+      (section) => !completedSections.includes(section)
+    );
+    return { allCompleted: !missingSection, missingSection };
+  };
+
   // Validation
   const validateForm = () => {
     const newErrors = {};
@@ -234,7 +255,6 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
 
     return targetTimeline >= 3 && targetTimeline <= 9; // Good timeline range
   };
-
   // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
@@ -247,15 +267,26 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
         weeklyGoal,
       };
 
-      console.log('Goals form data:', formData); // Show celebration if goals are ambitious but realistic
-      if (areGoalsAmbitious()) {
-        setShowCelebration(true);
-        setTimeout(() => {
-          setShowCelebration(false);
-          onContinue?.(formData);
-        }, 1500);
-      } else {
+      // Check if all required sections are completed
+      const { allCompleted, missingSection } = checkAllSectionsCompleted();
+
+      if (!allCompleted) {
+        // If not all sections completed, continue to next section
+        console.log(
+          `Missing section: ${missingSection}. Continuing with normal flow...`
+        );
         onContinue?.(formData);
+        return;
+      }
+
+      // If all sections completed, navigate directly to dashboard
+      console.log(
+        'All sections completed. Navigating directly to dashboard...'
+      );
+      try {
+        onContinue?.(formData);
+      } catch (error) {
+        console.error('Error during navigation:', error);
       }
     } else {
       // Animate form to highlight errors
@@ -394,52 +425,31 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
       </View>
     );
   };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      {/* Celebration Modal */}
-      <Modal visible={showCelebration} transparent animationType="fade">
-        <View style={styles.celebrationContainer}>
-          <View style={styles.celebrationContent}>
-            <LottieView
-              source={require('../../assets/animations/success-checkmark.json')}
-              autoPlay
-              loop={false}
-              style={styles.celebrationAnimation}
-              resizeMode="contain"
-              onAnimationFinish={() => {
-                // Auto-close after animation completes as a fallback
-                setShowCelebration(false);
-              }}
-            />
-            <Text style={styles.celebrationTitle}>Ambitious Goals Set! 🎯</Text>
-            <Text style={styles.celebrationSubtitle}>
-              Your goals are challenging yet achievable. Let's make it happen!
-            </Text>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <StatusBar barStyle="dark-content" />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Your Goals</Text>
+          <View style={styles.headerRight} />
+        </View>
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>Step 4 of 5</Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressBarFill, { width: '80%' }]} />
           </View>
         </View>
-      </Modal>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Your Goals</Text>
-        <View style={styles.headerRight} />
-      </View>
-      {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Step 4 of 5</Text>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressBarFill, { width: '80%' }]} />
+        {/* XP Display */}
+        <View style={styles.xpContainer}>
+          <MaterialIcons name="stars" size={20} color="#5603AD" />
+          <Text style={styles.xpText}>{currentXP} XP</Text>
         </View>
-      </View>
-      {/* XP Display */}
-      <View style={styles.xpContainer}>
-        <MaterialIcons name="stars" size={20} color="#5603AD" />
-        <Text style={styles.xpText}>{currentXP} XP</Text>
-      </View>
+      </SafeAreaView>
       <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
         <ScrollView
           style={styles.scrollView}
@@ -650,6 +660,7 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
           ) : null}
           {/* Buttons */}
           <View style={styles.buttonsContainer}>
+            {' '}
             <TouchableOpacity
               style={[
                 styles.continueButton,
@@ -662,15 +673,13 @@ const GoalsScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               <Text style={styles.continueButtonText}>Save & Continue</Text>
               <MaterialIcons name="arrow-forward" size={20} color="white" />
             </TouchableOpacity>
-
-            <TouchableOpacity onPress={onSkip} style={styles.skipButton}>
-              <Text style={styles.skipButtonText}>Skip for now</Text>
-            </TouchableOpacity>
           </View>
-          <View style={styles.bottomSpacing} />
+          <View style={styles.bottomSpacing} />{' '}
         </ScrollView>
       </Animated.View>
-    </SafeAreaView>
+
+      <SafeAreaView style={styles.safeAreaBottom} />
+    </View>
   );
 };
 
@@ -678,6 +687,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',
@@ -1016,7 +1032,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   disabledButton: {
-    backgroundColor: '#C0C0C0',
+    backgroundColor: '#B3E9C7',
     shadowOpacity: 0,
     elevation: 0,
   },

@@ -241,7 +241,7 @@ const CameraFoodScanScreen = ({ navigation }) => {
                 >
                   <Ionicons name="arrow-back" size={24} color="#FFF" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Scan Your Food</Text>{' '}
+                <Text style={styles.headerTitle}>Scan Your Food</Text>
                 <TouchableOpacity
                   style={styles.flashButton}
                   onPress={() =>
@@ -321,7 +321,7 @@ const CameraFoodScanScreen = ({ navigation }) => {
                 onPress={() => setShowHowItWorks(true)}
               >
                 <MaterialIcons name="help-outline" size={28} color="#FFF" />
-              </TouchableOpacity>{' '}
+              </TouchableOpacity>
             </View>
           </LinearGradient>
         </CameraView>
@@ -609,7 +609,7 @@ const CameraFoodScanScreen = ({ navigation }) => {
             <Text style={styles.modalDescription}>
               Our AI technology analyzes your food photos to provide accurate
               nutritional information. Follow these tips for the best results:
-            </Text>{' '}
+            </Text>
             {scanningTips.map((tip) => (
               <View key={tip.icon} style={styles.tipItem}>
                 <View style={styles.tipIcon}>

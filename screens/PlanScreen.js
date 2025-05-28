@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Animatable from 'react-native-animatable';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -240,7 +241,6 @@ const PlanScreen = ({ navigation }) => {
         return '#BDC3C7';
     }
   };
-
   const renderHeader = () => (
     <LinearGradient
       colors={['#667eea', '#764ba2']}
@@ -248,20 +248,18 @@ const PlanScreen = ({ navigation }) => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView>
-        <View style={styles.headerContent}>
-          <TouchableOpacity
-            onPress={() => navigation?.goBack()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your 2-Week Plan</Text>
-          <TouchableOpacity style={styles.modifyButton}>
-            <Ionicons name="settings" size={24} color="#FFF" />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <View style={styles.headerContent}>
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Your 2-Week Plan</Text>
+        <TouchableOpacity style={styles.modifyButton}>
+          <Ionicons name="settings" size={24} color="#FFF" />
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 
@@ -627,7 +625,7 @@ const PlanScreen = ({ navigation }) => {
                       <Text style={styles.scheduleExtra}>
                         {item.duration} minutes
                       </Text>
-                    )}{' '}
+                    )}
                     {item.amount && (
                       <Text style={styles.scheduleExtra}>{item.amount}</Text>
                     )}
@@ -658,11 +656,12 @@ const PlanScreen = ({ navigation }) => {
       </Animatable.View>
     );
   };
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#667eea" />
-      {renderHeader()}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        {renderHeader()}
+      </SafeAreaView>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderWeekToggle()}
@@ -674,6 +673,7 @@ const PlanScreen = ({ navigation }) => {
       </ScrollView>
 
       {renderDetailModal()}
+      <SafeAreaView style={styles.safeAreaBottom} />
     </View>
   );
 };
@@ -1019,6 +1019,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 12,
     flex: 1,
+  },
+  safeAreaHeader: {
+    backgroundColor: '#667eea',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: '#F8F9FA',
   },
   bottomPadding: {
     height: 100,

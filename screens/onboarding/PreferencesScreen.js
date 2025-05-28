@@ -16,8 +16,15 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import LottieView from 'lottie-react-native';
+import Constants from 'expo-constants';
 
-const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
+const PreferencesScreen = ({
+  onBack,
+  onComplete,
+  currentXP = 0,
+  completedSections = [],
+  onNavigateToSection,
+}) => {
   // Workout Preferences
   const [workoutDuration, setWorkoutDuration] = useState('');
   const [equipmentAccess, setEquipmentAccess] = useState([]);
@@ -35,19 +42,14 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
   const [motivationQuotes, setMotivationQuotes] = useState(true);
   const [reminderTime, setReminderTime] = useState(new Date());
   const [showTimePicker, setShowTimePicker] = useState(false);
-
   // Language & Units
   const [language, setLanguage] = useState('English');
   const [useMetric, setUseMetric] = useState(true);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-
   const [errors, setErrors] = useState({});
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   // Workout duration options
   const durationOptions = [
@@ -165,15 +167,13 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
   const formatTime = (date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
-
   // Handle equipment toggle
   const toggleEquipment = (equipment) => {
     setEquipmentAccess((prev) => {
       if (prev.includes(equipment)) {
         return prev.filter((item) => item !== equipment);
-      } else {
-        return [...prev, equipment];
       }
+      return [...prev, equipment];
     });
   };
 
@@ -182,12 +182,10 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
     setDietaryRestrictions((prev) => {
       if (prev.includes(restriction)) {
         return prev.filter((item) => item !== restriction);
-      } else {
-        return [...prev, restriction];
       }
+      return [...prev, restriction];
     });
   };
-
   // Validation
   const validateForm = () => {
     const newErrors = {};
@@ -212,47 +210,37 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
     if (!cookingFrequency) {
       newErrors.cookingFrequency = 'Cooking frequency is required';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  // Generate personalized plan preview
-  const generatePlanPreview = () => {
-    const preview = [];
-
-    if (workoutDuration && workoutIntensity) {
-      preview.push(
-        `${workoutDuration}-minute ${workoutIntensity} intensity workouts`
-      );
-    }
-
-    if (equipmentAccess.length > 0) {
-      preview.push(`Workouts for ${equipmentAccess.join(', ')}`);
-    }
-
-    if (
-      dietaryRestrictions.length > 0 &&
-      !dietaryRestrictions.includes('none')
-    ) {
-      preview.push(`${dietaryRestrictions.join(', ')} meal plans`);
-    }
-
-    if (cookingFrequency) {
-      const cookingLevel = cookingOptions.find(
-        (opt) => opt.value === cookingFrequency
-      )?.description;
-      preview.push(`Recipes for ${cookingLevel.toLowerCase()}`);
-    }
-
-    return preview;
   };
 
   // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
-      // Show preview first
-      setShowPreview(true);
+      // Create form data
+      const formData = {
+        workoutDuration,
+        equipmentAccess,
+        workoutIntensity,
+        dietaryRestrictions,
+        foodAllergies,
+        cookingFrequency,
+        notifications: {
+          workoutReminders,
+          mealReminders,
+          progressUpdates,
+          motivationQuotes,
+          reminderTime: formatTime(reminderTime),
+        },
+        language,
+        useMetric,
+      }; // Save preferences data and let App.js handle navigation logic
+      try {
+        console.log('Preferences completed. Form data:', formData);
+        onComplete?.(formData);
+      } catch (error) {
+        console.error('Error during navigation:', error);
+      }
     } else {
       // Animate form to highlight errors
       Animated.sequence([
@@ -270,79 +258,18 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
     }
   };
 
-  // Complete setup
-  const completeSetup = () => {
-    setShowPreview(false);
-    setShowCelebration(true);
-
-    // Celebrate with scale animation
-    Animated.spring(scaleAnim, {
-      toValue: 1.1,
-      useNativeDriver: true,
-    }).start(() => {
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-      }).start();
-    });
-    setTimeout(() => {
-      try {
-        const formData = {
-          workoutDuration,
-          equipmentAccess,
-          workoutIntensity,
-          dietaryRestrictions,
-          foodAllergies,
-          cookingFrequency,
-          notifications: {
-            workoutReminders,
-            mealReminders,
-            progressUpdates,
-            motivationQuotes,
-            reminderTime: formatTime(reminderTime),
-          },
-          language,
-          useMetric,
-        };
-
-        console.log('Preferences form data:', formData);
-        setShowCelebration(false);
-        onComplete?.(formData);
-      } catch (error) {
-        console.error('Error during navigation:', error);
-        setShowCelebration(false);
-      }
-    }, 1000);
-  };
-
-  // Skip preferences setup
-  const handleSkip = () => {
-    // Provide default preferences for users who skip
-    const defaultFormData = {
-      workoutPreferences: {
-        workoutDuration: '30', // Default to 30 minutes
-        equipmentAccess: ['home'], // Default to home workouts
-        workoutIntensity: 'medium', // Default to medium intensity
-      },
-      nutritionPreferences: {
-        dietaryRestrictions: ['none'], // No restrictions by default
-        foodAllergies: '',
-        cookingFrequency: 'sometimes', // Default to sometimes
-      },
-      notifications: {
-        workoutReminders: true,
-        mealReminders: true,
-        progressUpdates: true,
-        motivationQuotes: true,
-        reminderTime: formatTime(new Date()), // Default to current time
-      },
-      language: 'English',
-      useMetric: true,
-      skipped: true, // Flag to indicate preferences were skipped
-    };
-
-    console.log('Preferences skipped with defaults:', defaultFormData);
-    onComplete?.(defaultFormData);
+  // Check if all required onboarding sections are completed
+  const checkAllSectionsCompleted = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    const missingSection = requiredSections.find(
+      (section) => !completedSections.includes(section)
+    );
+    return { allCompleted: !missingSection, missingSection };
   };
 
   // Check if form is valid
@@ -352,118 +279,32 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
     workoutIntensity &&
     dietaryRestrictions.length > 0 &&
     cookingFrequency;
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-
-      {/* Celebration Modal */}
-      <Modal visible={showCelebration} transparent animationType="fade">
-        <View style={styles.celebrationContainer}>
-          <Animated.View
-            style={[
-              styles.celebrationContent,
-              { transform: [{ scale: scaleAnim }] },
-            ]}
-          >
-            <LottieView
-              source={require('../../assets/animations/success-checkmark.json')}
-              autoPlay
-              loop={false}
-              style={styles.celebrationAnimation}
-              onAnimationFinish={() => setShowCelebration(false)}
-              resizeMode="contain"
-            />
-            <Text style={styles.celebrationText}>
-              🎉 Welcome to FitLife! 🎉
-            </Text>
-            <Text style={styles.celebrationSubtext}>
-              Your personalized fitness journey starts now!
-            </Text>
-            <Text style={styles.celebrationXP}>+50 XP earned!</Text>
-          </Animated.View>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />{' '}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Almost Done!</Text>
+          <View style={styles.headerRight} />
         </View>
-      </Modal>
-
-      {/* Preview Modal */}
-      <Modal visible={showPreview} transparent animationType="slide">
-        <View style={styles.previewContainer}>
-          <View style={styles.previewContent}>
-            <View style={styles.previewHeader}>
-              <Text style={styles.previewTitle}>Your Personalized Plan</Text>
-              <TouchableOpacity onPress={() => setShowPreview(false)}>
-                <MaterialIcons name="close" size={24} color="#999" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.previewBody}>
-              <Text style={styles.previewSubtitle}>
-                Here's what we've prepared for you:
-              </Text>
-
-              {generatePlanPreview().map((item, index) => (
-                <View key={index} style={styles.previewItem}>
-                  <MaterialIcons
-                    name="check-circle"
-                    size={20}
-                    color="#5603AD"
-                  />
-                  <Text style={styles.previewItemText}>{item}</Text>
-                </View>
-              ))}
-
-              <View style={styles.previewStats}>
-                <Text style={styles.previewStatsTitle}>What's Included:</Text>
-                <Text style={styles.previewStatsText}>
-                  • Personalized workout routines
-                </Text>
-                <Text style={styles.previewStatsText}>
-                  • Custom meal recommendations
-                </Text>
-                <Text style={styles.previewStatsText}>
-                  • Progress tracking & analytics
-                </Text>
-                <Text style={styles.previewStatsText}>
-                  • Smart reminders & motivation
-                </Text>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.completeButton}
-              onPress={completeSetup}
-            >
-              <Text style={styles.completeButtonText}>Start My Journey!</Text>
-              <MaterialIcons name="rocket-launch" size={20} color="white" />
-            </TouchableOpacity>
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>Step 5 of 5</Text>
+          <View style={styles.progressBar}>
+            <View style={[styles.progressBarFill, { width: '100%' }]} />
           </View>
+          <Text style={styles.timeEstimate}>⏱️ 2 minutes left</Text>
         </View>
-      </Modal>
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Almost Done!</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Step 5 of 5</Text>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressBarFill, { width: '100%' }]} />
+        {/* XP Display */}
+        <View style={styles.xpContainer}>
+          <MaterialIcons name="stars" size={20} color="#5603AD" />
+          <Text style={styles.xpText}>{currentXP} XP</Text>
         </View>
-        <Text style={styles.timeEstimate}>⏱️ 2 minutes left</Text>
-      </View>
-
-      {/* XP Display */}
-      <View style={styles.xpContainer}>
-        <MaterialIcons name="stars" size={20} color="#5603AD" />
-        <Text style={styles.xpText}>{currentXP} XP</Text>
-      </View>
-
+      </SafeAreaView>
       <Animated.View style={[styles.formContainer, { opacity: fadeAnim }]}>
         <ScrollView
           style={styles.scrollView}
@@ -864,18 +705,9 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </View>{' '}
           {/* Buttons Container */}
           <View style={styles.buttonsContainer}>
-            {/* Skip Button */}
-            <TouchableOpacity
-              style={styles.skipButton}
-              onPress={handleSkip}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.skipButtonText}>Skip for Now</Text>
-            </TouchableOpacity>
-
             {/* Complete Setup Button */}
             <TouchableOpacity
               style={[
@@ -887,9 +719,9 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
               activeOpacity={0.8}
             >
               <View style={styles.completeButtonContent}>
-                <MaterialIcons name="celebration" size={24} color="white" />
+                <MaterialIcons name="save" size={24} color="white" />
                 <Text style={styles.completeSetupButtonText}>
-                  Complete Setup
+                  Save & Continue
                 </Text>
                 <MaterialIcons name="arrow-forward" size={20} color="white" />
               </View>
@@ -898,7 +730,6 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
           <View style={styles.bottomSpacing} />
         </ScrollView>
       </Animated.View>
-
       {/* Language Dropdown Modal */}
       <Modal visible={showLanguageDropdown} transparent animationType="slide">
         <View style={styles.modalOverlay}>
@@ -928,7 +759,8 @@ const PreferencesScreen = ({ onBack, onComplete, currentXP = 0 }) => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeAreaBottom} />
+    </View>
   );
 };
 
@@ -1253,7 +1085,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Notification Styles
   notificationContainer: {
     gap: 16,
   },
@@ -1383,7 +1214,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   disabledButton: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#B3E9C7',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -1431,125 +1262,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  // Preview Modal Styles
-  previewContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  previewContent: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    width: '100%',
-    maxHeight: '80%',
-  },
-  previewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  previewTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#2D3748',
-  },
-  previewBody: {
-    padding: 20,
-  },
-  previewSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  previewItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  previewItemText: {
-    fontSize: 16,
-    color: '#2D3748',
-    marginLeft: 10,
-    flex: 1,
-  },
-  previewStats: {
-    marginTop: 20,
-    padding: 16,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-  },
-  previewStatsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#2D3748',
-    marginBottom: 12,
-  },
-  previewStatsText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  completeButton: {
-    backgroundColor: '#5603AD',
-    margin: 20,
-    borderRadius: 12,
-    paddingVertical: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  completeButtonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: 'white',
-    marginRight: 8,
-  },
-
-  // Celebration Modal Styles
-  celebrationContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  celebrationContent: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 40,
-    alignItems: 'center',
-    margin: 20,
-  },
-  celebrationAnimation: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  celebrationText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2D3748',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  celebrationSubtext: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  celebrationXP: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#5603AD',
-    textAlign: 'center',
-  },
-
   // Error Styles
   errorText: {
     fontSize: 14,
@@ -1562,6 +1274,15 @@ const styles = StyleSheet.create({
 
   bottomSpacing: {
     height: 20,
+  },
+
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+
+  safeAreaBottom: {
+    backgroundColor: 'white',
   },
 });
 

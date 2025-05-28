@@ -16,8 +16,16 @@ import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import LottieView from 'lottie-react-native';
+import Constants from 'expo-constants';
 
-const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
+const BasicInfoScreen = ({
+  onBack,
+  onContinue,
+  onSkip,
+  currentXP = 0,
+  completedSections = [],
+  onNavigateToSection,
+}) => {
   // Form state
   const [name, setName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
@@ -31,19 +39,8 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState('');
-  const [showCelebration, setShowCelebration] = useState(false);
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const timeoutRef = useRef(null);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
 
   // Activity level options
   const activityLevels = [
@@ -73,6 +70,20 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
       description: 'Very hard exercise, physical job',
     },
   ];
+
+  // Check if all required sections are completed
+  const checkAllSectionsCompleted = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    const missingSection = requiredSections.find(
+      (section) => !completedSections.includes(section)
+    );
+    return { allCompleted: !missingSection, missingSection };
+  };
 
   // Validation
   const validateForm = () => {
@@ -131,11 +142,10 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
       day: 'numeric',
     });
   };
-
   // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
-      // Prepare form data first
+      // Prepare form data
       const formData = {
         name: name.trim(),
         dateOfBirth,
@@ -147,42 +157,28 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
         activityLevel,
       };
 
-      // Show celebration animation
-      setShowCelebration(true);
+      // Check if all required sections are completed
+      const { allCompleted, missingSection } = checkAllSectionsCompleted();
 
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (!allCompleted) {
+        // If not all sections completed, continue to next section
+        console.log(
+          `Missing section: ${missingSection}. Continuing with normal flow...`
+        );
+        onContinue?.(formData);
+        return;
       }
 
-      // Use shorter timeout with cleanup to prevent crashes
-      timeoutRef.current = setTimeout(() => {
-        try {
-          setShowCelebration(false);
-          onContinue?.(formData);
-        } catch (error) {
-          console.warn('Navigation error:', error);
-          setShowCelebration(false);
-        }
-        timeoutRef.current = null;
-      }, 1000); // Reduced to 1 second
+      // If all sections completed, navigate directly to dashboard
+      console.log(
+        'All sections completed. Navigating directly to dashboard...'
+      );
+      try {
+        onContinue?.(formData);
+      } catch (error) {
+        console.error('Error during navigation:', error);
+      }
     }
-  };
-
-  // Handle skip
-  const handleSkip = () => {
-    Alert.alert(
-      'Skip Basic Information',
-      'Are you sure you want to skip this section? You can always complete it later.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Skip',
-          style: 'destructive',
-          onPress: () => onSkip?.(),
-        },
-      ]
-    );
   };
 
   // Render gender radio buttons
@@ -311,25 +307,26 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
       </View>
     );
   };
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Basic Information</Text>
-        <View style={styles.headerRight} />
-      </View>
-      {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>1 of 5</Text>
-        <View style={styles.progressBar}>
-          <View style={styles.progressBarFill} />
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <StatusBar barStyle="dark-content" />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Basic Information</Text>
+          <View style={styles.headerRight} />
         </View>
-      </View>
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>1 of 5</Text>
+          <View style={styles.progressBar}>
+            <View style={styles.progressBarFill} />
+          </View>
+        </View>
+      </SafeAreaView>
       {/* XP Indicator */}
       <View style={styles.xpContainer}>
         <MaterialIcons name="stars" size={20} color="#5603AD" />
@@ -505,7 +502,7 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
               <Text style={styles.errorText}>{errors.activityLevel}</Text>
             ) : null}
           </View>
-        </View>
+        </View>{' '}
         {/* Action Buttons */}
         <View style={styles.actionContainer}>
           <TouchableOpacity
@@ -520,54 +517,11 @@ const BasicInfoScreen = ({ onBack, onContinue, onSkip, currentXP = 0 }) => {
             <Text style={styles.continueButtonText}>Save & Continue</Text>
             <MaterialIcons name="arrow-forward" size={20} color="white" />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip for now</Text>
-          </TouchableOpacity>
-        </View>
+        </View>{' '}
         <View style={styles.bottomSpacing} />
       </ScrollView>
-      {/* Celebration Modal */}
-      <Modal visible={showCelebration} transparent={true} animationType="fade">
-        <View style={styles.celebrationOverlay}>
-          <View style={styles.celebrationContent}>
-            {/* Safely render LottieView with error boundary */}
-            {(() => {
-              try {
-                return (
-                  <LottieView
-                    source={require('../../assets/animations/success-checkmark.json')}
-                    autoPlay
-                    loop={false}
-                    style={styles.celebrationAnimation}
-                    resizeMode="contain"
-                    onAnimationFinish={() => {
-                      // Auto-close after animation completes as a fallback
-                      setShowCelebration(false);
-                    }}
-                  />
-                );
-              } catch (error) {
-                console.warn('LottieView error:', error);
-                // Fallback to simple checkmark icon
-                return (
-                  <MaterialIcons
-                    name="check-circle"
-                    size={100}
-                    color="#5603AD"
-                    style={styles.celebrationAnimation}
-                  />
-                );
-              }
-            })()}
-            <Text style={styles.celebrationText}>Great job!</Text>
-            <Text style={styles.celebrationSubtext}>
-              Basic information saved successfully
-            </Text>
-          </View>
-        </View>
-      </Modal>
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeAreaBottom} />
+    </View>
   );
 };
 
@@ -928,6 +882,13 @@ const styles = StyleSheet.create({
     color: '#666',
     marginTop: 8,
     textAlign: 'center',
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: 'white',
   },
 });
 

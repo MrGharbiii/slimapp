@@ -107,7 +107,6 @@ const DashboardScreen = ({ navigation }) => {
   const calculateProgress = (current, goal) => {
     return Math.min((current / goal) * 100, 100);
   };
-
   const renderHeader = () => (
     <LinearGradient
       colors={['#667eea', '#764ba2']}
@@ -115,25 +114,17 @@ const DashboardScreen = ({ navigation }) => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView>
-        <View style={styles.headerContent}>
-          <View style={styles.userSection}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{userName.charAt(0)}</Text>
-            </View>
-            <View style={styles.greetingSection}>
-              <Text style={styles.greeting}>{getGreeting()},</Text>
-              <Text style={styles.userName}>{userName}!</Text>
-            </View>
+      <View style={styles.headerContent}>
+        <View style={styles.userSection}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{userName.charAt(0)}</Text>
           </View>
-          <TouchableOpacity style={styles.notificationBell}>
-            <Ionicons name="notifications" size={24} color="#FFF" />
-            <View style={styles.notificationBadge}>
-              <Text style={styles.badgeText}>3</Text>
-            </View>
-          </TouchableOpacity>
+          <View style={styles.greetingSection}>
+            <Text style={styles.greeting}>{getGreeting()},</Text>
+            <Text style={styles.userName}>{userName}!</Text>
+          </View>
         </View>
-      </SafeAreaView>
+      </View>
     </LinearGradient>
   );
 
@@ -165,7 +156,6 @@ const DashboardScreen = ({ navigation }) => {
                 ]}
               />
             </View>
-            <FontAwesome5 name="crown" size={24} color="#FFD700" />
           </View>
         </View>
       </LinearGradient>
@@ -286,13 +276,6 @@ const DashboardScreen = ({ navigation }) => {
           <Ionicons name="water" size={24} color="#FFF" />
           <Text style={styles.statNumber}>{userStats.waterIntake}</Text>
           <Text style={styles.statLabel}>Glasses</Text>
-        </View>
-        <View style={[styles.statCard, { backgroundColor: '#2ECC71' }]}>
-          <FontAwesome5 name="walking" size={20} color="#FFF" />
-          <Text style={styles.statNumber}>
-            {userStats.stepsToday.toLocaleString()}
-          </Text>
-          <Text style={styles.statLabel}>Steps</Text>
         </View>
       </View>
     </Animatable.View>
@@ -454,23 +437,23 @@ const DashboardScreen = ({ navigation }) => {
       </TouchableOpacity>
     </Animatable.View>
   );
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#667eea" />
-      {renderHeader()}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        {renderHeader()}
+      </SafeAreaView>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderLevelCard()}
         {/* {renderProgressRings()} */}
-        {renderQuickStats()}
+        {/* {renderQuickStats()} */}
+        {renderMotivationalQuote()}
         {renderQuickActions()}
         {renderTodaysPlan()}
-
-        {renderAchievements()}
-        {renderMotivationalQuote()}
-        <View style={styles.bottomPadding} />
+        {renderAchievements()} <View style={styles.bottomPadding} />
       </ScrollView>
       {renderFloatingActionButton()}
+      <SafeAreaView style={styles.safeAreaBottom} />
     </View>
   );
 };
@@ -797,6 +780,15 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 100,
+  },
+
+  safeAreaHeader: {
+    backgroundColor: '#667eea',
+    paddingTop: Constants.statusBarHeight,
+  },
+
+  safeAreaBottom: {
+    backgroundColor: '#F8F9FA',
   },
 });
 

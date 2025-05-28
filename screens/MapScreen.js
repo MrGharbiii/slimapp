@@ -683,7 +683,7 @@ const MapScreen = ({ navigation }) => {
             <MaterialIcons name="attach-money" size={14} color="#666" />
             <Text style={styles.locationDetailText}>{item.price}</Text>
           </View>
-        </View>{' '}
+        </View>
         {item.category === 'Gyms' && (
           <View style={styles.equipmentTags}>
             {item.equipment.slice(0, 2).map((eq) => (
@@ -697,7 +697,7 @@ const MapScreen = ({ navigation }) => {
           <View style={styles.cuisineTag}>
             <Text style={styles.cuisineText}>{item.cuisine} Cuisine</Text>
           </View>
-        )}{' '}
+        )}
         {item.category === 'Labs' && (
           <View style={styles.servicesTags}>
             {item.services.slice(0, 2).map((service) => (
@@ -779,7 +779,7 @@ const MapScreen = ({ navigation }) => {
             </View>
           ))}
         </View>
-      )}{' '}
+      )}
       <ScrollView style={styles.locationsScrollView}>
         {sortedLocations.map((item) => renderLocationCard({ item }))}
       </ScrollView>
@@ -788,7 +788,7 @@ const MapScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {renderHeader()}
-      {renderCategoryTabs()}{' '}
+      {renderCategoryTabs()}
       <View style={styles.mapContainer}>
         {/* Leaflet Map Implementation */}
         <WebView

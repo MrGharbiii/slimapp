@@ -7,6 +7,7 @@ import {
   Dimensions,
   SafeAreaView,
   Platform,
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -38,19 +39,15 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
       >
         {/* Hero Section - Top 20% */}
         <View style={styles.heroSection}>
-          <View style={styles.heroIconContainer}>
-            <MaterialIcons
-              name="fitness-center"
-              size={120}
-              color="#5603AD"
-              style={styles.heroIcon}
-            />
-          </View>
+          <Image
+            source={require('../../assets/sweet.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         </View>
-
         {/* Content Section */}
         <View style={styles.contentSection}>
-          <Text style={styles.title}>FitLife</Text>
+          <Text style={styles.title}>Slim & Healthy</Text>
           <Text style={styles.subtitle}>Your Personal Fitness Companion</Text>
           {/* Buttons Section */}
           <View style={styles.buttonsContainer}>
@@ -85,7 +82,6 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
             </TouchableOpacity>
           </View>
         </View>
-
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
@@ -106,10 +102,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   heroSection: {
-    height: height * 0.2,
+    height: height * 0.15,
+    borderWidth: 2,
+    borderColor: '#5503AD00',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: Platform.OS === 'android' ? 150 : 0, // Adjust for Android status bar
   },
   heroIconContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
@@ -127,10 +125,15 @@ const styles = StyleSheet.create({
   heroIcon: {
     textAlign: 'center',
   },
+  logoImage: {
+    width: 120,
+    height: 120,
+  },
   contentSection: {
+    borderWidth: 2,
+    borderColor: '#5503AD00',
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    paddingTop: 10,
     paddingHorizontal: 10,
   },
   title: {
@@ -138,12 +141,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#5603AD',
     textAlign: 'center',
+    borderColor: '#FF000000',
+    borderWidth: 1,
+    marginTop: 0,
     marginBottom: 12,
     textShadowColor: 'rgba(86, 3, 173, 0.2)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
   },
   subtitle: {
+    borderColor: '#FF000000',
+    borderWidth: 1,
     fontSize: 16,
     color: '#836767',
     textAlign: 'center',
@@ -151,6 +159,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   buttonsContainer: {
+    borderColor: '#FF000000',
+    borderWidth: 1,
     width: '100%',
     alignItems: 'center',
     gap: 16,
@@ -180,10 +190,10 @@ const styles = StyleSheet.create({
   signInButton: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#5603AD',
+    borderColor: '#5503ADFF',
     height: 56, // Increased height for better touch target
     width: '80%',
-    borderRadius: 25,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#5603AD',
@@ -204,6 +214,8 @@ const styles = StyleSheet.create({
   footer: {
     paddingBottom: 30,
     alignItems: 'center',
+    borderColor: '#FF00EE00',
+    borderWidth: 1,
   },
   footerText: {
     fontSize: 12,

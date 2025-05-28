@@ -14,12 +14,15 @@ import {
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import LottieView from 'lottie-react-native';
+import Constants from 'expo-constants';
 
 const MedicalHistoryScreen = ({
   onBack,
   onContinue,
   onSkip,
   currentXP = 0,
+  completedSections = [],
+  onNavigateToSection,
 }) => {
   // Form state
   const [chronicConditions, setChronicConditions] = useState([]);
@@ -30,23 +33,11 @@ const MedicalHistoryScreen = ({
   const [familyHeartDisease, setFamilyHeartDisease] = useState('');
   const [familyDiabetes, setFamilyDiabetes] = useState('');
   const [familyObesity, setFamilyObesity] = useState('');
-
   const [errors, setErrors] = useState({});
-  const [showCelebration, setShowCelebration] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [focusedField, setFocusedField] = useState('');
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const timeoutRef = useRef(null);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
 
   // Chronic conditions options
   const chronicConditionsOptions = [
@@ -104,6 +95,20 @@ const MedicalHistoryScreen = ({
     }
   };
 
+  // Check if all required sections are completed
+  const checkAllSectionsCompleted = () => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+    ];
+    const missingSection = requiredSections.find(
+      (section) => !completedSections.includes(section)
+    );
+    return { allCompleted: !missingSection, missingSection };
+  };
+
   // Validation
   const validateForm = () => {
     const newErrors = {};
@@ -141,56 +146,36 @@ const MedicalHistoryScreen = ({
         },
       };
 
-      console.log('Medical history form data:', formData);
-      // Show celebration animation
-      setShowCelebration(true);
+      // Check if all required sections are completed
+      const { allCompleted, missingSection } = checkAllSectionsCompleted();
 
-      // Clear any existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (!allCompleted) {
+        // If not all sections completed, continue to next section
+        console.log(
+          `Missing section: ${missingSection}. Continuing with normal flow...`
+        );
+        onContinue?.(formData);
+        return;
       }
 
-      // Auto-continue after celebration with enhanced error handling
-      timeoutRef.current = setTimeout(() => {
-        try {
-          setShowCelebration(false);
-          onContinue?.(formData);
-        } catch (error) {
-          console.error('Error during navigation:', error);
-          setShowCelebration(false);
-        }
-        timeoutRef.current = null;
-      }, 1000);
+      // If all sections completed, navigate directly to dashboard
+      console.log(
+        'All sections completed. Navigating directly to dashboard...'
+      );
+      try {
+        onContinue?.(formData);
+      } catch (error) {
+        console.error('Error during navigation:', error);
+      }
     }
   };
-
-  // Handle skip with warning
-  const handleSkip = () => {
-    Alert.alert(
-      'Skip Medical History?',
-      'Skipping this section will limit our ability to provide personalized and safe fitness recommendations. You can always add this information later in your profile settings.\n\nAre you sure you want to skip?',
-      [
-        {
-          text: 'Go Back',
-          style: 'cancel',
-        },
-        {
-          text: 'Skip Anyway',
-          style: 'destructive',
-          onPress: () => onSkip?.(),
-        },
-      ]
-    );
-  };
-
   // Check if form has minimal data
   const hasMinimalData = () => {
-    return (
-      chronicConditions.length > 0 ||
-      familyHeartDisease ||
-      familyDiabetes ||
-      familyObesity
-    );
+    // Require all three family history fields to be completed
+    const familyHistoryComplete =
+      familyHeartDisease && familyDiabetes && familyObesity;
+
+    return familyHistoryComplete;
   };
 
   // Render tooltip
@@ -267,36 +252,37 @@ const MedicalHistoryScreen = ({
       ))}
     </View>
   );
-
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-        </TouchableOpacity>
-        <View style={styles.headerContent}>
-          <View style={styles.headerTitleContainer}>
-            <MaterialIcons
-              name="security"
-              size={20}
-              color="#5603AD"
-              style={styles.privacyIcon}
-            />
-            <Text style={styles.headerTitle}>Medical Information</Text>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeAreaHeader}>
+        <StatusBar barStyle="dark-content" />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <View style={styles.headerTitleContainer}>
+              <MaterialIcons
+                name="security"
+                size={20}
+                color="#5603AD"
+                style={styles.privacyIcon}
+              />
+              <Text style={styles.headerTitle}>Medical Information</Text>
+            </View>
+            <Text style={styles.headerSubtitle}>Your data is secure</Text>
           </View>
-          <Text style={styles.headerSubtitle}>Your data is secure</Text>
+          <View style={styles.headerRight} />
         </View>
-        <View style={styles.headerRight} />
-      </View>
-      {/* Progress Indicator */}
-      <View style={styles.progressContainer}>
-        <Text style={styles.progressText}>Step 3 of 5</Text>
-        <View style={styles.progressBar}>
-          <View style={styles.progressBarFill} />
+        {/* Progress Indicator */}
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>Step 3 of 5</Text>
+          <View style={styles.progressBar}>
+            <View style={styles.progressBarFill} />
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
       {/* XP Display */}
       <View style={styles.xpContainer}>
         <View style={styles.xpContent}>
@@ -567,6 +553,7 @@ const MedicalHistoryScreen = ({
 
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
+          {' '}
           <TouchableOpacity
             style={[
               styles.continueButton,
@@ -578,16 +565,6 @@ const MedicalHistoryScreen = ({
           >
             <Text style={styles.continueButtonText}>Save & Continue</Text>
             <MaterialIcons name="arrow-forward" size={20} color="white" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-            <Text style={styles.skipButtonText}>Skip Medical History</Text>
-            <MaterialIcons
-              name="warning"
-              size={16}
-              color="#FF8800"
-              style={styles.skipWarningIcon}
-            />
           </TouchableOpacity>
         </View>
 
@@ -608,7 +585,6 @@ const MedicalHistoryScreen = ({
                 <MaterialIcons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
-
             <ScrollView style={styles.modalBody}>
               <View style={styles.privacyPoint}>
                 <MaterialIcons name="encrypted" size={20} color="#5603AD" />
@@ -645,38 +621,17 @@ const MedicalHistoryScreen = ({
                 </Text>
               </View>
             </ScrollView>
-
             <TouchableOpacity
               style={styles.modalCloseButton}
               onPress={() => setShowPrivacyModal(false)}
             >
               <Text style={styles.modalCloseButtonText}>Got it</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>{' '}
           </View>
         </View>
       </Modal>
-      {/* Celebration Animation */}
-      {showCelebration ? (
-        <View style={styles.celebrationContainer}>
-          <LottieView
-            source={require('../../assets/animations/success-checkmark.json')}
-            autoPlay
-            loop={false}
-            style={styles.celebrationAnimation}
-            onAnimationFinish={() => setShowCelebration(false)}
-            resizeMode="contain"
-          />
-          <View style={styles.celebrationContent}>
-            <Text style={styles.celebrationTitle}>
-              Medical History Saved! 🏥
-            </Text>
-            <Text style={styles.celebrationSubtitle}>
-              Your health information helps us create safer workouts
-            </Text>
-          </View>
-        </View>
-      ) : null}
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeAreaBottom} />
+    </View>
   );
 };
 
@@ -684,6 +639,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  safeAreaHeader: {
+    backgroundColor: 'white',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: 'white',
   },
   header: {
     flexDirection: 'row',

@@ -21,6 +21,7 @@ import {
   AntDesign,
 } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -198,7 +199,6 @@ const FoodCalculatorScreen = ({ navigation }) => {
   const getTotalCartCalories = () => {
     return cartItems.reduce((total, item) => total + item.calories, 0);
   };
-
   const renderHeader = () => (
     <LinearGradient
       colors={['#667eea', '#764ba2']}
@@ -206,25 +206,23 @@ const FoodCalculatorScreen = ({ navigation }) => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView>
-        <View style={styles.headerContent}>
-          <TouchableOpacity
-            onPress={() => navigation?.goBack()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Food Calculator</Text>
-          <TouchableOpacity style={styles.cartButton}>
-            <Ionicons name="basket" size={24} color="#FFF" />
-            {cartItems.length > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+      <View style={styles.headerContent}>
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Food Calculator</Text>
+        <TouchableOpacity style={styles.cartButton}>
+          <Ionicons name="basket" size={24} color="#FFF" />
+          {cartItems.length > 0 && (
+            <View style={styles.cartBadge}>
+              <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 
@@ -296,7 +294,6 @@ const FoodCalculatorScreen = ({ navigation }) => {
           delay={600 + index * 200}
           style={styles.optionCard}
         >
-          {' '}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => {
@@ -339,7 +336,7 @@ const FoodCalculatorScreen = ({ navigation }) => {
                 <View style={styles.optionFooter}>
                   <View style={styles.optionStats}>
                     <Text style={styles.optionCalories}>{option.calories}</Text>
-                  </View>{' '}
+                  </View>
                   <TouchableOpacity
                     style={styles.optionButton}
                     onPress={() => {
@@ -378,7 +375,7 @@ const FoodCalculatorScreen = ({ navigation }) => {
     <Animatable.View animation="fadeInUp" style={styles.historyContainer}>
       {mealHistory.map((day) => (
         <View key={day.id} style={styles.historyDay}>
-          <Text style={styles.historyDate}>{day.date}</Text>{' '}
+          <Text style={styles.historyDate}>{day.date}</Text>
           {day.meals.map((meal, index) => (
             <TouchableOpacity
               key={`${day.id}-meal-${index}`}
@@ -466,11 +463,12 @@ const FoodCalculatorScreen = ({ navigation }) => {
       </LinearGradient>
     </Animatable.View>
   );
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#667eea" />
-      {renderHeader()}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        {renderHeader()}
+      </SafeAreaView>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderCaloriBudget()}
@@ -490,6 +488,7 @@ const FoodCalculatorScreen = ({ navigation }) => {
       </ScrollView>
 
       {renderCartPreview()}
+      <SafeAreaView style={styles.safeAreaBottom} />
     </View>
   );
 };
@@ -497,6 +496,13 @@ const FoodCalculatorScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  safeAreaHeader: {
+    backgroundColor: '#667eea',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
     backgroundColor: '#F8F9FA',
   },
   header: {

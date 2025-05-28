@@ -50,6 +50,48 @@ export default function App() {
     setCurrentScreen('onboarding');
   };
 
+  // Helper function to check if all onboarding sections are completed
+  const checkAllSectionsCompleted = (currentCompleted = completedSections) => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+      'preferences',
+    ];
+    return requiredSections.every((section) =>
+      currentCompleted.includes(section)
+    );
+  };
+
+  // Helper function to find the next incomplete section
+  const findNextIncompleteSection = (currentCompleted = completedSections) => {
+    const requiredSections = [
+      'basicInfo',
+      'lifestyle',
+      'medicalHistory',
+      'goals',
+      'preferences',
+    ];
+    return requiredSections.find(
+      (section) => !currentCompleted.includes(section)
+    );
+  };
+
+  // Helper function to handle navigation after completion
+  const handleCompletionNavigation = (newCompletedSections) => {
+    if (checkAllSectionsCompleted(newCompletedSections)) {
+      console.log(
+        'All onboarding sections completed! Navigating to dashboard...'
+      );
+      setCurrentScreen('dashboard');
+    } else {
+      const nextSection = findNextIncompleteSection(newCompletedSections);
+      console.log('Navigating to next incomplete section:', nextSection);
+      handleStartBasicInfo(nextSection);
+    }
+  };
+
   const handleStartBasicInfo = (sectionId) => {
     console.log('Starting onboarding section...', sectionId);
     if (sectionId === 'basicInfo') {
@@ -62,6 +104,8 @@ export default function App() {
       setCurrentScreen('goals');
     } else if (sectionId === 'preferences') {
       setCurrentScreen('preferences');
+    } else if (sectionId === 'dashboard') {
+      setCurrentScreen('dashboard');
     }
   };
 
@@ -70,14 +114,10 @@ export default function App() {
     // Award XP for completing basic info
     setCurrentXP((prevXP) => prevXP + 20);
     // Mark basic info as completed
-    setCompletedSections((prev) => [...prev, 'basicInfo']);
-    // Navigate to lifestyle screen
-    setCurrentScreen('lifestyle');
-  };
-
-  const handleSkipBasicInfo = () => {
-    console.log('Basic info skipped');
-    setCurrentScreen('lifestyle'); // Go to next screen in flow
+    const newCompletedSections = [...completedSections, 'basicInfo'];
+    setCompletedSections(newCompletedSections);
+    // Check if all sections completed and navigate accordingly
+    handleCompletionNavigation(newCompletedSections);
   };
 
   const handleLifestyleComplete = (formData) => {
@@ -85,14 +125,10 @@ export default function App() {
     // Award XP for completing lifestyle
     setCurrentXP((prevXP) => prevXP + 20);
     // Mark lifestyle as completed
-    setCompletedSections((prev) => [...prev, 'lifestyle']);
-    // Navigate to medical history screen
-    setCurrentScreen('medicalhistory');
-  };
-
-  const handleSkipLifestyle = () => {
-    console.log('Lifestyle info skipped');
-    setCurrentScreen('medicalhistory');
+    const newCompletedSections = [...completedSections, 'lifestyle'];
+    setCompletedSections(newCompletedSections);
+    // Check if all sections completed and navigate accordingly
+    handleCompletionNavigation(newCompletedSections);
   };
 
   const handleMedicalHistoryComplete = (formData) => {
@@ -100,14 +136,10 @@ export default function App() {
     // Award XP for completing medical history
     setCurrentXP((prevXP) => prevXP + 20);
     // Mark medical history as completed
-    setCompletedSections((prev) => [...prev, 'medicalHistory']);
-    // Navigate to goals screen
-    setCurrentScreen('goals');
-  };
-
-  const handleSkipMedicalHistory = () => {
-    console.log('Medical history skipped');
-    setCurrentScreen('goals');
+    const newCompletedSections = [...completedSections, 'medicalHistory'];
+    setCompletedSections(newCompletedSections);
+    // Check if all sections completed and navigate accordingly
+    handleCompletionNavigation(newCompletedSections);
   };
 
   const handleGoalsComplete = (formData) => {
@@ -115,29 +147,21 @@ export default function App() {
     // Award XP for completing goals
     setCurrentXP((prevXP) => prevXP + 20);
     // Mark goals as completed
-    setCompletedSections((prev) => [...prev, 'goals']);
-    // Navigate to preferences screen
-    setCurrentScreen('preferences');
-  };
-
-  const handleSkipGoals = () => {
-    console.log('Goals skipped');
-    setCurrentScreen('preferences');
+    const newCompletedSections = [...completedSections, 'goals'];
+    setCompletedSections(newCompletedSections);
+    // Check if all sections completed and navigate accordingly
+    handleCompletionNavigation(newCompletedSections);
   };
 
   const handlePreferencesComplete = (formData) => {
     console.log('Preferences completed:', formData);
     // Award XP for completing preferences
-    setCurrentXP((prevXP) => prevXP + 25);
+    setCurrentXP((prevXP) => prevXP + 20);
     // Mark preferences as completed
-    setCompletedSections((prev) => [...prev, 'preferences']);
-    // Navigate to main dashboard
-    setCurrentScreen('dashboard');
-  };
-
-  const handleSkipPreferences = () => {
-    console.log('Preferences skipped');
-    setCurrentScreen('onboarding');
+    const newCompletedSections = [...completedSections, 'preferences'];
+    setCompletedSections(newCompletedSections);
+    // Check if all sections completed and navigate accordingly
+    handleCompletionNavigation(newCompletedSections);
   };
 
   const renderCurrentScreen = () => {
@@ -165,6 +189,7 @@ export default function App() {
             onStartJourney={handleStartBasicInfo}
             completedSections={completedSections}
             currentXP={currentXP}
+            onNavigateToSection={handleStartBasicInfo}
           />
         );
       case 'basicinfo':
@@ -172,8 +197,9 @@ export default function App() {
           <BasicInfoScreen
             onBack={handleBackToOnboarding}
             onContinue={handleBasicInfoComplete}
-            onSkip={handleSkipBasicInfo}
             currentXP={currentXP}
+            completedSections={completedSections}
+            onNavigateToSection={handleStartBasicInfo}
           />
         );
       case 'lifestyle':
@@ -181,8 +207,9 @@ export default function App() {
           <LifestyleScreen
             onBack={handleBackToOnboarding}
             onContinue={handleLifestyleComplete}
-            onSkip={handleSkipLifestyle}
             currentXP={currentXP}
+            completedSections={completedSections}
+            onNavigateToSection={handleStartBasicInfo}
           />
         );
       case 'medicalhistory':
@@ -190,8 +217,9 @@ export default function App() {
           <MedicalHistoryScreen
             onBack={handleBackToOnboarding}
             onContinue={handleMedicalHistoryComplete}
-            onSkip={handleSkipMedicalHistory}
             currentXP={currentXP}
+            completedSections={completedSections}
+            onNavigateToSection={handleStartBasicInfo}
           />
         );
       case 'goals':
@@ -199,8 +227,9 @@ export default function App() {
           <GoalsScreen
             onBack={handleBackToOnboarding}
             onContinue={handleGoalsComplete}
-            onSkip={handleSkipGoals}
             currentXP={currentXP}
+            completedSections={completedSections}
+            onNavigateToSection={handleStartBasicInfo}
           />
         );
       case 'preferences':
@@ -208,8 +237,9 @@ export default function App() {
           <PreferencesScreen
             onBack={handleBackToOnboarding}
             onComplete={handlePreferencesComplete}
-            onSkip={handleSkipPreferences}
             currentXP={currentXP}
+            completedSections={completedSections}
+            onNavigateToSection={handleStartBasicInfo}
           />
         );
       case 'dashboard':
@@ -242,7 +272,10 @@ export default function App() {
       case 'workout-detail':
         return (
           <WorkoutDetailScreen
-            navigation={{ goBack: () => setCurrentScreen('plan') }}
+            navigation={{
+              goBack: () => setCurrentScreen('plan'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
           />
         );
       case 'food-calculator':

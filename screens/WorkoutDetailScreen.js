@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import * as Animatable from 'react-native-animatable';
+import Constants from 'expo-constants';
 
 const { width, height } = Dimensions.get('window');
 
@@ -305,7 +306,6 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
         : 'Workout saved to your favorites'
     );
   };
-
   const renderHeader = () => (
     <LinearGradient
       colors={['#5603AD', '#8E44AD']}
@@ -313,95 +313,89 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView>
-        <View style={styles.headerContent}>
+      <View style={styles.headerContent}>
+        <TouchableOpacity
+          onPress={() => navigation?.navigate?.('dashboard')}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFF" />
+        </TouchableOpacity>
+        <View style={styles.headerActions}>
           <TouchableOpacity
-            onPress={() => navigation?.goBack()}
-            style={styles.backButton}
+            onPress={handleShareWorkout}
+            style={styles.headerAction}
           >
-            <Ionicons name="arrow-back" size={24} color="#FFF" />
+            <Ionicons name="share-outline" size={24} color="#FFF" />
           </TouchableOpacity>
-
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              onPress={handleShareWorkout}
-              style={styles.headerAction}
-            >
-              <Ionicons name="share-outline" size={24} color="#FFF" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={toggleFavorite}
-              style={styles.headerAction}
-            >
-              <Ionicons
-                name={isFavorite ? 'heart' : 'heart-outline'}
-                size={24}
-                color={isFavorite ? '#FF6B6B' : '#FFF'}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.workoutInfo}>
-          <Text style={styles.workoutName}>{workoutData.name}</Text>
-          <Text style={styles.workoutDescription}>
-            {workoutData.description}
-          </Text>
-
-          <View style={styles.workoutMeta}>
-            <View style={styles.metaItem}>
-              <Ionicons
-                name="time-outline"
-                size={16}
-                color="rgba(255,255,255,0.8)"
-              />
-              <Text style={styles.metaText}>{workoutData.duration} min</Text>
-            </View>
-
-            <View style={styles.metaItem}>
-              <View style={styles.difficultyStars}>
-                {getDifficultyStars(
-                  workoutData.difficulty,
-                  workoutData.maxDifficulty
-                )}
-              </View>
-              <Text style={styles.metaText}>Difficulty</Text>
-            </View>
-
-            <View style={styles.metaItem}>
-              <MaterialIcons
-                name="local-fire-department"
-                size={16}
-                color="rgba(255,255,255,0.8)"
-              />
-              <Text style={styles.metaText}>
-                {workoutData.estimatedCalories} cal
-              </Text>
-            </View>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.muscleGroupsContainer}
+          <TouchableOpacity
+            onPress={toggleFavorite}
+            style={styles.headerAction}
           >
-            {' '}
-            {workoutData.muscleGroups.map((muscle, index) => (
-              <View
-                key={`muscle-${muscle}-${workoutData.id}`}
-                style={styles.muscleGroup}
-              >
-                <FontAwesome5
-                  name={getMuscleGroupIcon(muscle)}
-                  size={14}
-                  color="#FFF"
-                />
-                <Text style={styles.muscleGroupText}>{muscle}</Text>
-              </View>
-            ))}
-          </ScrollView>
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={24}
+              color={isFavorite ? '#FF6B6B' : '#FFF'}
+            />
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
+
+      <View style={styles.workoutInfo}>
+        <Text style={styles.workoutName}>{workoutData.name}</Text>
+        <Text style={styles.workoutDescription}>{workoutData.description}</Text>
+
+        <View style={styles.workoutMeta}>
+          <View style={styles.metaItem}>
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color="rgba(255,255,255,0.8)"
+            />
+            <Text style={styles.metaText}>{workoutData.duration} min</Text>
+          </View>
+
+          <View style={styles.metaItem}>
+            <View style={styles.difficultyStars}>
+              {getDifficultyStars(
+                workoutData.difficulty,
+                workoutData.maxDifficulty
+              )}
+            </View>
+            <Text style={styles.metaText}>Difficulty</Text>
+          </View>
+
+          <View style={styles.metaItem}>
+            <MaterialIcons
+              name="local-fire-department"
+              size={16}
+              color="rgba(255,255,255,0.8)"
+            />
+            <Text style={styles.metaText}>
+              {workoutData.estimatedCalories} cal
+            </Text>
+          </View>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.muscleGroupsContainer}
+        >
+          {workoutData.muscleGroups.map((muscle, index) => (
+            <View
+              key={`muscle-${muscle}-${workoutData.id}`}
+              style={styles.muscleGroup}
+            >
+              <FontAwesome5
+                name={getMuscleGroupIcon(muscle)}
+                size={14}
+                color="#FFF"
+              />
+              <Text style={styles.muscleGroupText}>{muscle}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
     </LinearGradient>
   );
 
@@ -491,7 +485,6 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
           </Text>
         </View>
         <View style={styles.improvementsList}>
-          {' '}
           {previousPerformance.improvements.map((improvement, index) => (
             <View
               key={`improvement-${improvement
@@ -519,7 +512,6 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
 
         {expandedSections.records && (
           <Animatable.View animation="fadeInDown" style={styles.recordsList}>
-            {' '}
             {previousPerformance.personalRecords.map((record, index) => (
               <View
                 key={`record-${record.exercise}-${index}`}
@@ -561,7 +553,6 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
 
       {expandedSections.warmup && (
         <Animatable.View animation="fadeInDown" style={styles.exercisesList}>
-          {' '}
           {warmUpExercises.map((exercise, index) => (
             <View
               key={`warmup-${exercise.name}-${index}`}
@@ -596,7 +587,6 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
 
       {expandedSections.cooldown && (
         <Animatable.View animation="fadeInDown" style={styles.exercisesList}>
-          {' '}
           {coolDownExercises.map((exercise, index) => (
             <View
               key={`cooldown-${exercise.name}-${index}`}
@@ -669,7 +659,6 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
         </View>
 
         <View style={styles.muscleGroupTags}>
-          {' '}
           {exercise.muscleGroups.map((muscle, idx) => (
             <View
               key={`${exercise.id}-muscle-${muscle}-${idx}`}
@@ -744,7 +733,7 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
               </View>
 
               <View style={styles.modalSection}>
-                <Text style={styles.modalSectionTitle}>Instructions</Text>{' '}
+                <Text style={styles.modalSectionTitle}>Instructions</Text>
                 {selectedExercise.instructions.map((instruction, index) => (
                   <View
                     key={`instruction-${index}-${instruction.slice(0, 10)}`}
@@ -757,7 +746,7 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
               </View>
 
               <View style={styles.modalSection}>
-                <Text style={styles.modalSectionTitle}>Form Tips</Text>{' '}
+                <Text style={styles.modalSectionTitle}>Form Tips</Text>
                 {selectedExercise.formTips.map((tip, index) => (
                   <View
                     key={`tip-${index}-${tip.slice(0, 10)}`}
@@ -774,7 +763,7 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
               </View>
 
               <View style={styles.modalSection}>
-                <Text style={styles.modalSectionTitle}>Common Mistakes</Text>{' '}
+                <Text style={styles.modalSectionTitle}>Common Mistakes</Text>
                 {selectedExercise.commonMistakes.map((mistake, index) => (
                   <View
                     key={`mistake-${index}-${mistake.slice(0, 10)}`}
@@ -789,7 +778,7 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
               <View style={styles.modalSection}>
                 <Text style={styles.modalSectionTitle}>
                   Alternative Exercises
-                </Text>{' '}
+                </Text>
                 <View style={styles.alternativesContainer}>
                   {selectedExercise.alternatives.map((alternative, index) => (
                     <TouchableOpacity
@@ -812,11 +801,12 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
       </Modal>
     );
   };
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#5603AD" />
-      {renderHeader()}
+      <SafeAreaView style={styles.safeAreaHeader}>
+        {renderHeader()}
+      </SafeAreaView>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {renderStartButton()}
@@ -827,6 +817,7 @@ const WorkoutDetailScreen = ({ navigation, route }) => {
         <View style={styles.bottomPadding} />
       </ScrollView>
 
+      <SafeAreaView style={styles.safeAreaBottom} />
       {renderExerciseModal()}
     </View>
   );
@@ -1374,6 +1365,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  safeAreaHeader: {
+    backgroundColor: '#5603AD',
+    paddingTop: Constants.statusBarHeight,
+  },
+  safeAreaBottom: {
+    backgroundColor: '#F8F9FA',
   },
   bottomPadding: {
     height: 20,
