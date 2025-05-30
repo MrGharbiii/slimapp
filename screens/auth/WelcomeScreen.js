@@ -65,7 +65,6 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
               }}
               activeOpacity={0.8}
             >
-              {' '}
               <Text style={styles.createAccountText}>Créer un Compte</Text>
             </TouchableOpacity>
 
@@ -84,7 +83,7 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
               <Text style={styles.signInText}>Se Connecter</Text>
             </TouchableOpacity>
           </View>
-        </View>{' '}
+        </View>
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>

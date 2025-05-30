@@ -109,7 +109,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-          </TouchableOpacity>{' '}
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Se Connecter</Text>
           <View style={styles.headerRight} />
         </View>
@@ -230,7 +230,6 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
             disabled={!isFormValid || isLoading}
             activeOpacity={0.8}
           >
-            {' '}
             {isLoading ? (
               <ActivityIndicator color="white" size="small" />
             ) : (

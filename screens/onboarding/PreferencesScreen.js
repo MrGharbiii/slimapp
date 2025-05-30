@@ -287,7 +287,7 @@ const PreferencesScreen = ({
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.safeAreaHeader}>
-        {/* Header */}{' '}
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
@@ -317,7 +317,6 @@ const PreferencesScreen = ({
         >
           {/* Workout Preferences Section */}
           <View style={styles.section}>
-            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="fitness-center" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>
@@ -357,7 +356,7 @@ const PreferencesScreen = ({
               {errors.workoutDuration ? (
                 <Text style={styles.errorText}>{errors.workoutDuration}</Text>
               ) : null}
-            </View>{' '}
+            </View>
             {/* Equipment Access */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Accès aux Équipements</Text>
@@ -402,7 +401,7 @@ const PreferencesScreen = ({
               {errors.equipmentAccess ? (
                 <Text style={styles.errorText}>{errors.equipmentAccess}</Text>
               ) : null}
-            </View>{' '}
+            </View>
             {/* Workout Intensity */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Intensité d'Entraînement</Text>
@@ -441,7 +440,6 @@ const PreferencesScreen = ({
           </View>
           {/* Nutrition Preferences Section */}
           <View style={styles.section}>
-            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="restaurant" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>
@@ -491,7 +489,7 @@ const PreferencesScreen = ({
                   {errors.dietaryRestrictions}
                 </Text>
               ) : null}
-            </View>{' '}
+            </View>
             {/* Food Allergies */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Allergies Alimentaires</Text>
@@ -506,7 +504,7 @@ const PreferencesScreen = ({
                 multiline
                 numberOfLines={2}
               />
-            </View>{' '}
+            </View>
             {/* Cooking Frequency */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Fréquence de Cuisine</Text>
@@ -550,7 +548,6 @@ const PreferencesScreen = ({
             </View>
             {/* Notification Toggles */}
             <View style={styles.notificationContainer}>
-              {' '}
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
                   <Text style={styles.notificationLabel}>
@@ -566,7 +563,7 @@ const PreferencesScreen = ({
                   trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
                   thumbColor={workoutReminders ? '#5603AD' : '#f4f3f4'}
                 />
-              </View>{' '}
+              </View>
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
                   <Text style={styles.notificationLabel}>Rappels de repas</Text>
@@ -580,7 +577,7 @@ const PreferencesScreen = ({
                   trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
                   thumbColor={mealReminders ? '#5603AD' : '#f4f3f4'}
                 />
-              </View>{' '}
+              </View>
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
                   <Text style={styles.notificationLabel}>
@@ -596,7 +593,7 @@ const PreferencesScreen = ({
                   trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
                   thumbColor={progressUpdates ? '#5603AD' : '#f4f3f4'}
                 />
-              </View>{' '}
+              </View>
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
                   <Text style={styles.notificationLabel}>
@@ -613,7 +610,7 @@ const PreferencesScreen = ({
                   thumbColor={motivationQuotes ? '#5603AD' : '#f4f3f4'}
                 />
               </View>
-            </View>{' '}
+            </View>
             {/* Reminder Time */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Heure de Rappel Préférée</Text>
@@ -649,7 +646,6 @@ const PreferencesScreen = ({
           </View>
           {/* Language & Units Section */}
           <View style={styles.section}>
-            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="language" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>Langue et Unités</Text>
@@ -671,7 +667,7 @@ const PreferencesScreen = ({
                   color="#999"
                 />
               </TouchableOpacity>
-            </View>{' '}
+            </View>
             {/* Units */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Unités</Text>
@@ -724,7 +720,7 @@ const PreferencesScreen = ({
               activeOpacity={0.8}
             >
               <View style={styles.completeButtonContent}>
-                <MaterialIcons name="save" size={24} color="white" />{' '}
+                <MaterialIcons name="save" size={24} color="white" />
                 <Text style={styles.completeSetupButtonText}>
                   Enregistrer et Continuer
                 </Text>
@@ -738,7 +734,6 @@ const PreferencesScreen = ({
       {/* Language Dropdown Modal */}
       <Modal visible={showLanguageDropdown} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          {' '}
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Sélectionner la Langue</Text>

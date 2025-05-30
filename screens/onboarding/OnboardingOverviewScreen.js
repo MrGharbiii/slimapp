@@ -143,8 +143,10 @@ const OnboardingOverviewScreen = ({
   };
 
   // Handle start journey button press
+  // NOTE TO SELF : I DISABLED THIS FOR NOW JUST TO BYPASS THE CHECK TO GO TO NAVIATE TO DASHBOARD
+  // REMOVE THE ! IN checkAllSectionsCompleted() TO ENABLE THE CHECK
   const handleStartJourney = () => {
-    if (checkAllSectionsCompleted()) {
+    if (!checkAllSectionsCompleted()) {
       // All sections complete - navigate to dashboard
       if (onNavigateToSection) {
         onNavigateToSection('dashboard');
@@ -292,7 +294,6 @@ const OnboardingOverviewScreen = ({
     <View style={styles.container}>
       {/* Header SafeAreaView */}
       <SafeAreaView style={styles.safeAreaHeader}>
-        {' '}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
@@ -315,13 +316,13 @@ const OnboardingOverviewScreen = ({
           <Text style={styles.motivationalText}>
             Complétez votre profil pour débloquer des plans personnalisés ! 🚀
           </Text>
-        </View>{' '}
+        </View>
         {/* Section Cards */}
         <View style={styles.sectionsContainer}>
           <Text style={styles.sectionsTitle}>Sections du Profil</Text>
           {sections.map((section, index) => renderSectionCard(section, index))}
         </View>
-        {/* Start Journey Button */}{' '}
+        {/* Start Journey Button */}
         <TouchableOpacity
           style={styles.startButton}
           onPress={handleStartJourney}

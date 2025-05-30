@@ -457,7 +457,7 @@ const GoalsScreen = ({
           {/* Primary Goal Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialIcons name="flag" size={24} color="#5603AD" />{' '}
+              <MaterialIcons name="flag" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>Objectif Principal</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
@@ -475,7 +475,7 @@ const GoalsScreen = ({
           {/* Secondary Goals Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialIcons name="add-task" size={24} color="#5603AD" />{' '}
+              <MaterialIcons name="add-task" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>Objectifs Secondaires</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
@@ -529,7 +529,7 @@ const GoalsScreen = ({
           {/* Target Timeline Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialIcons name="schedule" size={24} color="#5603AD" />{' '}
+              <MaterialIcons name="schedule" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>Calendrier Cible</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
@@ -585,7 +585,6 @@ const GoalsScreen = ({
 
               <View style={styles.weightInputsContainer}>
                 <View style={styles.weightInputGroup}>
-                  {' '}
                   <Text style={styles.weightLabel}>Poids Actuel (lbs)</Text>
                   <TextInput
                     style={[
@@ -632,7 +631,6 @@ const GoalsScreen = ({
 
               {/* Weekly Goal Slider */}
               <View style={styles.weeklyGoalContainer}>
-                {' '}
                 <Text style={styles.weeklyGoalLabel}>
                   Objectif Hebdomadaire : {weeklyGoal} lbs/semaine
                 </Text>

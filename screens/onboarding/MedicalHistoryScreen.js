@@ -242,7 +242,7 @@ const MedicalHistoryScreen = ({
   const hasMinimalData = () => {
     // Require gender selection
     if (!gender) return false;
-    const femaleFieldsComplete = true;
+    let femaleFieldsComplete = true;
     // If gender is female, require female-specific fields
     if (gender === 'Femme') {
       femaleFieldsComplete =
@@ -400,7 +400,7 @@ const MedicalHistoryScreen = ({
                 size={20}
                 color="#5603AD"
                 style={styles.privacyIcon}
-              />{' '}
+              />
               <Text style={styles.headerTitle}>Informations Médicales</Text>
             </View>
             <Text style={styles.headerSubtitle}>
@@ -409,7 +409,7 @@ const MedicalHistoryScreen = ({
           </View>
           <View style={styles.headerRight} />
         </View>
-        {/* Progress Indicator */}{' '}
+        {/* Progress Indicator */}
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>Étape 3 sur 5</Text>
           <View style={styles.progressBar}>
@@ -433,7 +433,7 @@ const MedicalHistoryScreen = ({
         {/* Privacy Notice Card */}
         <View style={styles.privacyCard}>
           <View style={styles.privacyHeader}>
-            <MaterialIcons name="lock" size={24} color="#5603AD" />{' '}
+            <MaterialIcons name="lock" size={24} color="#5603AD" />
             <Text style={styles.privacyTitle}>
               Votre Vie Privée est Protégée
             </Text>
@@ -447,7 +447,6 @@ const MedicalHistoryScreen = ({
             style={styles.privacyLearnMore}
             onPress={() => setShowPrivacyModal(true)}
           >
-            {' '}
             <Text style={styles.privacyLearnMoreText}>
               En savoir plus sur la confidentialité des données
             </Text>
@@ -457,7 +456,7 @@ const MedicalHistoryScreen = ({
 
         {/* Healthcare Disclaimer */}
         <View style={styles.disclaimerBanner}>
-          <MaterialIcons name="warning" size={20} color="#FF8800" />{' '}
+          <MaterialIcons name="warning" size={20} color="#FF8800" />
           <Text style={styles.disclaimerText}>
             Consultez toujours votre professionnel de santé avant de commencer
             tout nouveau programme d'exercice
@@ -467,7 +466,7 @@ const MedicalHistoryScreen = ({
         {/* General Health Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="local-hospital" size={24} color="#5603AD" />{' '}
+            <MaterialIcons name="local-hospital" size={24} color="#5603AD" />
             <Text style={styles.sectionTitle}>Santé Générale</Text>
             {renderTooltip(
               'Ces informations nous aident à recommander des exercices sûrs et à éviter les risques potentiels pour la santé'
@@ -476,7 +475,6 @@ const MedicalHistoryScreen = ({
           {/* Chronic Conditions */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Avez-vous des conditions chroniques ?
               </Text>
@@ -497,7 +495,6 @@ const MedicalHistoryScreen = ({
           {/* Current Medications */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Médicaments actuels (optionnel)
               </Text>
@@ -533,7 +530,6 @@ const MedicalHistoryScreen = ({
           {/* Allergies */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Allergies connues (optionnel)
               </Text>
@@ -556,7 +552,7 @@ const MedicalHistoryScreen = ({
               multiline
               numberOfLines={2}
               maxLength={300}
-            />{' '}
+            />
             <View style={styles.textAreaFooter}>
               <Text style={styles.characterCount}>
                 {(allergies || '').length}/300
@@ -565,7 +561,7 @@ const MedicalHistoryScreen = ({
                 <Text style={styles.errorText}>{errors.allergies}</Text>
               ) : null}
             </View>
-          </View>{' '}
+          </View>
           {/* Gender Selection */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
@@ -679,7 +675,7 @@ const MedicalHistoryScreen = ({
         {/* Physical Limitations Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="accessibility" size={24} color="#5603AD" />{' '}
+            <MaterialIcons name="accessibility" size={24} color="#5603AD" />
             <Text style={styles.sectionTitle}>Limitations Physiques</Text>
             {renderTooltip(
               'Cela nous aide à éviter les exercices qui pourraient aggraver des blessures ou conditions existantes'
@@ -688,7 +684,6 @@ const MedicalHistoryScreen = ({
           {/* Injuries or Limitations */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Blessures ou limitations physiques ? (optionnel)
               </Text>
@@ -726,7 +721,6 @@ const MedicalHistoryScreen = ({
           {/* Areas to Avoid */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Zones à éviter pendant l'exercice ?
               </Text>
@@ -739,7 +733,7 @@ const MedicalHistoryScreen = ({
                 renderCheckboxOption(option, avoidAreas, handleAvoidAreaToggle)
               )}
             </View>
-          </View>{' '}
+          </View>
         </View>
 
         {/* Personal Medical History Section */}
@@ -870,7 +864,7 @@ const MedicalHistoryScreen = ({
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
             ])}
-          </View>{' '}
+          </View>
           {/* Other Health Issues */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
@@ -905,7 +899,7 @@ const MedicalHistoryScreen = ({
                 <Text style={styles.errorText}>{errors.otherHealthIssues}</Text>
               ) : null}
             </View>
-          </View>{' '}
+          </View>
           {/* Sexual Dysfunction */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
@@ -957,7 +951,7 @@ const MedicalHistoryScreen = ({
         {/* Family History Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="family-restroom" size={24} color="#5603AD" />{' '}
+            <MaterialIcons name="family-restroom" size={24} color="#5603AD" />
             <Text style={styles.sectionTitle}>Antécédents Familiaux</Text>
             {renderTooltip(
               'Les antécédents familiaux nous aident à comprendre votre prédisposition génétique à certaines conditions'
@@ -966,14 +960,13 @@ const MedicalHistoryScreen = ({
           {/* Heart Disease */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Antécédents familiaux de maladie cardiaque ?
               </Text>
               {renderTooltip(
                 'Les antécédents familiaux de maladie cardiaque peuvent nécessiter une surveillance cardiovasculaire plus attentive'
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(familyHeartDisease, setFamilyHeartDisease, [
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
@@ -983,20 +976,19 @@ const MedicalHistoryScreen = ({
           {/* Diabetes */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              {' '}
               <Text style={styles.fieldLabel}>
                 Antécédents familiaux de diabète ?
               </Text>
               {renderTooltip(
                 "Les antécédents familiaux de diabète nous aident à adapter les recommandations nutritionnelles et d'exercice"
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(familyDiabetes, setFamilyDiabetes, [
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
               { value: 'unknown', label: 'Je ne sais pas' },
             ])}
-          </View>{' '}
+          </View>
           {/* Obesity */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
@@ -1006,7 +998,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Comprendre la prédisposition génétique aide à créer des plans de gestion du poids plus efficaces'
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(familyObesity, setFamilyObesity, [
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
@@ -1152,7 +1144,7 @@ const MedicalHistoryScreen = ({
             </View>
             <ScrollView style={styles.modalBody}>
               <View style={styles.privacyPoint}>
-                <MaterialIcons name="encrypted" size={20} color="#5603AD" />{' '}
+                <MaterialIcons name="encrypted" size={20} color="#5603AD" />
                 <Text style={styles.privacyPointText}>
                   Toutes les données sont chiffrées à l'aide du chiffrement
                   AES-256 standard de l'industrie
@@ -1160,7 +1152,7 @@ const MedicalHistoryScreen = ({
               </View>
 
               <View style={styles.privacyPoint}>
-                <MaterialIcons name="verified-user" size={20} color="#5603AD" />{' '}
+                <MaterialIcons name="verified-user" size={20} color="#5603AD" />
                 <Text style={styles.privacyPointText}>
                   Les informations médicales ne sont utilisées que pour
                   personnaliser vos recommandations de fitness

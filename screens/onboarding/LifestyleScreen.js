@@ -420,7 +420,7 @@ const LifestyleScreen = ({
               {errors.exerciseFrequency ? (
                 <Text style={styles.errorText}>{errors.exerciseFrequency}</Text>
               ) : null}
-            </View>{' '}
+            </View>
             {/* Exercise Time */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Heure d'Exercice Préférée</Text>
@@ -451,7 +451,7 @@ const LifestyleScreen = ({
               {errors.exerciseTime ? (
                 <Text style={styles.errorText}>{errors.exerciseTime}</Text>
               ) : null}
-            </View>{' '}
+            </View>
             {/* Favorite Activities */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Activités Favorites</Text>
@@ -500,11 +500,10 @@ const LifestyleScreen = ({
 
           {/* Stress & Sleep Section */}
           <View style={styles.section}>
-            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="spa" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>Stress et Sommeil</Text>
-            </View>{' '}
+            </View>
             {/* Stress Level */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Niveau de Stress</Text>
@@ -525,13 +524,13 @@ const LifestyleScreen = ({
                   minimumTrackTintColor="#5603AD"
                   maximumTrackTintColor="#E0E0E0"
                   thumbStyle={styles.sliderThumb}
-                />{' '}
+                />
                 <View style={styles.sliderLabels}>
                   <Text style={styles.sliderLabelText}>Stress Faible</Text>
                   <Text style={styles.sliderLabelText}>Stress Élevé</Text>
                 </View>
               </View>
-            </View>{' '}
+            </View>
             {/* Sleep Hours */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Heures de Sommeil Moyennes</Text>
@@ -556,7 +555,7 @@ const LifestyleScreen = ({
                   <Text style={styles.sliderLabelText}>12h</Text>
                 </View>
               </View>
-            </View>{' '}
+            </View>
             {/* Sleep Quality */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Qualité du Sommeil</Text>
@@ -625,7 +624,6 @@ const LifestyleScreen = ({
       {/* Work Schedule Modal */}
       <Modal visible={showWorkDropdown} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          {' '}
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>

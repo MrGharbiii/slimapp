@@ -301,7 +301,6 @@ const BasicInfoScreen = ({
           ]}
           onPress={() => setShowActivityDropdown(true)}
         >
-          {' '}
           <Text
             style={[
               styles.dropdownText,
@@ -323,7 +322,6 @@ const BasicInfoScreen = ({
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              {' '}
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>
                   Sélectionnez le Niveau d'Activité
@@ -369,7 +367,7 @@ const BasicInfoScreen = ({
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-          </TouchableOpacity>{' '}
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Informations de Base</Text>
           <View style={styles.headerRight} />
         </View>
@@ -391,7 +389,7 @@ const BasicInfoScreen = ({
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Personal Details Section */}{' '}
+        {/* Personal Details Section */}
         <View style={styles.section}>
           <View style={styles.sectionTitleContainer}>
             <MaterialIcons name="person" size={20} color="#5603AD" />
@@ -454,8 +452,8 @@ const BasicInfoScreen = ({
                 maximumDate={new Date()}
                 minimumDate={new Date(1900, 0, 1)}
               />
-            ) : null}{' '}
-          </View>{' '}
+            ) : null}
+          </View>
           {/* City Input */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Ville *</Text>
@@ -588,7 +586,7 @@ const BasicInfoScreen = ({
             {errors.weight ? (
               <Text style={styles.errorText}>{errors.weight}</Text>
             ) : null}
-          </View>{' '}
+          </View>
           {/* Activity Level */}
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Niveau d'Activité *</Text>
@@ -925,7 +923,6 @@ const BasicInfoScreen = ({
             disabled={!isFormValid}
             activeOpacity={0.8}
           >
-            {' '}
             <Text style={styles.continueButtonText}>
               Sauvegarder et Continuer
             </Text>

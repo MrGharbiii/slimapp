@@ -103,7 +103,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-          </TouchableOpacity>{' '}
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Créer un Compte</Text>
           <View style={styles.headerRight} />
         </View>
@@ -121,7 +121,6 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {' '}
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeTitle}>Bienvenue !</Text>
@@ -298,7 +297,6 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             disabled={!isFormValid}
             activeOpacity={0.8}
           >
-            {' '}
             <Text style={styles.createAccountButtonText}>Créer un Compte</Text>
           </TouchableOpacity>
         </View>

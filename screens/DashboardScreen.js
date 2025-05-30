@@ -319,7 +319,7 @@ const DashboardScreen = ({ navigation }) => {
       delay={1000}
       style={styles.actionsSection}
     >
-      <Text style={styles.sectionTitle}>Quick Actions</Text>
+      <Text style={styles.sectionTitle}>Quick Actions</Text>{' '}
       <View style={styles.actionsContainer}>
         {/* My Plan - Full Width at Top */}
         <TouchableOpacity
@@ -328,6 +328,15 @@ const DashboardScreen = ({ navigation }) => {
         >
           <MaterialIcons name="event-note" size={28} color="#FFF" />
           <Text style={styles.actionTextLarge}>My Plan</Text>
+        </TouchableOpacity>
+
+        {/* My Analysis Results - Full Width */}
+        <TouchableOpacity
+          style={[styles.actionButtonFullWidth, { backgroundColor: '#8E24AA' }]}
+          onPress={() => navigation?.navigate?.('analysis-results')}
+        >
+          <MaterialIcons name="analytics" size={28} color="#FFF" />
+          <Text style={styles.actionTextLarge}>My Analysis Results</Text>
         </TouchableOpacity>
 
         {/* Other Actions in Grid */}

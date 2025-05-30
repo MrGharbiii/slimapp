@@ -20,6 +20,7 @@ import MealBuilderScreen from './screens/MealBuilderScreen';
 import TunisianDishesScreen from './screens/TunisianDishesScreen';
 import NutritionResultsScreen from './screens/NutritionResultsScreen';
 import MapScreen from './screens/MapScreen';
+import AnalysisResultsScreen from './screens/AnalysisResultsScreen';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
@@ -526,6 +527,20 @@ export default function App() {
             navigation={{
               goBack: () => setCurrentScreen('dashboard'),
               navigate: (screen) => setCurrentScreen(screen),
+            }}
+          />
+        );
+      case 'analysis-results':
+        return (
+          <AnalysisResultsScreen
+            navigation={{
+              goBack: () => setCurrentScreen('dashboard'),
+              navigate: (screen) => setCurrentScreen(screen),
+            }}
+            route={{
+              params: {
+                gender: onboardingData?.medicalHistory?.gender || 'Male',
+              },
             }}
           />
         );
