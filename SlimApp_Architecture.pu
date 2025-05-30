@@ -1,0 +1,468 @@
+@startuml SlimApp_Architecture
+
+title SlimApp - Comprehensive Project Architecture
+
+!define COMPONENT_COLOR #E1F5FE
+!define SCREEN_COLOR #F3E5F5
+!define STATE_COLOR #FFF3E0
+!define UTIL_COLOR #E8F5E8
+
+package "SlimApp Mobile Application" {
+
+  ' Main Application Entry Point
+  class App <<Main Controller>> {
+    - currentScreen: string
+    - currentXP: number
+    - completedSections: array
+    - onboardingData: object
+    + handleCreateAccount()
+    + handleSignIn()
+    + handleAuthSuccess()
+    + handleStartBasicInfo()
+    + handleBasicInfoComplete()
+    + handleLifestyleComplete()
+    + handleMedicalHistoryComplete()
+    + handleGoalsComplete()
+    + handlePreferencesComplete()
+    + checkAllSectionsCompleted()
+    + handleCompletionNavigationWithXP()
+    + renderCurrentScreen()
+  }
+
+  ' State Management
+  package "State Management" <<STATE_COLOR>> {
+    class UserState {
+      - currentXP: number
+      - completedSections: array
+      - userLevel: number
+    }
+    
+    class OnboardingData {
+      - basicInfo: object
+      - lifestyle: object
+      - medicalHistory: object
+      - goals: object
+      - preferences: object
+    }
+    
+    class NavigationState {
+      - currentScreen: string
+      + navigate(screen: string)
+      + goBack()
+    }
+  }
+
+  ' Authentication Screens
+  package "Authentication Screens" <<SCREEN_COLOR>> {
+    class WelcomeScreen {
+      + onCreateAccount()
+      + onSignIn()
+      + renderHeroSection()
+      + renderButtons()
+    }
+    
+    class SignUpScreen {
+      - email: string
+      - password: string
+      - confirmPassword: string
+      + validateForm()
+      + handleSubmit()
+      + renderForm()
+    }
+    
+    class SignInScreen {
+      - email: string
+      - password: string
+      + validateCredentials()
+      + handleSubmit()
+      + renderForm()
+    }
+  }
+
+  ' Onboarding Screens Package
+  package "Onboarding Screens" <<SCREEN_COLOR>> {
+    
+    class OnboardingOverviewScreen {
+      - progressAnimation: Animated.Value
+      - cardAnimations: array
+      - sections: array
+      - userLevel: number
+      - userXP: number
+      + handleSectionPress()
+      + handleStartJourney()
+      + renderProgressRing()
+      + renderXPDisplay()
+      + renderSectionCard()
+      + checkAllSectionsCompleted()
+    }
+    
+    class BasicInfoScreen {
+      - name: string
+      - dateOfBirth: Date
+      - gender: string
+      - height: number
+      - weight: number
+      - activityLevel: string
+      + validateForm()
+      + handleSubmit()
+      + renderGenderRadio()
+      + renderUnitToggle()
+      + renderActivityDropdown()
+    }
+    
+    class LifestyleScreen {
+      - wakeUpTime: Date
+      - sleepTime: Date
+      - workSchedule: string
+      - exerciseFrequency: string
+      - exerciseTime: string
+      - favoriteActivities: array
+      - stressLevel: number
+      - sleepHours: number
+      - sleepQuality: string
+      + validateForm()
+      + handleSubmit()
+      + toggleActivity()
+      + formatTime()
+      + getMotivationalMessage()
+    }
+    
+    class MedicalHistoryScreen {
+      - chronicConditions: array
+      - medications: string
+      - allergies: string
+      - physicalLimitations: string
+      - familyHeartDisease: string
+      - familyDiabetes: string
+      - familyObesity: string
+      + hasMinimalData()
+      + validateForm()
+      + handleSubmit()
+      + renderTooltip()
+      + toggleCondition()
+    }
+    
+    class GoalsScreen {
+      - primaryGoal: string
+      - secondaryGoals: array
+      - targetTimeline: number
+      - currentWeight: number
+      - targetWeight: number
+      - weeklyGoal: number
+      + isFormValid()
+      + handleSubmit()
+      + renderQuote()
+      + renderPrimaryGoalCard()
+      + renderWeightChart()
+    }
+    
+    class PreferencesScreen {
+      - workoutDuration: string
+      - equipmentAccess: array
+      - workoutIntensity: string
+      - dietaryRestrictions: array
+      - cookingFrequency: string
+      - workoutReminders: boolean
+      - mealReminders: boolean
+      - progressUpdates: boolean
+      - language: string
+      - useMetric: boolean
+      + isFormValid()
+      + handleSubmit()
+      + toggleEquipment()
+      + toggleDietaryRestriction()
+    }
+  }
+
+  ' Main Application Screens
+  package "Main Application Screens" <<SCREEN_COLOR>> {
+    
+    class DashboardScreen {
+      - currentQuoteIndex: number
+      - userName: string
+      - userStats: object
+      - todaysPlan: array
+      - motivationalQuotes: array
+      + getGreeting()
+      + calculateProgress()
+      + renderHeader()
+      + renderLevelCard()
+      + renderProgressRings()
+      + renderQuickActions()
+      + renderTodaysPlan()
+      + renderFloatingActionButton()
+    }
+    
+    class PlanScreen {
+      - selectedTab: string
+      - workoutPlan: object
+      - nutritionPlan: object
+      + renderTabBar()
+      + renderWorkoutPlan()
+      + renderNutritionPlan()
+      + handleTabChange()
+    }
+    
+    class WorkoutDetailScreen {
+      - selectedWorkout: object
+      - currentExercise: number
+      - isPlaying: boolean
+      + startWorkout()
+      + pauseWorkout()
+      + nextExercise()
+      + renderExerciseList()
+      + renderTimer()
+    }
+    
+    class NutritionScreen {
+      - selectedMeal: string
+      - mealData: object
+      - nutritionStats: object
+      + renderMealTabs()
+      + renderNutritionStats()
+      + renderMealPlan()
+      + calculateCalories()
+    }
+    
+    class FoodCalculatorScreen {
+      - selectedFoods: array
+      - totalCalories: number
+      - macros: object
+      + addFood()
+      + removeFood()
+      + calculateNutrition()
+      + renderFoodList()
+      + renderNutritionSummary()
+    }
+    
+    class CameraFoodScanScreen {
+      - cameraRef: ref
+      - scannedData: object
+      - isScanning: boolean
+      + takePicture()
+      + analyzeFood()
+      + renderCamera()
+      + renderResults()
+    }
+    
+    class MealBuilderScreen {
+      - ingredients: array
+      - cartItems: array
+      - searchQuery: string
+      - totalNutrition: object
+      + searchIngredients()
+      + addToCart()
+      + removeFromCart()
+      + calculateTotalNutrition()
+      + renderIngredientList()
+      + renderCart()
+    }
+    
+    class TunisianDishesScreen {
+      - dishes: array
+      - selectedCategory: string
+      - favorites: array
+      + filterByCategory()
+      + addToFavorites()
+      + renderDishCard()
+      + renderCategoryTabs()
+    }
+    
+    class NutritionResultsScreen {
+      - analysisResults: object
+      - recommendations: array
+      + renderNutritionalAnalysis()
+      + renderRecommendations()
+      + shareResults()
+    }
+    
+    class MapScreen {
+      - userLocation: object
+      - nearbyLocations: array
+      - selectedCategory: string
+      - searchQuery: string
+      + getCurrentLocation()
+      + searchNearby()
+      + filterByCategory()
+      + renderMap()
+      + renderLocationList()
+      + renderCategoryTabs()
+    }
+  }
+
+  ' Component Libraries
+  package "Shared Components" <<COMPONENT_COLOR>> {
+    class ProgressBar {
+      - progress: number
+      - color: string
+      + render()
+    }
+    
+    class XPDisplay {
+      - currentXP: number
+      - level: number
+      + calculateLevel()
+      + render()
+    }
+    
+    class FormInput {
+      - value: string
+      - placeholder: string
+      - validation: function
+      + handleChange()
+      + validateInput()
+      + render()
+    }
+    
+    class CircularProgress {
+      - progress: number
+      - size: number
+      - color: string
+      + animate()
+      + render()
+    }
+    
+    class MotivationalCard {
+      - message: string
+      - animation: string
+      + render()
+    }
+  }
+
+  ' External Dependencies
+  package "External Libraries" <<UTIL_COLOR>> {
+    class ExpoLibraries {
+      + expo-status-bar
+      + expo-constants
+      + expo-linear-gradient
+      + expo-camera
+      + expo-location
+    }
+    
+    class ReactNativeLibraries {
+      + @expo/vector-icons
+      + react-native-animatable
+      + react-native-chart-kit
+      + react-native-circular-progress
+      + lottie-react-native
+    }
+    
+    class NavigationLibraries {
+      + @react-native-community/datetimepicker
+      + @react-native-community/slider
+      + @react-native-picker/picker
+    }
+  }
+
+  ' Data Flow and Relationships
+  App --> UserState : manages
+  App --> OnboardingData : stores
+  App --> NavigationState : controls
+  
+  App --> WelcomeScreen : renders
+  App --> SignUpScreen : renders
+  App --> SignInScreen : renders
+  
+  App --> OnboardingOverviewScreen : renders
+  App --> BasicInfoScreen : renders
+  App --> LifestyleScreen : renders
+  App --> MedicalHistoryScreen : renders
+  App --> GoalsScreen : renders
+  App --> PreferencesScreen : renders
+  
+  App --> DashboardScreen : renders
+  App --> PlanScreen : renders
+  App --> WorkoutDetailScreen : renders
+  App --> NutritionScreen : renders
+  App --> FoodCalculatorScreen : renders
+  App --> CameraFoodScanScreen : renders
+  App --> MealBuilderScreen : renders
+  App --> TunisianDishesScreen : renders
+  App --> NutritionResultsScreen : renders
+  App --> MapScreen : renders
+
+  ' Onboarding Flow Relationships
+  OnboardingOverviewScreen --> BasicInfoScreen : navigates
+  BasicInfoScreen --> LifestyleScreen : navigates
+  LifestyleScreen --> MedicalHistoryScreen : navigates
+  MedicalHistoryScreen --> GoalsScreen : navigates
+  GoalsScreen --> PreferencesScreen : navigates
+  PreferencesScreen --> DashboardScreen : navigates
+
+  ' Dashboard Navigation Relationships
+  DashboardScreen --> PlanScreen : navigates
+  DashboardScreen --> NutritionScreen : navigates
+  DashboardScreen --> FoodCalculatorScreen : navigates
+  DashboardScreen --> MapScreen : navigates
+  
+  PlanScreen --> WorkoutDetailScreen : navigates
+  NutritionScreen --> MealBuilderScreen : navigates
+  FoodCalculatorScreen --> CameraFoodScanScreen : navigates
+  FoodCalculatorScreen --> NutritionResultsScreen : navigates
+  NutritionScreen --> TunisianDishesScreen : navigates
+
+  ' Component Usage
+  OnboardingOverviewScreen --> ProgressBar : uses
+  OnboardingOverviewScreen --> XPDisplay : uses
+  BasicInfoScreen --> FormInput : uses
+  LifestyleScreen --> FormInput : uses
+  MedicalHistoryScreen --> FormInput : uses
+  GoalsScreen --> CircularProgress : uses
+  PreferencesScreen --> FormInput : uses
+  
+  DashboardScreen --> CircularProgress : uses
+  DashboardScreen --> MotivationalCard : uses
+  DashboardScreen --> XPDisplay : uses
+
+  ' External Library Dependencies
+  App --> ExpoLibraries : depends on
+  OnboardingOverviewScreen --> ReactNativeLibraries : uses
+  DashboardScreen --> ReactNativeLibraries : uses
+  BasicInfoScreen --> NavigationLibraries : uses
+  LifestyleScreen --> NavigationLibraries : uses
+  GoalsScreen --> ReactNativeLibraries : uses
+}
+
+' Notes and Architecture Patterns
+note top of App
+  **Main Application Controller**
+  - Manages global state (XP, completion status)
+  - Handles navigation between screens
+  - Orchestrates onboarding flow
+  - Implements comprehensive data logging
+  - Awards XP dynamically (20 XP per section)
+end note
+
+note top of OnboardingOverviewScreen
+  **Onboarding Hub**
+  - Dynamic XP display (currentXP % 100)
+  - Progress tracking with animations
+  - Section completion validation
+  - Smart navigation to next incomplete section
+end note
+
+note top of MedicalHistoryScreen
+  **Enhanced Validation**
+  - Family history completion required
+  - Save & Continue enabled only when:
+    * All 3 family history fields completed
+    * At least 1 chronic condition selected
+end note
+
+note top of DashboardScreen
+  **Main Application Hub**
+  - User progress visualization
+  - Quick action navigation
+  - Motivational content
+  - Statistics and achievements
+end note
+
+note bottom of UserState
+  **XP System**
+  - Each completed section = +20 XP
+  - Level = floor(totalXP / 100)
+  - Progress bar shows XP % 100
+  - Consistent across all screens
+end note
+
+@enduml

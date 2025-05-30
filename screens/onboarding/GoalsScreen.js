@@ -45,31 +45,29 @@ const GoalsScreen = ({
   const cardAnimations = useRef(
     Array.from({ length: 5 }, () => new Animated.Value(0))
   ).current;
-
   // Motivational quotes
   const motivationalQuotes = [
-    "🌟 Your body can do it. It's your mind you need to convince!",
-    '💪 Success starts with self-discipline and dedication!',
-    '🎯 Set goals that make you want to jump out of bed!',
-    '🚀 Progress, not perfection, is the goal!',
-    '⭐ Believe in yourself and all that you are!',
+    "🌟 Votre corps peut le faire. C'est votre esprit qu'il faut convaincre !",
+    "💪 Le succès commence par l'autodiscipline et le dévouement !",
+    '🎯 Fixez-vous des objectifs qui vous donnent envie de sauter du lit !',
+    "🚀 Le progrès, pas la perfection, est l'objectif !",
+    '⭐ Croyez en vous et en tout ce que vous êtes !',
   ];
-
   // Primary goals data
   const primaryGoalsData = [
     {
       id: 'weightLoss',
-      title: 'Weight Loss',
+      title: 'Perte de Poids',
       icon: 'monitor-weight',
-      description: 'Lose weight and feel confident',
+      description: 'Perdre du poids et se sentir confiant',
       color: '#FF6B6B',
       gradient: ['#FF6B6B', '#FF8E8E'],
     },
     {
       id: 'muscleGain',
-      title: 'Muscle Gain',
+      title: 'Prise de Muscle',
       icon: 'fitness-center',
-      description: 'Build lean muscle mass',
+      description: 'Développer sa masse musculaire',
       color: '#4ECDC4',
       gradient: ['#4ECDC4', '#44A08D'],
     },
@@ -77,35 +75,34 @@ const GoalsScreen = ({
       id: 'endurance',
       title: 'Endurance',
       icon: 'directions-run',
-      description: 'Improve cardiovascular fitness',
+      description: 'Améliorer la condition cardiovasculaire',
       color: '#45B7D1',
       gradient: ['#45B7D1', '#96C93D'],
     },
     {
       id: 'generalHealth',
-      title: 'General Health',
+      title: 'Santé Générale',
       icon: 'favorite',
-      description: 'Overall wellness & vitality',
+      description: 'Bien-être général et vitalité',
       color: '#F7931E',
       gradient: ['#F7931E', '#FFD700'],
     },
     {
       id: 'strength',
-      title: 'Strength',
+      title: 'Force',
       icon: 'sports-gymnastics',
-      description: 'Increase power & strength',
+      description: 'Augmenter la puissance et la force',
       color: '#9013FE',
       gradient: ['#9013FE', '#6200EA'],
     },
   ];
-
   // Secondary goals data
   const secondaryGoalsData = [
-    { id: 'betterSleep', label: 'Better Sleep', icon: 'bedtime' },
-    { id: 'stressReduction', label: 'Stress Reduction', icon: 'spa' },
-    { id: 'flexibility', label: 'Flexibility', icon: 'self-improvement' },
-    { id: 'balance', label: 'Balance', icon: 'balance' },
-    { id: 'energyBoost', label: 'Energy Boost', icon: 'bolt' },
+    { id: 'betterSleep', label: 'Meilleur Sommeil', icon: 'bedtime' },
+    { id: 'stressReduction', label: 'Réduction du Stress', icon: 'spa' },
+    { id: 'flexibility', label: 'Flexibilité', icon: 'self-improvement' },
+    { id: 'balance', label: 'Équilibre', icon: 'balance' },
+    { id: 'energyBoost', label: "Boost d'Énergie", icon: 'bolt' },
   ];
 
   // Timeline milestones
@@ -216,24 +213,23 @@ const GoalsScreen = ({
   // Validation
   const validateForm = () => {
     const newErrors = {};
-
     if (!primaryGoal) {
-      newErrors.primaryGoal = 'Please select a primary goal';
+      newErrors.primaryGoal = 'Veuillez sélectionner un objectif principal';
     }
 
     if (primaryGoal === 'weightLoss' || primaryGoal === 'muscleGain') {
       if (!currentWeight || Number.isNaN(Number.parseFloat(currentWeight))) {
-        newErrors.currentWeight = 'Please enter a valid current weight';
+        newErrors.currentWeight = 'Veuillez entrer un poids actuel valide';
       }
       if (!targetWeight || Number.isNaN(Number.parseFloat(targetWeight))) {
-        newErrors.targetWeight = 'Please enter a valid target weight';
+        newErrors.targetWeight = 'Veuillez entrer un poids cible valide';
       }
       if (currentWeight && targetWeight) {
         const current = Number.parseFloat(currentWeight);
         const target = Number.parseFloat(targetWeight);
         if (Math.abs(current - target) < 1) {
           newErrors.targetWeight =
-            'Target weight should be different from current weight';
+            'Le poids cible doit être différent du poids actuel';
         }
       }
     }
@@ -434,12 +430,12 @@ const GoalsScreen = ({
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your Goals</Text>
+          <Text style={styles.headerTitle}>Vos Objectifs</Text>
           <View style={styles.headerRight} />
         </View>
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>Step 4 of 5</Text>
+          <Text style={styles.progressText}>Étape 4 sur 5</Text>
           <View style={styles.progressBar}>
             <View style={[styles.progressBarFill, { width: '80%' }]} />
           </View>
@@ -461,11 +457,11 @@ const GoalsScreen = ({
           {/* Primary Goal Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialIcons name="flag" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Primary Goal</Text>
+              <MaterialIcons name="flag" size={24} color="#5603AD" />{' '}
+              <Text style={styles.sectionTitle}>Objectif Principal</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
-              What's your main fitness objective?
+              Quel est votre principal objectif de remise en forme ?
             </Text>
             <View style={styles.primaryGoalsGrid}>
               {primaryGoalsData.map((goal, index) =>
@@ -479,11 +475,12 @@ const GoalsScreen = ({
           {/* Secondary Goals Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialIcons name="add-task" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Secondary Goals</Text>
+              <MaterialIcons name="add-task" size={24} color="#5603AD" />{' '}
+              <Text style={styles.sectionTitle}>Objectifs Secondaires</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
-              Select additional benefits you'd like to achieve
+              Sélectionnez les bénéfices supplémentaires que vous aimeriez
+              obtenir
             </Text>
 
             <View style={styles.secondaryGoalsContainer}>
@@ -532,17 +529,17 @@ const GoalsScreen = ({
           {/* Target Timeline Section */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <MaterialIcons name="schedule" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Target Timeline</Text>
+              <MaterialIcons name="schedule" size={24} color="#5603AD" />{' '}
+              <Text style={styles.sectionTitle}>Calendrier Cible</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
-              How long do you want to achieve your goal?
+              En combien de temps voulez-vous atteindre votre objectif ?
             </Text>
             <View style={styles.timelineContainer}>
               <View style={styles.timelineHeader}>
                 <Text style={styles.timelineValue}>
                   {`${targetTimeline || 6} ${
-                    (targetTimeline || 6) === 1 ? 'month' : 'months'
+                    (targetTimeline || 6) === 1 ? 'mois' : 'mois'
                   }`}
                 </Text>
                 <MaterialIcons name="event" size={24} color="#5603AD" />
@@ -583,12 +580,13 @@ const GoalsScreen = ({
                   size={24}
                   color="#5603AD"
                 />
-                <Text style={styles.sectionTitle}>Weight Targets</Text>
+                <Text style={styles.sectionTitle}>Objectifs de Poids</Text>
               </View>
 
               <View style={styles.weightInputsContainer}>
                 <View style={styles.weightInputGroup}>
-                  <Text style={styles.weightLabel}>Current Weight (lbs)</Text>
+                  {' '}
+                  <Text style={styles.weightLabel}>Poids Actuel (lbs)</Text>
                   <TextInput
                     style={[
                       styles.weightInput,
@@ -610,7 +608,7 @@ const GoalsScreen = ({
                 </View>
 
                 <View style={styles.weightInputGroup}>
-                  <Text style={styles.weightLabel}>Target Weight (lbs)</Text>
+                  <Text style={styles.weightLabel}>Poids Cible (lbs)</Text>
                   <TextInput
                     style={[
                       styles.weightInput,
@@ -634,8 +632,9 @@ const GoalsScreen = ({
 
               {/* Weekly Goal Slider */}
               <View style={styles.weeklyGoalContainer}>
+                {' '}
                 <Text style={styles.weeklyGoalLabel}>
-                  Weekly Goal: {weeklyGoal} lbs/week
+                  Objectif Hebdomadaire : {weeklyGoal} lbs/semaine
                 </Text>
                 <Slider
                   style={styles.weeklyGoalSlider}
@@ -649,8 +648,8 @@ const GoalsScreen = ({
                   thumbStyle={styles.sliderThumb}
                 />
                 <View style={styles.weeklyGoalLabels}>
-                  <Text style={styles.weeklyGoalLabelText}>Gradual</Text>
-                  <Text style={styles.weeklyGoalLabelText}>Aggressive</Text>
+                  <Text style={styles.weeklyGoalLabelText}>Graduel</Text>
+                  <Text style={styles.weeklyGoalLabelText}>Agressif</Text>
                 </View>
               </View>
 
@@ -660,7 +659,6 @@ const GoalsScreen = ({
           ) : null}
           {/* Buttons */}
           <View style={styles.buttonsContainer}>
-            {' '}
             <TouchableOpacity
               style={[
                 styles.continueButton,
@@ -670,11 +668,13 @@ const GoalsScreen = ({
               disabled={!isFormValid()}
               activeOpacity={0.8}
             >
-              <Text style={styles.continueButtonText}>Save & Continue</Text>
+              <Text style={styles.continueButtonText}>
+                Sauvegarder et Continuer
+              </Text>
               <MaterialIcons name="arrow-forward" size={20} color="white" />
             </TouchableOpacity>
           </View>
-          <View style={styles.bottomSpacing} />{' '}
+          <View style={styles.bottomSpacing} />
         </ScrollView>
       </Animated.View>
 

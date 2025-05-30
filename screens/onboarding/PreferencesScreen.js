@@ -50,113 +50,117 @@ const PreferencesScreen = ({
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
   // Workout duration options
   const durationOptions = [
     {
       value: '15',
       label: '15 minutes',
       emoji: '⚡',
-      description: 'Quick & effective',
+      description: 'Rapide et efficace',
     },
     {
       value: '30',
       label: '30 minutes',
       emoji: '🎯',
-      description: 'Perfect balance',
+      description: 'Équilibre parfait',
     },
     {
       value: '45',
       label: '45 minutes',
       emoji: '💪',
-      description: 'Comprehensive',
+      description: 'Complet',
     },
     {
       value: '60+',
       label: '60+ minutes',
       emoji: '🔥',
-      description: 'Intense sessions',
+      description: 'Sessions intenses',
     },
   ];
-
   // Equipment access options
   const equipmentOptions = [
     {
       value: 'home',
-      label: 'Home',
+      label: 'Maison',
       emoji: '🏠',
-      description: 'Bodyweight & minimal equipment',
+      description: 'Poids corporel et équipement minimal',
     },
-    { value: 'gym', label: 'Gym', emoji: '🏋️', description: 'Full gym access' },
+    {
+      value: 'gym',
+      label: 'Salle de Sport',
+      emoji: '🏋️',
+      description: 'Accès complet à la salle',
+    },
     {
       value: 'outdoors',
-      label: 'Outdoors',
+      label: 'Extérieur',
       emoji: '🌳',
-      description: 'Parks & outdoor spaces',
+      description: 'Parcs et espaces extérieurs',
     },
   ];
-
   // Workout intensity options
   const intensityOptions = [
     {
       value: 'low',
-      label: 'Low',
+      label: 'Faible',
       emoji: '🚶',
       color: '#66BB6A',
-      description: 'Gentle & restorative',
+      description: 'Doux et réparateur',
     },
     {
       value: 'medium',
-      label: 'Medium',
+      label: 'Moyen',
       emoji: '🏃',
       color: '#FFA726',
-      description: 'Moderate challenge',
+      description: 'Défi modéré',
     },
     {
       value: 'high',
-      label: 'High',
+      label: 'Élevé',
       emoji: '💥',
       color: '#FF6B6B',
-      description: 'Maximum effort',
+      description: 'Effort maximum',
     },
   ];
-
   // Dietary restrictions options
   const dietaryOptions = [
-    { value: 'none', label: 'None', emoji: '🍽️' },
-    { value: 'vegetarian', label: 'Vegetarian', emoji: '🥗' },
-    { value: 'vegan', label: 'Vegan', emoji: '🌱' },
-    { value: 'gluten-free', label: 'Gluten-Free', emoji: '🌾' },
-    { value: 'keto', label: 'Keto', emoji: '🥑' },
-    { value: 'mediterranean', label: 'Mediterranean', emoji: '🫒' },
+    { value: 'none', label: 'Aucune', emoji: '🍽️' },
+    { value: 'vegetarian', label: 'Végétarien', emoji: '🥗' },
+    { value: 'vegan', label: 'Végan', emoji: '🌱' },
+    { value: 'gluten-free', label: 'Sans Gluten', emoji: '🌾' },
+    { value: 'keto', label: 'Kéto', emoji: '🥑' },
+    { value: 'mediterranean', label: 'Méditerranéen', emoji: '🫒' },
   ];
-
   // Cooking frequency options
   const cookingOptions = [
     {
       value: 'never',
-      label: 'Never',
+      label: 'Jamais',
       emoji: '🥡',
-      description: 'Takeout & ready meals',
+      description: 'Plats à emporter et repas préparés',
     },
     {
       value: 'rarely',
-      label: 'Rarely',
+      label: 'Rarement',
       emoji: '🍕',
-      description: '1-2 times per week',
+      description: '1-2 fois par semaine',
     },
     {
       value: 'sometimes',
-      label: 'Sometimes',
+      label: 'Parfois',
       emoji: '👨‍🍳',
-      description: '3-4 times per week',
+      description: '3-4 fois par semaine',
     },
-    { value: 'often', label: 'Often', emoji: '👩‍🍳', description: 'Most days' },
+    {
+      value: 'often',
+      label: 'Souvent',
+      emoji: '👩‍🍳',
+      description: 'La plupart des jours',
+    },
   ];
-
   // Language options
   const languageOptions = [
-    { value: 'English', label: 'English', flag: '🇺🇸' },
+    { value: 'English', label: 'Anglais', flag: '🇺🇸' },
     { value: 'Spanish', label: 'Español', flag: '🇪🇸' },
     { value: 'French', label: 'Français', flag: '🇫🇷' },
     { value: 'German', label: 'Deutsch', flag: '🇩🇪' },
@@ -185,30 +189,30 @@ const PreferencesScreen = ({
       }
       return [...prev, restriction];
     });
-  };
-  // Validation
+  }; // Validation
   const validateForm = () => {
     const newErrors = {};
 
     if (!workoutDuration) {
-      newErrors.workoutDuration = 'Workout duration is required';
+      newErrors.workoutDuration = "La durée d'entraînement est requise";
     }
 
     if (equipmentAccess.length === 0) {
-      newErrors.equipmentAccess = 'Please select at least one equipment option';
+      newErrors.equipmentAccess =
+        "Veuillez sélectionner au moins une option d'équipement";
     }
 
     if (!workoutIntensity) {
-      newErrors.workoutIntensity = 'Workout intensity is required';
+      newErrors.workoutIntensity = "L'intensité d'entraînement est requise";
     }
 
     if (dietaryRestrictions.length === 0) {
       newErrors.dietaryRestrictions =
-        'Please select at least one dietary option';
+        'Veuillez sélectionner au moins une option alimentaire';
     }
 
     if (!cookingFrequency) {
-      newErrors.cookingFrequency = 'Cooking frequency is required';
+      newErrors.cookingFrequency = 'La fréquence de cuisine est requise';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -281,23 +285,23 @@ const PreferencesScreen = ({
     cookingFrequency;
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />{' '}
+      <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.safeAreaHeader}>
-        {/* Header */}
+        {/* Header */}{' '}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Almost Done!</Text>
+          <Text style={styles.headerTitle}>Presque Terminé !</Text>
           <View style={styles.headerRight} />
         </View>
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>Step 5 of 5</Text>
+          <Text style={styles.progressText}>Étape 5 sur 5</Text>
           <View style={styles.progressBar}>
             <View style={[styles.progressBarFill, { width: '100%' }]} />
           </View>
-          <Text style={styles.timeEstimate}>⏱️ 2 minutes left</Text>
+          <Text style={styles.timeEstimate}>⏱️ 2 minutes restantes</Text>
         </View>
         {/* XP Display */}
         <View style={styles.xpContainer}>
@@ -313,14 +317,16 @@ const PreferencesScreen = ({
         >
           {/* Workout Preferences Section */}
           <View style={styles.section}>
+            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="fitness-center" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Workout Preferences</Text>
+              <Text style={styles.sectionTitle}>
+                Préférences d'Entraînement
+              </Text>
             </View>
-
             {/* Workout Duration */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Preferred Workout Duration</Text>
+              <Text style={styles.label}>Durée d'Entraînement Préférée</Text>
               <View style={styles.durationContainer}>
                 {durationOptions.map((option) => (
                   <TouchableOpacity
@@ -351,12 +357,13 @@ const PreferencesScreen = ({
               {errors.workoutDuration ? (
                 <Text style={styles.errorText}>{errors.workoutDuration}</Text>
               ) : null}
-            </View>
-
+            </View>{' '}
             {/* Equipment Access */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Equipment Access</Text>
-              <Text style={styles.sublabel}>Select all that apply</Text>
+              <Text style={styles.label}>Accès aux Équipements</Text>
+              <Text style={styles.sublabel}>
+                Sélectionnez toutes celles qui s'appliquent
+              </Text>
               <View style={styles.equipmentContainer}>
                 {equipmentOptions.map((option) => (
                   <TouchableOpacity
@@ -395,11 +402,10 @@ const PreferencesScreen = ({
               {errors.equipmentAccess ? (
                 <Text style={styles.errorText}>{errors.equipmentAccess}</Text>
               ) : null}
-            </View>
-
+            </View>{' '}
             {/* Workout Intensity */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Workout Intensity</Text>
+              <Text style={styles.label}>Intensité d'Entraînement</Text>
               <View style={styles.intensityContainer}>
                 {intensityOptions.map((option) => (
                   <TouchableOpacity
@@ -435,15 +441,19 @@ const PreferencesScreen = ({
           </View>
           {/* Nutrition Preferences Section */}
           <View style={styles.section}>
+            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="restaurant" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Nutrition Preferences</Text>
+              <Text style={styles.sectionTitle}>
+                Préférences Nutritionnelles
+              </Text>
             </View>
-
             {/* Dietary Restrictions */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Dietary Restrictions</Text>
-              <Text style={styles.sublabel}>Select all that apply</Text>
+              <Text style={styles.label}>Restrictions Alimentaires</Text>
+              <Text style={styles.sublabel}>
+                Sélectionnez toutes celles qui s'appliquent
+              </Text>
               <View style={styles.dietaryGrid}>
                 {dietaryOptions.map((option) => (
                   <TouchableOpacity
@@ -481,27 +491,25 @@ const PreferencesScreen = ({
                   {errors.dietaryRestrictions}
                 </Text>
               ) : null}
-            </View>
-
+            </View>{' '}
             {/* Food Allergies */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Food Allergies</Text>
+              <Text style={styles.label}>Allergies Alimentaires</Text>
               <Text style={styles.sublabel}>
-                Optional - helps us customize meal suggestions
+                Optionnel - nous aide à personnaliser les suggestions de repas
               </Text>
               <TextInput
                 style={styles.textInput}
-                placeholder="e.g., nuts, shellfish, dairy..."
+                placeholder="ex : noix, fruits de mer, produits laitiers..."
                 value={foodAllergies}
                 onChangeText={setFoodAllergies}
                 multiline
                 numberOfLines={2}
               />
-            </View>
-
+            </View>{' '}
             {/* Cooking Frequency */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Cooking Frequency</Text>
+              <Text style={styles.label}>Fréquence de Cuisine</Text>
               <View style={styles.cookingContainer}>
                 {cookingOptions.map((option) => (
                   <TouchableOpacity
@@ -540,16 +548,16 @@ const PreferencesScreen = ({
               <MaterialIcons name="notifications" size={24} color="#5603AD" />
               <Text style={styles.sectionTitle}>Notifications</Text>
             </View>
-
             {/* Notification Toggles */}
             <View style={styles.notificationContainer}>
+              {' '}
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
                   <Text style={styles.notificationLabel}>
-                    Daily workout reminders
+                    Rappels d'entraînement quotidiens
                   </Text>
                   <Text style={styles.notificationDescription}>
-                    Get motivated to stay active
+                    Restez motivé pour rester actif
                   </Text>
                 </View>
                 <Switch
@@ -558,13 +566,12 @@ const PreferencesScreen = ({
                   trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
                   thumbColor={workoutReminders ? '#5603AD' : '#f4f3f4'}
                 />
-              </View>
-
+              </View>{' '}
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationLabel}>Meal reminders</Text>
+                  <Text style={styles.notificationLabel}>Rappels de repas</Text>
                   <Text style={styles.notificationDescription}>
-                    Never miss a healthy meal
+                    Ne manquez jamais un repas sain
                   </Text>
                 </View>
                 <Switch
@@ -573,13 +580,14 @@ const PreferencesScreen = ({
                   trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
                   thumbColor={mealReminders ? '#5603AD' : '#f4f3f4'}
                 />
-              </View>
-
+              </View>{' '}
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationLabel}>Progress updates</Text>
+                  <Text style={styles.notificationLabel}>
+                    Mises à jour de progrès
+                  </Text>
                   <Text style={styles.notificationDescription}>
-                    Weekly achievements & insights
+                    Réalisations et aperçus hebdomadaires
                   </Text>
                 </View>
                 <Switch
@@ -588,15 +596,14 @@ const PreferencesScreen = ({
                   trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
                   thumbColor={progressUpdates ? '#5603AD' : '#f4f3f4'}
                 />
-              </View>
-
+              </View>{' '}
               <View style={styles.notificationItem}>
                 <View style={styles.notificationInfo}>
                   <Text style={styles.notificationLabel}>
-                    Motivation quotes
+                    Citations de motivation
                   </Text>
                   <Text style={styles.notificationDescription}>
-                    Daily inspiration to keep going
+                    Inspiration quotidienne pour continuer
                   </Text>
                 </View>
                 <Switch
@@ -606,11 +613,10 @@ const PreferencesScreen = ({
                   thumbColor={motivationQuotes ? '#5603AD' : '#f4f3f4'}
                 />
               </View>
-            </View>
-
+            </View>{' '}
             {/* Reminder Time */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Preferred Reminder Time</Text>
+              <Text style={styles.label}>Heure de Rappel Préférée</Text>
               <TouchableOpacity
                 style={styles.timePickerButton}
                 onPress={() => setShowTimePicker(true)}
@@ -643,14 +649,14 @@ const PreferencesScreen = ({
           </View>
           {/* Language & Units Section */}
           <View style={styles.section}>
+            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="language" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Language & Units</Text>
+              <Text style={styles.sectionTitle}>Langue et Unités</Text>
             </View>
-
             {/* Language */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Language</Text>
+              <Text style={styles.label}>Langue</Text>
               <TouchableOpacity
                 style={styles.dropdownButton}
                 onPress={() => setShowLanguageDropdown(true)}
@@ -665,11 +671,10 @@ const PreferencesScreen = ({
                   color="#999"
                 />
               </TouchableOpacity>
-            </View>
-
+            </View>{' '}
             {/* Units */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Units</Text>
+              <Text style={styles.label}>Unités</Text>
               <View style={styles.unitsContainer}>
                 <TouchableOpacity
                   style={[
@@ -684,7 +689,7 @@ const PreferencesScreen = ({
                       useMetric && styles.unitLabelSelected,
                     ]}
                   >
-                    Metric (kg, cm)
+                    Métrique (kg, cm)
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -700,12 +705,12 @@ const PreferencesScreen = ({
                       !useMetric && styles.unitLabelSelected,
                     ]}
                   >
-                    Imperial (lbs, ft)
+                    Impérial (lbs, ft)
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </View>{' '}
+          </View>
           {/* Buttons Container */}
           <View style={styles.buttonsContainer}>
             {/* Complete Setup Button */}
@@ -719,9 +724,9 @@ const PreferencesScreen = ({
               activeOpacity={0.8}
             >
               <View style={styles.completeButtonContent}>
-                <MaterialIcons name="save" size={24} color="white" />
+                <MaterialIcons name="save" size={24} color="white" />{' '}
                 <Text style={styles.completeSetupButtonText}>
-                  Save & Continue
+                  Enregistrer et Continuer
                 </Text>
                 <MaterialIcons name="arrow-forward" size={20} color="white" />
               </View>
@@ -733,9 +738,10 @@ const PreferencesScreen = ({
       {/* Language Dropdown Modal */}
       <Modal visible={showLanguageDropdown} transparent animationType="slide">
         <View style={styles.modalOverlay}>
+          {' '}
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Language</Text>
+              <Text style={styles.modalTitle}>Sélectionner la Langue</Text>
               <TouchableOpacity onPress={() => setShowLanguageDropdown(false)}>
                 <MaterialIcons name="close" size={24} color="#999" />
               </TouchableOpacity>

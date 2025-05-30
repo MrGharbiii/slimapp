@@ -48,58 +48,58 @@ const LifestyleScreen = ({
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
   // Work schedule options
   const workScheduleOptions = [
-    { value: 'office', label: 'Office Work', icon: 'business' },
-    { value: 'remote', label: 'Remote Work', icon: 'home' },
-    { value: 'shift', label: 'Shift Work', icon: 'schedule' },
-    { value: 'student', label: 'Student', icon: 'school' },
-    { value: 'retired', label: 'Retired', icon: 'elderly' },
+    { value: 'office', label: 'Travail de Bureau', icon: 'business' },
+    { value: 'remote', label: 'Télétravail', icon: 'home' },
+    { value: 'shift', label: 'Travail par Équipes', icon: 'schedule' },
+    { value: 'student', label: 'Étudiant', icon: 'school' },
+    { value: 'retired', label: 'Retraité', icon: 'elderly' },
   ];
-
   // Exercise frequency options
   const exerciseFrequencyOptions = [
-    { value: 'never', label: 'Never', emoji: '😴', color: '#FF6B6B' },
+    { value: 'never', label: 'Jamais', emoji: '😴', color: '#FF6B6B' },
     {
       value: '1-2',
-      label: '1-2 times per week',
+      label: '1-2 fois par semaine',
       emoji: '🚶',
       color: '#FFA726',
     },
     {
       value: '3-4',
-      label: '3-4 times per week',
+      label: '3-4 fois par semaine',
       emoji: '🏃',
       color: '#66BB6A',
     },
-    { value: '5+', label: '5+ times per week', emoji: '💪', color: '#42A5F5' },
+    {
+      value: '5+',
+      label: '5+ fois par semaine',
+      emoji: '💪',
+      color: '#42A5F5',
+    },
   ];
-
   // Exercise time options
   const exerciseTimeOptions = [
-    { value: 'morning', label: 'Morning', emoji: '🌅' },
-    { value: 'afternoon', label: 'Afternoon', emoji: '☀️' },
-    { value: 'evening', label: 'Evening', emoji: '🌙' },
+    { value: 'morning', label: 'Matin', emoji: '🌅' },
+    { value: 'afternoon', label: 'Après-midi', emoji: '☀️' },
+    { value: 'evening', label: 'Soir', emoji: '🌙' },
   ];
-
   // Favorite activities options
   const activityOptions = [
-    { value: 'running', label: 'Running', emoji: '🏃‍♂️' },
-    { value: 'cycling', label: 'Cycling', emoji: '🚴‍♀️' },
-    { value: 'swimming', label: 'Swimming', emoji: '🏊‍♂️' },
-    { value: 'gym', label: 'Gym', emoji: '🏋️‍♀️' },
+    { value: 'running', label: 'Course', emoji: '🏃‍♂️' },
+    { value: 'cycling', label: 'Cyclisme', emoji: '🚴‍♀️' },
+    { value: 'swimming', label: 'Natation', emoji: '🏊‍♂️' },
+    { value: 'gym', label: 'Salle de Sport', emoji: '🏋️‍♀️' },
     { value: 'yoga', label: 'Yoga', emoji: '🧘‍♀️' },
     { value: 'sports', label: 'Sports', emoji: '⚽' },
-    { value: 'walking', label: 'Walking', emoji: '🚶‍♀️' },
+    { value: 'walking', label: 'Marche', emoji: '🚶‍♀️' },
   ];
-
   // Sleep quality options
   const sleepQualityOptions = [
-    { value: 'poor', label: 'Poor', emoji: '😴', color: '#FF6B6B' },
-    { value: 'fair', label: 'Fair', emoji: '😐', color: '#FFA726' },
-    { value: 'good', label: 'Good', emoji: '😊', color: '#66BB6A' },
-    { value: 'excellent', label: 'Excellent', emoji: '😍', color: '#42A5F5' },
+    { value: 'poor', label: 'Mauvaise', emoji: '😴', color: '#FF6B6B' },
+    { value: 'fair', label: 'Passable', emoji: '😐', color: '#FFA726' },
+    { value: 'good', label: 'Bonne', emoji: '😊', color: '#66BB6A' },
+    { value: 'excellent', label: 'Excellente', emoji: '😍', color: '#42A5F5' },
   ];
 
   // Stress level emojis
@@ -148,25 +148,25 @@ const LifestyleScreen = ({
   // Validation
   const validateForm = () => {
     const newErrors = {};
-
     if (!workSchedule) {
-      newErrors.workSchedule = 'Work schedule is required';
+      newErrors.workSchedule = "L'horaire de travail est requis";
     }
 
     if (!exerciseFrequency) {
-      newErrors.exerciseFrequency = 'Exercise frequency is required';
+      newErrors.exerciseFrequency = "La fréquence d'exercice est requise";
     }
 
     if (!exerciseTime) {
-      newErrors.exerciseTime = 'Preferred exercise time is required';
+      newErrors.exerciseTime = "L'heure d'exercice préférée est requise";
     }
 
     if (favoriteActivities.length === 0) {
-      newErrors.favoriteActivities = 'Please select at least one activity';
+      newErrors.favoriteActivities =
+        'Veuillez sélectionner au moins une activité';
     }
 
     if (!sleepQuality) {
-      newErrors.sleepQuality = 'Sleep quality is required';
+      newErrors.sleepQuality = 'La qualité du sommeil est requise';
     }
 
     setErrors(newErrors);
@@ -225,19 +225,18 @@ const LifestyleScreen = ({
       ]).start();
     }
   };
-
   // Generate motivational message
   const getMotivationalMessage = () => {
     if (exerciseFrequency === '5+' && stressLevel <= 3) {
-      return "🌟 Amazing! You're a fitness superstar with low stress levels!";
+      return '🌟 Incroyable ! Vous êtes une superstar du fitness avec un faible niveau de stress !';
     }
     if (exerciseFrequency === 'never' && stressLevel >= 7) {
-      return "💪 Let's start small - even a 10-minute walk can boost your mood!";
+      return '💪 Commençons petit - même une marche de 10 minutes peut améliorer votre humeur !';
     }
     if (sleepHours >= 7 && sleepQuality === 'excellent') {
-      return '😴 Great sleep habits! Quality rest is the foundation of wellness.';
+      return '😴 Excellentes habitudes de sommeil ! Un repos de qualité est la base du bien-être.';
     }
-    return '🚀 Every healthy choice counts towards your fitness journey!';
+    return '🚀 Chaque choix sain compte pour votre parcours de remise en forme !';
   };
 
   // Check if form is valid
@@ -256,13 +255,13 @@ const LifestyleScreen = ({
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your Lifestyle</Text>
+          <Text style={styles.headerTitle}>Votre Style de Vie</Text>
           <View style={styles.headerRight} />
         </View>
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>Step 2 of 5</Text>
+          <Text style={styles.progressText}>Étape 2 sur 5</Text>
           <View style={styles.progressBar}>
             <View style={[styles.progressBarFill, { width: '40%' }]} />
           </View>
@@ -285,12 +284,12 @@ const LifestyleScreen = ({
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialIcons name="schedule" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Daily Routine</Text>
+              <Text style={styles.sectionTitle}>Routine Quotidienne</Text>
             </View>
 
             {/* Wake Up Time */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Wake Up Time</Text>
+              <Text style={styles.label}>Heure de Réveil</Text>
               <TouchableOpacity
                 style={styles.timePickerButton}
                 onPress={() => setShowWakeUpPicker(true)}
@@ -323,7 +322,7 @@ const LifestyleScreen = ({
 
             {/* Sleep Time */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Sleep Time</Text>
+              <Text style={styles.label}>Heure de Coucher</Text>
               <TouchableOpacity
                 style={styles.timePickerButton}
                 onPress={() => setShowSleepPicker(true)}
@@ -356,7 +355,7 @@ const LifestyleScreen = ({
 
             {/* Work Schedule */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Work Schedule</Text>
+              <Text style={styles.label}>Horaire de Travail</Text>
               <TouchableOpacity
                 style={[
                   styles.dropdownButton,
@@ -370,7 +369,7 @@ const LifestyleScreen = ({
                     ? workScheduleOptions.find(
                         (opt) => opt.value === workSchedule
                       )?.label
-                    : 'Select work schedule'}
+                    : 'Sélectionnez un horaire de travail'}
                 </Text>
                 <MaterialIcons
                   name="keyboard-arrow-down"
@@ -388,12 +387,11 @@ const LifestyleScreen = ({
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialIcons name="fitness-center" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Exercise Habits</Text>
+              <Text style={styles.sectionTitle}>Habitudes d'Exercice</Text>
             </View>
-
             {/* Exercise Frequency */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Current Exercise Frequency</Text>
+              <Text style={styles.label}>Fréquence d'Exercice Actuelle</Text>
               <View style={styles.optionsContainer}>
                 {exerciseFrequencyOptions.map((option) => (
                   <TouchableOpacity
@@ -422,11 +420,10 @@ const LifestyleScreen = ({
               {errors.exerciseFrequency ? (
                 <Text style={styles.errorText}>{errors.exerciseFrequency}</Text>
               ) : null}
-            </View>
-
+            </View>{' '}
             {/* Exercise Time */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Preferred Exercise Time</Text>
+              <Text style={styles.label}>Heure d'Exercice Préférée</Text>
               <View style={styles.timeOptionsContainer}>
                 {exerciseTimeOptions.map((option) => (
                   <TouchableOpacity
@@ -454,12 +451,13 @@ const LifestyleScreen = ({
               {errors.exerciseTime ? (
                 <Text style={styles.errorText}>{errors.exerciseTime}</Text>
               ) : null}
-            </View>
-
+            </View>{' '}
             {/* Favorite Activities */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Favorite Activities</Text>
-              <Text style={styles.sublabel}>Select all that apply</Text>
+              <Text style={styles.label}>Activités Favorites</Text>
+              <Text style={styles.sublabel}>
+                Sélectionnez toutes celles qui s'appliquent
+              </Text>
               <View style={styles.activitiesGrid}>
                 {activityOptions.map((activity) => (
                   <TouchableOpacity
@@ -502,14 +500,14 @@ const LifestyleScreen = ({
 
           {/* Stress & Sleep Section */}
           <View style={styles.section}>
+            {' '}
             <View style={styles.sectionHeader}>
               <MaterialIcons name="spa" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Stress & Sleep</Text>
-            </View>
-
+              <Text style={styles.sectionTitle}>Stress et Sommeil</Text>
+            </View>{' '}
             {/* Stress Level */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Stress Level</Text>
+              <Text style={styles.label}>Niveau de Stress</Text>
               <View style={styles.sliderContainer}>
                 <View style={styles.sliderHeader}>
                   <Text style={styles.sliderValue}>{stressLevel}</Text>
@@ -527,20 +525,19 @@ const LifestyleScreen = ({
                   minimumTrackTintColor="#5603AD"
                   maximumTrackTintColor="#E0E0E0"
                   thumbStyle={styles.sliderThumb}
-                />
+                />{' '}
                 <View style={styles.sliderLabels}>
-                  <Text style={styles.sliderLabelText}>Low Stress</Text>
-                  <Text style={styles.sliderLabelText}>High Stress</Text>
+                  <Text style={styles.sliderLabelText}>Stress Faible</Text>
+                  <Text style={styles.sliderLabelText}>Stress Élevé</Text>
                 </View>
               </View>
-            </View>
-
+            </View>{' '}
             {/* Sleep Hours */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Average Sleep Hours</Text>
+              <Text style={styles.label}>Heures de Sommeil Moyennes</Text>
               <View style={styles.sliderContainer}>
                 <View style={styles.sliderHeader}>
-                  <Text style={styles.sliderValue}>{sleepHours} hours</Text>
+                  <Text style={styles.sliderValue}>{sleepHours} heures</Text>
                   <MaterialIcons name="bedtime" size={24} color="#5603AD" />
                 </View>
                 <Slider
@@ -559,11 +556,10 @@ const LifestyleScreen = ({
                   <Text style={styles.sliderLabelText}>12h</Text>
                 </View>
               </View>
-            </View>
-
+            </View>{' '}
             {/* Sleep Quality */}
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Sleep Quality</Text>
+              <Text style={styles.label}>Qualité du Sommeil</Text>
               <View style={styles.qualityContainer}>
                 {sleepQualityOptions.map((option) => (
                   <TouchableOpacity
@@ -606,7 +602,6 @@ const LifestyleScreen = ({
 
           {/* Buttons */}
           <View style={styles.buttonsContainer}>
-            {' '}
             <TouchableOpacity
               style={[
                 styles.continueButton,
@@ -616,7 +611,9 @@ const LifestyleScreen = ({
               disabled={!isFormValid}
               activeOpacity={0.8}
             >
-              <Text style={styles.continueButtonText}>Save & Continue</Text>
+              <Text style={styles.continueButtonText}>
+                Enregistrer et Continuer
+              </Text>
               <MaterialIcons name="arrow-forward" size={20} color="white" />
             </TouchableOpacity>
           </View>
@@ -628,9 +625,12 @@ const LifestyleScreen = ({
       {/* Work Schedule Modal */}
       <Modal visible={showWorkDropdown} transparent animationType="slide">
         <View style={styles.modalOverlay}>
+          {' '}
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Work Schedule</Text>
+              <Text style={styles.modalTitle}>
+                Sélectionner l'Horaire de Travail
+              </Text>
               <TouchableOpacity onPress={() => setShowWorkDropdown(false)}>
                 <MaterialIcons name="close" size={24} color="#999" />
               </TouchableOpacity>

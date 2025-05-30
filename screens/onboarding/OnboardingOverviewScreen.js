@@ -27,42 +27,41 @@ const OnboardingOverviewScreen = ({
   // Calculate user level based on currentXP (every 100 XP = 1 level)
   const userLevel = Math.floor(currentXP / 100);
   const userXP = currentXP % 100; // XP towards next level
-
   // Onboarding sections data
   const sections = [
     {
       id: 'basicInfo',
-      title: 'Basic Info',
+      title: 'Informations de Base',
       icon: 'person',
-      description: 'Name, age, height, weight',
+      description: 'Nom, âge, taille, poids',
       xpReward: 20,
     },
     {
       id: 'lifestyle',
-      title: 'Lifestyle',
+      title: 'Style de Vie',
       icon: 'favorite',
-      description: 'Daily routine & exercise habits',
+      description: "Routine quotidienne et habitudes d'exercice",
       xpReward: 20,
     },
     {
       id: 'medicalHistory',
-      title: 'Medical History',
+      title: 'Antécédents Médicaux',
       icon: 'local-hospital',
-      description: 'Health conditions & medications',
+      description: 'Conditions de santé et médicaments',
       xpReward: 20,
     },
     {
       id: 'goals',
-      title: 'Goals',
+      title: 'Objectifs',
       icon: 'flag',
-      description: 'Fitness objectives & targets',
+      description: 'Objectifs fitness et cibles',
       xpReward: 20,
     },
     {
       id: 'preferences',
-      title: 'Preferences',
+      title: 'Préférences',
       icon: 'settings',
-      description: 'Notifications & app settings',
+      description: "Notifications et paramètres de l'app",
       xpReward: 20,
     },
   ];
@@ -195,7 +194,7 @@ const OnboardingOverviewScreen = ({
             <Text style={styles.progressTotal}>/{totalSections}</Text>
           </View>
         </View>
-        <Text style={styles.progressLabel}>Complete</Text>
+        <Text style={styles.progressLabel}>Terminé</Text>
       </View>
     );
   };
@@ -293,11 +292,12 @@ const OnboardingOverviewScreen = ({
     <View style={styles.container}>
       {/* Header SafeAreaView */}
       <SafeAreaView style={styles.safeAreaHeader}>
+        {' '}
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Complete Your Profile</Text>
+          <Text style={styles.headerTitle}>Complétez Votre Profil</Text>
           <View style={styles.headerRight} />
         </View>
       </SafeAreaView>
@@ -310,26 +310,27 @@ const OnboardingOverviewScreen = ({
         {/* Progress Ring */}
         {renderProgressRing()}
         {/* XP Display */}
-        {renderXPDisplay()}
-        {/* Motivational Message */}
+        {renderXPDisplay()} {/* Motivational Message */}
         <View style={styles.motivationalContainer}>
           <Text style={styles.motivationalText}>
-            Complete your profile to unlock personalized plans! 🚀
+            Complétez votre profil pour débloquer des plans personnalisés ! 🚀
           </Text>
-        </View>
+        </View>{' '}
         {/* Section Cards */}
         <View style={styles.sectionsContainer}>
-          <Text style={styles.sectionsTitle}>Profile Sections</Text>
+          <Text style={styles.sectionsTitle}>Sections du Profil</Text>
           {sections.map((section, index) => renderSectionCard(section, index))}
-        </View>{' '}
-        {/* Start Journey Button */}
+        </View>
+        {/* Start Journey Button */}{' '}
         <TouchableOpacity
           style={styles.startButton}
           onPress={handleStartJourney}
           activeOpacity={0.8}
         >
           <Text style={styles.startButtonText}>
-            {checkAllSectionsCompleted() ? 'Go to Dashboard' : 'Start Journey'}
+            {checkAllSectionsCompleted()
+              ? 'Aller au Tableau de Bord'
+              : 'Commencer le Parcours'}
           </Text>
           <MaterialIcons name="arrow-forward" size={20} color="white" />
         </TouchableOpacity>

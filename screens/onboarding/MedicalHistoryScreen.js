@@ -30,33 +30,64 @@ const MedicalHistoryScreen = ({
   const [allergies, setAllergies] = useState('');
   const [physicalLimitations, setPhysicalLimitations] = useState('');
   const [avoidAreas, setAvoidAreas] = useState([]);
+  const [gender, setGender] = useState('');
+
+  // Female-specific medical attributes
+  const [gravidity, setGravidity] = useState('');
+  const [recentDeliveryAbortion, setRecentDeliveryAbortion] = useState('');
+  const [contraceptionUse, setContraceptionUse] = useState('');
+  const [menopausalStatus, setMenopausalStatus] = useState('');
+  const [sopk, setSopk] = useState('');
+
+  // Personal Medical History
+  const [personalDiabetes, setPersonalDiabetes] = useState('');
+  const [personalObesity, setPersonalObesity] = useState('');
+  const [hypothyroidism, setHypothyroidism] = useState('');
+  const [sleepApnea, setSleepApnea] = useState('');
+  const [psychologicalIssues, setPsychologicalIssues] = useState('');
+  const [digestiveIssues, setDigestiveIssues] = useState('');
+  const [gastricBalloon, setGastricBalloon] = useState('');
+  const [bariatricSurgery, setBariatricSurgery] = useState('');
+  const [otherHealthIssues, setOtherHealthIssues] = useState('');
+  const [sexualDysfunction, setSexualDysfunction] = useState('');
+  const [waterRetentionPercentage, setWaterRetentionPercentage] = useState('');
+
+  // Family Medical History
   const [familyHeartDisease, setFamilyHeartDisease] = useState('');
   const [familyDiabetes, setFamilyDiabetes] = useState('');
   const [familyObesity, setFamilyObesity] = useState('');
+  const [familyThyroidIssues, setFamilyThyroidIssues] = useState('');
+
+  // Treatment History
+  const [medicalTreatment, setMedicalTreatment] = useState('');
+  const [psychotherapy, setPsychotherapy] = useState('');
+  const [priorObesityTreatments, setPriorObesityTreatments] = useState('');
+
   const [errors, setErrors] = useState({});
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [focusedField, setFocusedField] = useState('');
   // Animation
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-
-  // Chronic conditions options
+  const fadeAnim = useRef(new Animated.Value(1)).current; // Chronic conditions options
   const chronicConditionsOptions = [
-    { id: 'diabetes', label: 'Diabetes', icon: 'local-hospital' },
     { id: 'hypertension', label: 'Hypertension', icon: 'favorite' },
-    { id: 'heart_disease', label: 'Heart Disease', icon: 'favorite-border' },
-    { id: 'asthma', label: 'Asthma', icon: 'air' },
-    { id: 'arthritis', label: 'Arthritis', icon: 'accessibility' },
-    { id: 'none', label: 'None of the above', icon: 'check-circle' },
+    {
+      id: 'heart_disease',
+      label: 'Maladie Cardiaque',
+      icon: 'favorite-border',
+    },
+    { id: 'asthma', label: 'Asthme', icon: 'air' },
+    { id: 'arthritis', label: 'Arthrite', icon: 'accessibility' },
+    { id: 'none', label: 'Aucune de ces conditions', icon: 'check-circle' },
   ];
 
   // Avoid areas options
   const avoidAreasOptions = [
-    { id: 'back', label: 'Back', icon: 'accessibility-new' },
-    { id: 'knees', label: 'Knees', icon: 'directions-walk' },
-    { id: 'shoulders', label: 'Shoulders', icon: 'fitness-center' },
-    { id: 'wrists', label: 'Wrists', icon: 'pan-tool' },
-    { id: 'ankles', label: 'Ankles', icon: 'directions-run' },
-    { id: 'none', label: 'No limitations', icon: 'check-circle' },
+    { id: 'back', label: 'Dos', icon: 'accessibility-new' },
+    { id: 'knees', label: 'Genoux', icon: 'directions-walk' },
+    { id: 'shoulders', label: 'Épaules', icon: 'fitness-center' },
+    { id: 'wrists', label: 'Poignets', icon: 'pan-tool' },
+    { id: 'ankles', label: 'Chevilles', icon: 'directions-run' },
+    { id: 'none', label: 'Aucune limitation', icon: 'check-circle' },
   ];
 
   // Handle chronic conditions selection
@@ -108,29 +139,38 @@ const MedicalHistoryScreen = ({
     );
     return { allCompleted: !missingSection, missingSection };
   };
-
   // Validation
   const validateForm = () => {
-    const newErrors = {};
-
-    // Medical history is optional, but we validate format if provided
+    const newErrors = {}; // Medical history is optional, but we validate format if provided
     if (medications && medications.length > 500) {
       newErrors.medications =
-        'Please keep medications list under 500 characters';
+        'Veuillez limiter la liste des médicaments à moins de 500 caractères';
     }
 
     if (allergies && allergies.length > 300) {
-      newErrors.allergies = 'Please keep allergies list under 300 characters';
+      newErrors.allergies =
+        'Veuillez limiter la liste des allergies à moins de 300 caractères';
     }
 
     if (physicalLimitations && physicalLimitations.length > 500) {
       newErrors.physicalLimitations =
-        'Please keep limitations under 500 characters';
+        'Veuillez limiter les limitations à moins de 500 caractères';
+    }
+
+    // Validate water retention percentage format if provided
+    if (waterRetentionPercentage && waterRetentionPercentage.trim()) {
+      const percentage = parseFloat(waterRetentionPercentage.replace('%', ''));
+      if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+        newErrors.waterRetentionPercentage =
+          'Veuillez entrer un pourcentage valide entre 0 et 100';
+      }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }; // Handle form submission
+  };
+
+  // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
       const formData = {
@@ -139,10 +179,40 @@ const MedicalHistoryScreen = ({
         allergies: allergies.trim(),
         physicalLimitations: physicalLimitations.trim(),
         avoidAreas,
+        gender,
+        femaleSpecificAttributes:
+          gender === 'Femme'
+            ? {
+                gravidity: gravidity,
+                recentDeliveryAbortion: recentDeliveryAbortion,
+                contraceptionUse: contraceptionUse,
+                menopausalStatus: menopausalStatus,
+                sopk: sopk,
+              }
+            : {},
+        personalMedicalHistory: {
+          diabetes: personalDiabetes,
+          obesity: personalObesity,
+          hypothyroidism: hypothyroidism,
+          sleepApnea: sleepApnea,
+          psychologicalIssues: psychologicalIssues,
+          digestiveIssues: digestiveIssues,
+          gastricBalloon: gastricBalloon,
+          bariatricSurgery: bariatricSurgery,
+          otherHealthIssues: otherHealthIssues.trim(),
+          sexualDysfunction: sexualDysfunction,
+          waterRetentionPercentage: waterRetentionPercentage,
+        },
         familyHistory: {
           heartDisease: familyHeartDisease,
           diabetes: familyDiabetes,
           obesity: familyObesity,
+          thyroidIssues: familyThyroidIssues,
+        },
+        treatmentHistory: {
+          medicalTreatment: medicalTreatment,
+          psychotherapy: psychotherapy,
+          priorObesityTreatments: priorObesityTreatments.trim(),
         },
       };
 
@@ -168,16 +238,51 @@ const MedicalHistoryScreen = ({
         console.error('Error during navigation:', error);
       }
     }
-  };
-  // Check if form has minimal data
+  }; // Check if form has minimal data
   const hasMinimalData = () => {
-    // Require all three family history fields to be completed
+    // Require gender selection
+    if (!gender) return false;
+    const femaleFieldsComplete = true;
+    // If gender is female, require female-specific fields
+    if (gender === 'Femme') {
+      femaleFieldsComplete =
+        gravidity &&
+        recentDeliveryAbortion &&
+        contraceptionUse &&
+        menopausalStatus &&
+        sopk;
+
+      if (!femaleFieldsComplete) return false;
+    }
+
+    // Require all family history fields to be completed
     const familyHistoryComplete =
-      familyHeartDisease && familyDiabetes && familyObesity;
+      familyHeartDisease &&
+      familyDiabetes &&
+      familyObesity &&
+      familyThyroidIssues; // Require all personal medical history fields to be completed
+    const personalHistoryComplete =
+      personalDiabetes &&
+      personalObesity &&
+      hypothyroidism &&
+      sleepApnea &&
+      psychologicalIssues &&
+      digestiveIssues &&
+      gastricBalloon &&
+      bariatricSurgery &&
+      otherHealthIssues &&
+      sexualDysfunction;
 
-    return familyHistoryComplete;
+    // Require treatment history fields to be completed
+    const treatmentHistoryComplete =
+      medicalTreatment && psychotherapy && priorObesityTreatments;
+
+    return (
+      familyHistoryComplete &&
+      personalHistoryComplete &&
+      treatmentHistoryComplete
+    );
   };
-
   // Render tooltip
   const renderTooltip = (text) => (
     <TouchableOpacity
@@ -187,6 +292,33 @@ const MedicalHistoryScreen = ({
       <MaterialIcons name="info-outline" size={16} color="#5603AD" />
     </TouchableOpacity>
   );
+
+  // Render gender radio buttons
+  const renderGenderRadio = () => {
+    const genderOptions = ['Homme', 'Femme'];
+
+    return (
+      <View style={styles.radioGroup}>
+        {genderOptions.map((option) => (
+          <TouchableOpacity
+            key={option}
+            style={styles.radioOption}
+            onPress={() => setGender(option)}
+          >
+            <View
+              style={[
+                styles.radioCircle,
+                gender === option && styles.radioSelected,
+              ]}
+            >
+              {gender === option ? <View style={styles.radioDot} /> : null}
+            </View>
+            <Text style={styles.radioLabel}>{option}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
 
   // Render checkbox option
   const renderCheckboxOption = (option, selectedItems, onToggle) => {
@@ -268,16 +400,18 @@ const MedicalHistoryScreen = ({
                 size={20}
                 color="#5603AD"
                 style={styles.privacyIcon}
-              />
-              <Text style={styles.headerTitle}>Medical Information</Text>
+              />{' '}
+              <Text style={styles.headerTitle}>Informations Médicales</Text>
             </View>
-            <Text style={styles.headerSubtitle}>Your data is secure</Text>
+            <Text style={styles.headerSubtitle}>
+              Vos données sont sécurisées
+            </Text>
           </View>
           <View style={styles.headerRight} />
         </View>
-        {/* Progress Indicator */}
+        {/* Progress Indicator */}{' '}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>Step 3 of 5</Text>
+          <Text style={styles.progressText}>Étape 3 sur 5</Text>
           <View style={styles.progressBar}>
             <View style={styles.progressBarFill} />
           </View>
@@ -289,7 +423,7 @@ const MedicalHistoryScreen = ({
           <MaterialIcons name="stars" size={20} color="#5603AD" />
           <Text style={styles.xpText}>{currentXP} XP</Text>
         </View>
-        <Text style={styles.xpReward}>+20 XP for completing</Text>
+        <Text style={styles.xpReward}>+20 XP pour terminer</Text>
       </View>
       <ScrollView
         style={styles.scrollView}
@@ -299,20 +433,23 @@ const MedicalHistoryScreen = ({
         {/* Privacy Notice Card */}
         <View style={styles.privacyCard}>
           <View style={styles.privacyHeader}>
-            <MaterialIcons name="lock" size={24} color="#5603AD" />
-            <Text style={styles.privacyTitle}>Your Privacy is Protected</Text>
+            <MaterialIcons name="lock" size={24} color="#5603AD" />{' '}
+            <Text style={styles.privacyTitle}>
+              Votre Vie Privée est Protégée
+            </Text>
           </View>
           <Text style={styles.privacyText}>
-            All medical information is encrypted and stored securely. This data
-            helps us create safer, more personalized fitness plans tailored to
-            your health needs.
+            Toutes les informations médicales sont chiffrées et stockées en
+            toute sécurité. Ces données nous aident à créer des plans de remise
+            en forme plus sûrs et personnalisés adaptés à vos besoins de santé.
           </Text>
           <TouchableOpacity
             style={styles.privacyLearnMore}
             onPress={() => setShowPrivacyModal(true)}
           >
+            {' '}
             <Text style={styles.privacyLearnMoreText}>
-              Learn more about data privacy
+              En savoir plus sur la confidentialité des données
             </Text>
             <MaterialIcons name="arrow-forward" size={16} color="#5603AD" />
           </TouchableOpacity>
@@ -320,29 +457,31 @@ const MedicalHistoryScreen = ({
 
         {/* Healthcare Disclaimer */}
         <View style={styles.disclaimerBanner}>
-          <MaterialIcons name="warning" size={20} color="#FF8800" />
+          <MaterialIcons name="warning" size={20} color="#FF8800" />{' '}
           <Text style={styles.disclaimerText}>
-            Always consult your healthcare provider before starting any new
-            exercise program
+            Consultez toujours votre professionnel de santé avant de commencer
+            tout nouveau programme d'exercice
           </Text>
         </View>
 
         {/* General Health Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="local-hospital" size={24} color="#5603AD" />
-            <Text style={styles.sectionTitle}>General Health</Text>
+            <MaterialIcons name="local-hospital" size={24} color="#5603AD" />{' '}
+            <Text style={styles.sectionTitle}>Santé Générale</Text>
             {renderTooltip(
-              'This information helps us recommend safe exercises and avoid potential health risks'
+              'Ces informations nous aident à recommander des exercices sûrs et à éviter les risques potentiels pour la santé'
             )}
           </View>
-
           {/* Chronic Conditions */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>Any chronic conditions?</Text>
+              {' '}
+              <Text style={styles.fieldLabel}>
+                Avez-vous des conditions chroniques ?
+              </Text>
               {renderTooltip(
-                'Knowing about chronic conditions helps us customize your workout intensity and type'
+                "Connaître les conditions chroniques nous aide à personnaliser l'intensité et le type d'entraînement"
               )}
             </View>
             <View style={styles.checkboxGrid}>
@@ -355,15 +494,15 @@ const MedicalHistoryScreen = ({
               )}
             </View>
           </View>
-
           {/* Current Medications */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
+              {' '}
               <Text style={styles.fieldLabel}>
-                Current medications (optional)
+                Médicaments actuels (optionnel)
               </Text>
               {renderTooltip(
-                'Some medications may affect exercise capacity or require special considerations'
+                "Certains médicaments peuvent affecter la capacité d'exercice ou nécessiter des considérations spéciales"
               )}
             </View>
             <TextInput
@@ -372,7 +511,7 @@ const MedicalHistoryScreen = ({
                 focusedField === 'medications' && styles.textAreaFocused,
                 errors.medications && styles.textAreaError,
               ]}
-              placeholder="List any medications you're currently taking..."
+              placeholder="Listez tous les médicaments que vous prenez actuellement..."
               placeholderTextColor="#999"
               value={medications}
               onChangeText={setMedications}
@@ -391,13 +530,15 @@ const MedicalHistoryScreen = ({
               ) : null}
             </View>
           </View>
-
           {/* Allergies */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>Known allergies (optional)</Text>
+              {' '}
+              <Text style={styles.fieldLabel}>
+                Allergies connues (optionnel)
+              </Text>
               {renderTooltip(
-                'Allergies may affect exercise environments or equipment recommendations'
+                "Les allergies peuvent affecter les environnements d'exercice ou les recommandations d'équipement"
               )}
             </View>
             <TextInput
@@ -406,7 +547,7 @@ const MedicalHistoryScreen = ({
                 focusedField === 'allergies' && styles.textAreaFocused,
                 errors.allergies && styles.textAreaError,
               ]}
-              placeholder="List any known allergies..."
+              placeholder="Listez toutes les allergies connues..."
               placeholderTextColor="#999"
               value={allergies}
               onChangeText={setAllergies}
@@ -415,7 +556,7 @@ const MedicalHistoryScreen = ({
               multiline
               numberOfLines={2}
               maxLength={300}
-            />
+            />{' '}
             <View style={styles.textAreaFooter}>
               <Text style={styles.characterCount}>
                 {(allergies || '').length}/300
@@ -424,27 +565,135 @@ const MedicalHistoryScreen = ({
                 <Text style={styles.errorText}>{errors.allergies}</Text>
               ) : null}
             </View>
+          </View>{' '}
+          {/* Gender Selection */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>Sexe *</Text>
+              {renderTooltip(
+                'Cette information nous aide à personnaliser les recommandations de santé et de fitness selon les besoins spécifiques'
+              )}
+            </View>
+            {renderGenderRadio()}
           </View>
+          {/* Female-specific medical attributes section - only show when gender is female */}
+          {gender === 'Femme' && (
+            <View style={styles.femaleSection}>
+              <View style={styles.femaleSectionHeader}>
+                <MaterialIcons name="female" size={20} color="#E91E63" />
+                <Text style={styles.femaleSectionTitle}>
+                  Attributs Médicaux Féminins
+                </Text>
+              </View>
+
+              {/* Gravidity */}
+              <View style={styles.fieldContainer}>
+                <View style={styles.fieldHeader}>
+                  <Text style={styles.fieldLabel}>
+                    Gravité (nombre de grossesses) *
+                  </Text>
+                  {renderTooltip(
+                    "Le nombre total de grossesses peut affecter les recommandations d'exercice et de récupération"
+                  )}
+                </View>
+                {renderToggleButton(gravidity, setGravidity, [
+                  { value: '0', label: '0' },
+                  { value: '1', label: '1' },
+                  { value: '2', label: '2' },
+                  { value: '3+', label: '3+' },
+                ])}
+              </View>
+
+              {/* Recent delivery/abortion */}
+              <View style={styles.fieldContainer}>
+                <View style={styles.fieldHeader}>
+                  <Text style={styles.fieldLabel}>
+                    Accouchement ou avortement {'<'} 2 ans *
+                  </Text>
+                  {renderTooltip(
+                    "Un accouchement ou avortement récent nécessite des considérations spéciales pour l'exercice"
+                  )}
+                </View>
+                {renderToggleButton(
+                  recentDeliveryAbortion,
+                  setRecentDeliveryAbortion,
+                  [
+                    { value: 'yes', label: 'Oui' },
+                    { value: 'no', label: 'Non' },
+                  ]
+                )}
+              </View>
+
+              {/* Contraception use */}
+              <View style={styles.fieldContainer}>
+                <View style={styles.fieldHeader}>
+                  <Text style={styles.fieldLabel}>
+                    Utilisation de contraception *
+                  </Text>
+                  {renderTooltip(
+                    "Certains contraceptifs peuvent affecter le métabolisme et les performances d'exercice"
+                  )}
+                </View>
+                {renderToggleButton(contraceptionUse, setContraceptionUse, [
+                  { value: 'hormonal', label: 'Hormonale' },
+                  { value: 'non-hormonal', label: 'Non-hormonale' },
+                  { value: 'none', label: 'Aucune' },
+                ])}
+              </View>
+
+              {/* Menopausal status */}
+              <View style={styles.fieldContainer}>
+                <View style={styles.fieldHeader}>
+                  <Text style={styles.fieldLabel}>Statut ménopausique *</Text>
+                  {renderTooltip(
+                    'Le statut ménopausique peut affecter le métabolisme et les besoins nutritionnels'
+                  )}
+                </View>
+                {renderToggleButton(menopausalStatus, setMenopausalStatus, [
+                  { value: 'pre-menopausal', label: 'Pré-ménopause' },
+                  { value: 'peri-menopausal', label: 'Péri-ménopause' },
+                  { value: 'post-menopausal', label: 'Post-ménopause' },
+                ])}
+              </View>
+
+              {/* SOPK (Polycystic Ovary Syndrome) */}
+              <View style={styles.fieldContainer}>
+                <View style={styles.fieldHeader}>
+                  <Text style={styles.fieldLabel}>
+                    SOPK (Syndrome des ovaires polykystiques) *
+                  </Text>
+                  {renderTooltip(
+                    "Le SOPK peut affecter le métabolisme et nécessiter des approches d'exercice spécialisées"
+                  )}
+                </View>
+                {renderToggleButton(sopk, setSopk, [
+                  { value: 'yes', label: 'Oui' },
+                  { value: 'no', label: 'Non' },
+                  { value: 'unknown', label: 'Je ne sais pas' },
+                ])}
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Physical Limitations Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="accessibility" size={24} color="#5603AD" />
-            <Text style={styles.sectionTitle}>Physical Limitations</Text>
+            <MaterialIcons name="accessibility" size={24} color="#5603AD" />{' '}
+            <Text style={styles.sectionTitle}>Limitations Physiques</Text>
             {renderTooltip(
-              'This helps us avoid exercises that might aggravate existing injuries or conditions'
+              'Cela nous aide à éviter les exercices qui pourraient aggraver des blessures ou conditions existantes'
             )}
           </View>
-
           {/* Injuries or Limitations */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
+              {' '}
               <Text style={styles.fieldLabel}>
-                Any injuries or physical limitations? (optional)
+                Blessures ou limitations physiques ? (optionnel)
               </Text>
               {renderTooltip(
-                'Details about past injuries help us create safer workout plans'
+                "Les détails sur les blessures passées nous aident à créer des plans d'entraînement plus sûrs"
               )}
             </View>
             <TextInput
@@ -453,7 +702,7 @@ const MedicalHistoryScreen = ({
                 focusedField === 'limitations' && styles.textAreaFocused,
                 errors.physicalLimitations && styles.textAreaError,
               ]}
-              placeholder="Describe any injuries, surgeries, or physical limitations..."
+              placeholder="Décrivez toute blessure, chirurgie ou limitation physique..."
               placeholderTextColor="#999"
               value={physicalLimitations}
               onChangeText={setPhysicalLimitations}
@@ -474,15 +723,15 @@ const MedicalHistoryScreen = ({
               ) : null}
             </View>
           </View>
-
           {/* Areas to Avoid */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
+              {' '}
               <Text style={styles.fieldLabel}>
-                Areas to avoid during exercise?
+                Zones à éviter pendant l'exercice ?
               </Text>
               {renderTooltip(
-                "We'll modify exercises to protect these vulnerable areas"
+                'Nous modifierons les exercices pour protéger ces zones vulnérables'
               )}
             </View>
             <View style={styles.checkboxGrid}>
@@ -490,70 +739,382 @@ const MedicalHistoryScreen = ({
                 renderCheckboxOption(option, avoidAreas, handleAvoidAreaToggle)
               )}
             </View>
+          </View>{' '}
+        </View>
+
+        {/* Personal Medical History Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <MaterialIcons name="medical-services" size={24} color="#5603AD" />
+            <Text style={styles.sectionTitle}>
+              Antécédents Médicaux Personnels
+            </Text>
+            {renderTooltip(
+              'Ces informations nous aident à adapter votre programme en toute sécurité'
+            )}
+          </View>
+          {/* Personal Diabetes */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous du diabète (DT1/DT2) ?
+              </Text>
+              {renderTooltip(
+                "Le diabète nécessite une attention particulière lors de la planification de l'exercice et de la nutrition"
+              )}
+            </View>
+            {renderToggleButton(personalDiabetes, setPersonalDiabetes, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Personal Obesity */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>Souffrez-vous d'obésité ?</Text>
+              {renderTooltip(
+                "Cette information nous aide à créer un plan d'exercice adapté et sûr"
+              )}
+            </View>
+            {renderToggleButton(personalObesity, setPersonalObesity, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Hypothyroidism */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous de l'hypothyroïdie ?
+              </Text>
+              {renderTooltip(
+                "L'hypothyroïdie peut affecter le métabolisme et la capacité d'exercice"
+              )}
+            </View>
+            {renderToggleButton(hypothyroidism, setHypothyroidism, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Sleep Apnea */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Souffrez-vous d'apnée du sommeil ?
+              </Text>
+              {renderTooltip(
+                "L'apnée du sommeil peut affecter la récupération et les performances d'exercice"
+              )}
+            </View>
+            {renderToggleButton(sleepApnea, setSleepApnea, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Psychological Issues */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous des problèmes psychologiques ?
+              </Text>
+              {renderTooltip(
+                'Nous pouvons adapter votre programme pour soutenir votre bien-être mental'
+              )}
+            </View>
+            {renderToggleButton(psychologicalIssues, setPsychologicalIssues, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Digestive Issues */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous des problèmes digestifs ?
+              </Text>
+              {renderTooltip(
+                'Les problèmes digestifs peuvent nécessiter des ajustements nutritionnels spéciaux'
+              )}
+            </View>
+            {renderToggleButton(digestiveIssues, setDigestiveIssues, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Gastric Balloon */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous un ballon gastrique ?
+              </Text>
+              {renderTooltip(
+                "Un ballon gastrique nécessite des considérations spéciales pour l'exercice"
+              )}
+            </View>
+            {renderToggleButton(gastricBalloon, setGastricBalloon, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Bariatric Surgery */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous subi une chirurgie bariatrique ?
+              </Text>
+              {renderTooltip(
+                "La chirurgie bariatrique nécessite des plans nutritionnels et d'exercice spécialisés"
+              )}
+            </View>
+            {renderToggleButton(bariatricSurgery, setBariatricSurgery, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>{' '}
+          {/* Other Health Issues */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Autres problèmes de santé (optionnel)
+              </Text>
+              {renderTooltip(
+                'Décrivez tout autre problème de santé que nous devrions connaître'
+              )}
+            </View>
+            <TextInput
+              style={[
+                styles.textArea,
+                focusedField === 'otherHealthIssues' && styles.textAreaFocused,
+                errors.otherHealthIssues && styles.textAreaError,
+              ]}
+              placeholder="Décrivez tout autre problème de santé..."
+              placeholderTextColor="#999"
+              value={otherHealthIssues}
+              onChangeText={setOtherHealthIssues}
+              onFocus={() => setFocusedField('otherHealthIssues')}
+              onBlur={() => setFocusedField('')}
+              multiline
+              numberOfLines={3}
+              maxLength={500}
+            />
+            <View style={styles.textAreaFooter}>
+              <Text style={styles.characterCount}>
+                {(otherHealthIssues || '').length}/500
+              </Text>
+              {errors.otherHealthIssues ? (
+                <Text style={styles.errorText}>{errors.otherHealthIssues}</Text>
+              ) : null}
+            </View>
+          </View>{' '}
+          {/* Sexual Dysfunction */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Avez-vous des problèmes de dysfonction sexuelle ?
+              </Text>
+              {renderTooltip(
+                'Cette information peut être importante pour adapter certains aspects de votre programme de santé'
+              )}
+            </View>
+            {renderToggleButton(sexualDysfunction, setSexualDysfunction, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+          {/* Water Retention Percentage */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Pourcentage de rétention d'eau (optionnel)
+              </Text>
+              {renderTooltip(
+                "Le pourcentage de rétention d'eau peut affecter la composition corporelle et les objectifs de perte de poids"
+              )}
+            </View>
+            <TextInput
+              style={[
+                styles.textArea,
+                focusedField === 'waterRetentionPercentage' &&
+                  styles.textAreaFocused,
+                errors.waterRetentionPercentage && styles.textAreaError,
+              ]}
+              placeholder="Entrez le pourcentage de rétention d'eau (ex: 5%)"
+              placeholderTextColor="#999"
+              value={waterRetentionPercentage}
+              onChangeText={setWaterRetentionPercentage}
+              onFocus={() => setFocusedField('waterRetentionPercentage')}
+              onBlur={() => setFocusedField('')}
+              keyboardType="numeric"
+            />
+            {errors.waterRetentionPercentage ? (
+              <Text style={styles.errorText}>
+                {errors.waterRetentionPercentage}
+              </Text>
+            ) : null}
           </View>
         </View>
 
         {/* Family History Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialIcons name="family-restroom" size={24} color="#5603AD" />
-            <Text style={styles.sectionTitle}>Family History</Text>
+            <MaterialIcons name="family-restroom" size={24} color="#5603AD" />{' '}
+            <Text style={styles.sectionTitle}>Antécédents Familiaux</Text>
             {renderTooltip(
-              'Family history helps us understand your genetic predisposition to certain conditions'
+              'Les antécédents familiaux nous aident à comprendre votre prédisposition génétique à certaines conditions'
             )}
           </View>
-
           {/* Heart Disease */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
+              {' '}
               <Text style={styles.fieldLabel}>
-                Family history of heart disease?
+                Antécédents familiaux de maladie cardiaque ?
               </Text>
               {renderTooltip(
-                'Family history of heart disease may require more careful cardiovascular monitoring'
+                'Les antécédents familiaux de maladie cardiaque peuvent nécessiter une surveillance cardiovasculaire plus attentive'
               )}
-            </View>
+            </View>{' '}
             {renderToggleButton(familyHeartDisease, setFamilyHeartDisease, [
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-              { value: 'unknown', label: "Don't know" },
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
             ])}
           </View>
-
           {/* Diabetes */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>Family history of diabetes?</Text>
+              {' '}
+              <Text style={styles.fieldLabel}>
+                Antécédents familiaux de diabète ?
+              </Text>
               {renderTooltip(
-                'Family diabetes history helps us tailor nutrition and exercise recommendations'
+                "Les antécédents familiaux de diabète nous aident à adapter les recommandations nutritionnelles et d'exercice"
               )}
-            </View>
+            </View>{' '}
             {renderToggleButton(familyDiabetes, setFamilyDiabetes, [
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-              { value: 'unknown', label: "Don't know" },
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
             ])}
-          </View>
-
+          </View>{' '}
           {/* Obesity */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>Family history of obesity?</Text>
+              <Text style={styles.fieldLabel}>
+                Antécédents familiaux d'obésité ?
+              </Text>
               {renderTooltip(
-                'Understanding genetic predisposition helps create more effective weight management plans'
+                'Comprendre la prédisposition génétique aide à créer des plans de gestion du poids plus efficaces'
+              )}
+            </View>{' '}
+            {renderToggleButton(familyObesity, setFamilyObesity, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
+            ])}
+          </View>
+          {/* Thyroid Issues */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Antécédents familiaux de problèmes thyroïdiens ?
+              </Text>
+              {renderTooltip(
+                'Les problèmes thyroïdiens familiaux peuvent affecter le métabolisme et nécessiter une surveillance'
               )}
             </View>
-            {renderToggleButton(familyObesity, setFamilyObesity, [
-              { value: 'yes', label: 'Yes' },
-              { value: 'no', label: 'No' },
-              { value: 'unknown', label: "Don't know" },
+            {renderToggleButton(familyThyroidIssues, setFamilyThyroidIssues, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
             ])}
+          </View>
+        </View>
+
+        {/* Treatment History Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <MaterialIcons name="local-hospital" size={24} color="#5603AD" />
+            <Text style={styles.sectionTitle}>Historique des Traitements</Text>
+            {renderTooltip(
+              'Cette information nous aide à comprendre vos expériences passées avec les traitements'
+            )}
+          </View>
+
+          {/* Medical Treatment */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Suivez-vous actuellement un traitement médical ?
+              </Text>
+              {renderTooltip(
+                "Les traitements médicaux peuvent affecter votre capacité d'exercice et vos besoins nutritionnels"
+              )}
+            </View>
+            {renderToggleButton(medicalTreatment, setMedicalTreatment, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+
+          {/* Psychotherapy */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Suivez-vous une psychothérapie ?
+              </Text>
+              {renderTooltip(
+                'La psychothérapie peut influencer votre approche du bien-être et de la motivation'
+              )}
+            </View>
+            {renderToggleButton(psychotherapy, setPsychotherapy, [
+              { value: 'yes', label: 'Oui' },
+              { value: 'no', label: 'Non' },
+            ])}
+          </View>
+
+          {/* Prior Obesity Treatments */}
+          <View style={styles.fieldContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.fieldLabel}>
+                Traitements antérieurs pour l'obésité (optionnel)
+              </Text>
+              {renderTooltip(
+                'Connaître vos expériences passées nous aide à créer un plan plus efficace'
+              )}
+            </View>
+            <TextInput
+              style={[
+                styles.textArea,
+                focusedField === 'priorObesityTreatments' &&
+                  styles.textAreaFocused,
+                errors.priorObesityTreatments && styles.textAreaError,
+              ]}
+              placeholder="Décrivez les traitements antérieurs pour l'obésité (régimes, médicaments, chirurgies, etc.)..."
+              placeholderTextColor="#999"
+              value={priorObesityTreatments}
+              onChangeText={setPriorObesityTreatments}
+              onFocus={() => setFocusedField('priorObesityTreatments')}
+              onBlur={() => setFocusedField('')}
+              multiline
+              numberOfLines={3}
+              maxLength={500}
+            />
+            <View style={styles.textAreaFooter}>
+              <Text style={styles.characterCount}>
+                {(priorObesityTreatments || '').length}/500
+              </Text>
+              {errors.priorObesityTreatments ? (
+                <Text style={styles.errorText}>
+                  {errors.priorObesityTreatments}
+                </Text>
+              ) : null}
+            </View>
           </View>
         </View>
 
         {/* Action Buttons */}
         <View style={styles.buttonContainer}>
-          {' '}
           <TouchableOpacity
             style={[
               styles.continueButton,
@@ -563,7 +1124,9 @@ const MedicalHistoryScreen = ({
             disabled={!hasMinimalData()}
             activeOpacity={0.8}
           >
-            <Text style={styles.continueButtonText}>Save & Continue</Text>
+            <Text style={styles.continueButtonText}>
+              Sauvegarder et Continuer
+            </Text>
             <MaterialIcons name="arrow-forward" size={20} color="white" />
           </TouchableOpacity>
         </View>
@@ -580,32 +1143,34 @@ const MedicalHistoryScreen = ({
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Data Privacy & Security</Text>
+              <Text style={styles.modalTitle}>
+                Confidentialité et Sécurité des Données
+              </Text>
               <TouchableOpacity onPress={() => setShowPrivacyModal(false)}>
                 <MaterialIcons name="close" size={24} color="#666" />
               </TouchableOpacity>
             </View>
             <ScrollView style={styles.modalBody}>
               <View style={styles.privacyPoint}>
-                <MaterialIcons name="encrypted" size={20} color="#5603AD" />
+                <MaterialIcons name="encrypted" size={20} color="#5603AD" />{' '}
                 <Text style={styles.privacyPointText}>
-                  All data is encrypted using industry-standard AES-256
-                  encryption
+                  Toutes les données sont chiffrées à l'aide du chiffrement
+                  AES-256 standard de l'industrie
                 </Text>
               </View>
 
               <View style={styles.privacyPoint}>
-                <MaterialIcons name="verified-user" size={20} color="#5603AD" />
+                <MaterialIcons name="verified-user" size={20} color="#5603AD" />{' '}
                 <Text style={styles.privacyPointText}>
-                  Medical information is only used to personalize your fitness
-                  recommendations
+                  Les informations médicales ne sont utilisées que pour
+                  personnaliser vos recommandations de fitness
                 </Text>
               </View>
 
               <View style={styles.privacyPoint}>
                 <MaterialIcons name="no-accounts" size={20} color="#5603AD" />
                 <Text style={styles.privacyPointText}>
-                  We never share your medical data with third parties
+                  Nous ne partageons jamais vos données médicales avec des tiers
                 </Text>
               </View>
 
@@ -616,8 +1181,8 @@ const MedicalHistoryScreen = ({
                   color="#5603AD"
                 />
                 <Text style={styles.privacyPointText}>
-                  You can delete your medical data at any time from your profile
-                  settings
+                  Vous pouvez supprimer vos données médicales à tout moment
+                  depuis les paramètres de votre profil
                 </Text>
               </View>
             </ScrollView>
@@ -625,8 +1190,8 @@ const MedicalHistoryScreen = ({
               style={styles.modalCloseButton}
               onPress={() => setShowPrivacyModal(false)}
             >
-              <Text style={styles.modalCloseButtonText}>Got it</Text>
-            </TouchableOpacity>{' '}
+              <Text style={styles.modalCloseButtonText}>Compris</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -697,6 +1262,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+
   progressBar: {
     height: 6,
     backgroundColor: '#E0E0E0',
@@ -1089,6 +1655,58 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     opacity: 0.9,
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 8,
+  },
+  radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#E0E0E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  radioSelected: {
+    borderColor: '#5603AD',
+  },
+  radioDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#5603AD',
+  },
+  radioLabel: {
+    fontSize: 14,
+    color: '#333',
+  },
+  // Female-specific section styles
+  femaleSection: {
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  femaleSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  femaleSectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#E91E63',
+    marginLeft: 8,
   },
 });
 

@@ -60,23 +60,23 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "L'email est requis";
     } else if (!validateEmail(email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'Veuillez entrer une adresse email valide';
     }
 
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Le mot de passe est requis';
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password =
+        'Le mot de passe doit comporter au moins 6 caractères';
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = 'Veuillez confirmer votre mot de passe';
     } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
 
     setErrors(newErrors);
@@ -103,14 +103,14 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Create Account</Text>
+          </TouchableOpacity>{' '}
+          <Text style={styles.headerTitle}>Créer un Compte</Text>
           <View style={styles.headerRight} />
         </View>
 
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>Step 1 of 6</Text>
+          <Text style={styles.progressText}>Étape 1 sur 6</Text>
           <View style={styles.progressBar}>
             <View style={styles.progressBarFill} />
           </View>
@@ -121,12 +121,12 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
+        {' '}
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>Welcome!</Text>
-          <Text style={styles.welcomeSubtitle}>Let's create your account</Text>
+          <Text style={styles.welcomeTitle}>Bienvenue !</Text>
+          <Text style={styles.welcomeSubtitle}>Créons votre compte</Text>
         </View>
-
         {/* Form Section */}
         <View style={styles.formSection}>
           {/* Email Input */}
@@ -137,7 +137,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                 focusedField === 'email' && styles.inputFocused,
                 errors.email ? styles.inputError : null,
               ]}
-              placeholder="Enter your email"
+              placeholder="Entrez votre email"
               placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
@@ -147,7 +147,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                 if (email && !validateEmail(email)) {
                   setErrors({
                     ...errors,
-                    email: 'Please enter a valid email address',
+                    email: 'Veuillez entrer une adresse email valide',
                   });
                 } else if (email) {
                   const newErrors = { ...errors };
@@ -173,7 +173,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                   focusedField === 'password' && styles.inputFocused,
                   errors.password ? styles.inputError : null,
                 ]}
-                placeholder="Create password"
+                placeholder="Créer un mot de passe"
                 placeholderTextColor="#999"
                 value={password}
                 onChangeText={setPassword}
@@ -183,7 +183,8 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                   if (password && password.length < 6) {
                     setErrors({
                       ...errors,
-                      password: 'Password must be at least 6 characters',
+                      password:
+                        'Le mot de passe doit comporter au moins 6 caractères',
                     });
                   } else if (password) {
                     const newErrors = { ...errors };
@@ -209,9 +210,13 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             {password.length > 0 ? (
               <View style={styles.strengthContainer}>
                 <Text style={styles.strengthText}>
-                  Password strength:
+                  Force du mot de passe :
                   <Text style={{ color: passwordStrength.color }}>
-                    {passwordStrength.strength}
+                    {passwordStrength.strength === 'weak'
+                      ? ' faible'
+                      : passwordStrength.strength === 'medium'
+                      ? ' moyen'
+                      : ' fort'}
                   </Text>
                 </Text>
                 <View style={styles.strengthBar}>
@@ -247,7 +252,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                   focusedField === 'confirmPassword' && styles.inputFocused,
                   errors.confirmPassword ? styles.inputError : null,
                 ]}
-                placeholder="Confirm password"
+                placeholder="Confirmer le mot de passe"
                 placeholderTextColor="#999"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -257,7 +262,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
                   if (confirmPassword && password !== confirmPassword) {
                     setErrors({
                       ...errors,
-                      confirmPassword: 'Passwords do not match',
+                      confirmPassword: 'Les mots de passe ne correspondent pas',
                     });
                   } else if (confirmPassword) {
                     const newErrors = { ...errors };
@@ -293,16 +298,17 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             disabled={!isFormValid}
             activeOpacity={0.8}
           >
-            <Text style={styles.createAccountButtonText}>Create Account</Text>
+            {' '}
+            <Text style={styles.createAccountButtonText}>Créer un Compte</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
       {/* Sign In Link */}
       <SafeAreaView style={styles.safeAreaBottom}>
         <View style={styles.signInContainer}>
-          <Text style={styles.signInText}>Already have an account? </Text>
+          <Text style={styles.signInText}>Vous avez déjà un compte ? </Text>
           <TouchableOpacity onPress={onSignIn}>
-            <Text style={styles.signInLink}>Sign In</Text>
+            <Text style={styles.signInLink}>Se Connecter</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

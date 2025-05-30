@@ -39,15 +39,14 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "L'email est requis";
     } else if (!validateEmail(email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = 'Veuillez entrer une adresse email valide';
     }
 
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = 'Le mot de passe est requis';
     }
 
     setErrors(newErrors);
@@ -59,13 +58,11 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
 
       // Simulate API call
       setTimeout(() => {
-        setIsLoading(false);
-
-        // This is where you'd handle authentication logic
+        setIsLoading(false); // This is where you'd handle authentication logic
         // For demo purposes, we'll simulate a failed authentication
         if (email !== 'test@example.com' || password !== 'password123') {
           setErrors({
-            auth: 'Invalid email or password. Please try again.',
+            auth: 'Email ou mot de passe invalide. Veuillez réessayer.',
           });
         } else {
           // Successful login
@@ -84,17 +81,16 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
 
     if (!hasFingerprints) {
       Alert.alert(
-        'Biometric Authentication',
-        'No biometrics found. Please set up fingerprint or face ID on your device.',
+        'Authentification Biométrique',
+        "Aucune biométrie trouvée. Veuillez configurer l'empreinte digitale ou Face ID sur votre appareil.",
         [{ text: 'OK' }]
       );
       return;
     }
-
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Sign in with biometrics',
-      cancelLabel: 'Cancel',
-      fallbackLabel: 'Use Password',
+      promptMessage: 'Connectez-vous avec la biométrie',
+      cancelLabel: 'Annuler',
+      fallbackLabel: 'Utiliser le mot de passe',
     });
 
     if (result.success) {
@@ -105,11 +101,6 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
     }
   };
 
-  const handleForgotPassword = () => {
-    console.log('Forgot password pressed');
-    // Navigation to password reset screen
-  };
-
   const isFormValid = email && password;
   return (
     <View style={styles.container}>
@@ -118,8 +109,8 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Sign In</Text>
+          </TouchableOpacity>{' '}
+          <Text style={styles.headerTitle}>Se Connecter</Text>
           <View style={styles.headerRight} />
         </View>
       </SafeAreaView>
@@ -131,9 +122,9 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
       >
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeTitle}>Welcome Back!</Text>
+          <Text style={styles.welcomeTitle}>Bon Retour !</Text>
           <Text style={styles.welcomeSubtitle}>
-            Sign in to continue your journey
+            Connectez-vous pour continuer votre parcours
           </Text>
         </View>
         {/* Form Section */}
@@ -152,7 +143,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
                 focusedField === 'email' && styles.inputFocused,
                 errors.email ? styles.inputError : null,
               ]}
-              placeholder="Enter your email"
+              placeholder="Entrez votre email"
               placeholderTextColor="#999"
               value={email}
               onChangeText={(text) => {
@@ -165,7 +156,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
                 if (email && !validateEmail(email)) {
                   setErrors({
                     ...errors,
-                    email: 'Please enter a valid email address',
+                    email: 'Veuillez entrer une adresse email valide',
                   });
                 } else if (email) {
                   const newErrors = { ...errors };
@@ -191,7 +182,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
                   focusedField === 'password' && styles.inputFocused,
                   errors.password ? styles.inputError : null,
                 ]}
-                placeholder="Enter your password"
+                placeholder="Entrez votre mot de passe"
                 placeholderTextColor="#999"
                 value={password}
                 onChangeText={(text) => {
@@ -202,7 +193,10 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
                 onBlur={() => {
                   setFocusedField('');
                   if (!password) {
-                    setErrors({ ...errors, password: 'Password is required' });
+                    setErrors({
+                      ...errors,
+                      password: 'Le mot de passe est requis',
+                    });
                   } else {
                     const newErrors = { ...errors };
                     delete newErrors.password;
@@ -228,14 +222,7 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
               <Text style={styles.errorText}>{errors.password}</Text>
             ) : null}
           </View>
-          {/* Forgot Password Link */}
-          <TouchableOpacity
-            style={styles.forgotPasswordContainer}
-            onPress={handleForgotPassword}
-            disabled={isLoading}
-          >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
+
           {/* Sign In Button */}
           <TouchableOpacity
             style={[styles.signInButton, !isFormValid && styles.disabledButton]}
@@ -243,10 +230,11 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
             disabled={!isFormValid || isLoading}
             activeOpacity={0.8}
           >
+            {' '}
             {isLoading ? (
               <ActivityIndicator color="white" size="small" />
             ) : (
-              <Text style={styles.signInButtonText}>Sign In</Text>
+              <Text style={styles.signInButtonText}>Se Connecter</Text>
             )}
           </TouchableOpacity>
           {/* Biometric Authentication Option

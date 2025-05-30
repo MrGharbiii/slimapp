@@ -30,44 +30,58 @@ const BasicInfoScreen = ({
   const [name, setName] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [gender, setGender] = useState('');
   const [height, setHeight] = useState('');
   const [heightUnit, setHeightUnit] = useState('cm'); // cm or ft
   const [weight, setWeight] = useState('');
   const [weightUnit, setWeightUnit] = useState('kg'); // kg or lbs
   const [activityLevel, setActivityLevel] = useState('');
   const [showActivityDropdown, setShowActivityDropdown] = useState(false);
+
+  // Additional fields
+  const [city, setCity] = useState('');
+  const [profession, setProfession] = useState('');
+  const [waistCircumference, setWaistCircumference] = useState('');
+  const [waistUnit, setWaistUnit] = useState('cm');
+  const [hipCircumference, setHipCircumference] = useState('');
+  const [hipUnit, setHipUnit] = useState('cm');
+  const [smoking, setSmoking] = useState('');
+  const [alcohol, setAlcohol] = useState('');
+  const [initialFatMass, setInitialFatMass] = useState('');
+  const [initialMuscleMass, setInitialMuscleMass] = useState('');
+  const [fatMassTarget, setFatMassTarget] = useState('');
+  const [muscleMassTarget, setMuscleMassTarget] = useState('');
+  const [numberOfChildren, setNumberOfChildren] = useState('');
+
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState('');
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
   // Activity level options
   const activityLevels = [
     {
       value: 'sedentary',
-      label: 'Sedentary',
-      description: 'Little to no exercise',
+      label: 'Sédentaire',
+      description: "Peu ou pas d'exercice",
     },
     {
       value: 'lightly_active',
-      label: 'Lightly Active',
-      description: 'Light exercise 1-3 days/week',
+      label: 'Légèrement Actif',
+      description: 'Exercice léger 1-3 jours/semaine',
     },
     {
       value: 'moderately_active',
-      label: 'Moderately Active',
-      description: 'Moderate exercise 3-5 days/week',
+      label: 'Modérément Actif',
+      description: 'Exercice modéré 3-5 jours/semaine',
     },
     {
       value: 'very_active',
-      label: 'Very Active',
-      description: 'Hard exercise 6-7 days/week',
+      label: 'Très Actif',
+      description: 'Exercice intense 6-7 jours/semaine',
     },
     {
       value: 'extremely_active',
-      label: 'Extremely Active',
-      description: 'Very hard exercise, physical job',
+      label: 'Extrêmement Actif',
+      description: 'Exercice très intense, travail physique',
     },
   ];
 
@@ -88,44 +102,96 @@ const BasicInfoScreen = ({
   // Validation
   const validateForm = () => {
     const newErrors = {};
-
     if (!name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Le nom est requis';
     } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters';
-    }
-
-    if (!gender) {
-      newErrors.gender = 'Please select your gender';
+      newErrors.name = 'Le nom doit comporter au moins 2 caractères';
     }
 
     if (!height) {
-      newErrors.height = 'Height is required';
-    } else if (heightUnit === 'cm' && (height < 100 || height > 250)) {
-      newErrors.height = 'Height must be between 100-250 cm';
-    } else if (heightUnit === 'ft' && (height < 3 || height > 8)) {
-      newErrors.height = 'Height must be between 3-8 ft';
+      newErrors.height = 'La taille est requise';
+    } else if (height < 100 || height > 250) {
+      newErrors.height = 'La taille doit être entre 100-250 cm';
     }
-
     if (!weight) {
-      newErrors.weight = 'Weight is required';
-    } else if (weightUnit === 'kg' && (weight < 30 || weight > 300)) {
-      newErrors.weight = 'Weight must be between 30-300 kg';
-    } else if (weightUnit === 'lbs' && (weight < 66 || weight > 660)) {
-      newErrors.weight = 'Weight must be between 66-660 lbs';
+      newErrors.weight = 'Le poids est requis';
+    } else if (weight < 30 || weight > 300) {
+      newErrors.weight = 'Le poids doit être entre 30-300 kg';
     }
 
     if (!activityLevel) {
-      newErrors.activityLevel = 'Please select your activity level';
+      newErrors.activityLevel = "Veuillez sélectionner votre niveau d'activité";
+    }
+
+    // Additional validations
+    if (!city.trim()) {
+      newErrors.city = 'La ville est requise';
+    }
+
+    if (!profession.trim()) {
+      newErrors.profession = 'La profession est requise';
+    }
+    if (!waistCircumference) {
+      newErrors.waistCircumference = 'Le tour de taille est requis';
+    } else if (waistCircumference < 50 || waistCircumference > 150) {
+      newErrors.waistCircumference =
+        'Le tour de taille doit être entre 50-150 cm';
+    }
+    if (!hipCircumference) {
+      newErrors.hipCircumference = 'Le tour de hanches est requis';
+    } else if (hipCircumference < 60 || hipCircumference > 160) {
+      newErrors.hipCircumference =
+        'Le tour de hanches doit être entre 60-160 cm';
+    }
+
+    if (!smoking) {
+      newErrors.smoking = 'Veuillez indiquer vos habitudes de tabagisme';
+    }
+
+    if (!alcohol) {
+      newErrors.alcohol =
+        "Veuillez indiquer vos habitudes de consommation d'alcool";
+    }
+
+    if (!initialFatMass) {
+      newErrors.initialFatMass = 'La masse grasse initiale est requise';
+    }
+
+    if (!initialMuscleMass) {
+      newErrors.initialMuscleMass = 'La masse musculaire initiale est requise';
+    }
+
+    if (!fatMassTarget) {
+      newErrors.fatMassTarget = "L'objectif de masse grasse est requis";
+    }
+
+    if (!muscleMassTarget) {
+      newErrors.muscleMassTarget = "L'objectif de masse musculaire est requis";
+    }
+
+    if (!numberOfChildren) {
+      newErrors.numberOfChildren = "Le nombre d'enfants est requis";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  // Check if form is valid
+  }; // Check if form is valid
   const isFormValid =
-    name.trim() && gender && height && weight && activityLevel;
+    name.trim() &&
+    height &&
+    weight &&
+    activityLevel &&
+    city.trim() &&
+    profession.trim() &&
+    waistCircumference &&
+    hipCircumference &&
+    smoking &&
+    alcohol &&
+    initialFatMass &&
+    initialMuscleMass &&
+    fatMassTarget &&
+    muscleMassTarget &&
+    numberOfChildren;
 
   // Handle date change
   const onDateChange = (event, selectedDate) => {
@@ -149,12 +215,24 @@ const BasicInfoScreen = ({
       const formData = {
         name: name.trim(),
         dateOfBirth,
-        gender,
         height: Number.parseFloat(height),
         heightUnit,
         weight: Number.parseFloat(weight),
         weightUnit,
         activityLevel,
+        city: city.trim(),
+        profession: profession.trim(),
+        waistCircumference: Number.parseFloat(waistCircumference),
+        waistUnit,
+        hipCircumference: Number.parseFloat(hipCircumference),
+        hipUnit,
+        smoking,
+        alcohol,
+        initialFatMass: Number.parseFloat(initialFatMass),
+        initialMuscleMass: Number.parseFloat(initialMuscleMass),
+        fatMassTarget: Number.parseFloat(fatMassTarget),
+        muscleMassTarget: Number.parseFloat(muscleMassTarget),
+        numberOfChildren: Number.parseInt(numberOfChildren, 10),
       };
 
       // Check if all required sections are completed
@@ -180,34 +258,6 @@ const BasicInfoScreen = ({
       }
     }
   };
-
-  // Render gender radio buttons
-  const renderGenderRadio = () => {
-    const genderOptions = ['Male', 'Female', 'Other'];
-
-    return (
-      <View style={styles.radioGroup}>
-        {genderOptions.map((option) => (
-          <TouchableOpacity
-            key={option}
-            style={styles.radioOption}
-            onPress={() => setGender(option)}
-          >
-            <View
-              style={[
-                styles.radioCircle,
-                gender === option && styles.radioSelected,
-              ]}
-            >
-              {gender === option ? <View style={styles.radioDot} /> : null}
-            </View>
-            <Text style={styles.radioLabel}>{option}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
-  };
-
   // Render unit toggle
   const renderUnitToggle = (currentUnit, units, onToggle) => {
     return (
@@ -251,6 +301,7 @@ const BasicInfoScreen = ({
           ]}
           onPress={() => setShowActivityDropdown(true)}
         >
+          {' '}
           <Text
             style={[
               styles.dropdownText,
@@ -259,7 +310,7 @@ const BasicInfoScreen = ({
           >
             {selectedActivity
               ? selectedActivity.label
-              : 'Select activity level'}
+              : "Sélectionnez le niveau d'activité"}
           </Text>
           <MaterialIcons name="keyboard-arrow-down" size={24} color="#666" />
         </TouchableOpacity>
@@ -272,8 +323,11 @@ const BasicInfoScreen = ({
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
+              {' '}
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Select Activity Level</Text>
+                <Text style={styles.modalTitle}>
+                  Sélectionnez le Niveau d'Activité
+                </Text>
                 <TouchableOpacity
                   onPress={() => setShowActivityDropdown(false)}
                 >
@@ -315,13 +369,13 @@ const BasicInfoScreen = ({
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <MaterialIcons name="arrow-back" size={24} color="#5603AD" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Basic Information</Text>
+          </TouchableOpacity>{' '}
+          <Text style={styles.headerTitle}>Informations de Base</Text>
           <View style={styles.headerRight} />
         </View>
         {/* Progress Indicator */}
         <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>1 of 5</Text>
+          <Text style={styles.progressText}>1 sur 5</Text>
           <View style={styles.progressBar}>
             <View style={styles.progressBarFill} />
           </View>
@@ -337,15 +391,15 @@ const BasicInfoScreen = ({
         contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Personal Details Section */}
+        {/* Personal Details Section */}{' '}
         <View style={styles.section}>
           <View style={styles.sectionTitleContainer}>
             <MaterialIcons name="person" size={20} color="#5603AD" />
-            <Text style={styles.sectionTitle}>Personal Details</Text>
+            <Text style={styles.sectionTitle}>Détails Personnels</Text>
           </View>
           {/* Name Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Full Name *</Text>
+            <Text style={styles.inputLabel}>Nom Complet *</Text>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="badge"
@@ -359,7 +413,7 @@ const BasicInfoScreen = ({
                   focusedField === 'name' && styles.inputFocused,
                   errors.name && styles.inputError,
                 ]}
-                placeholder="Enter your full name"
+                placeholder="Entrez votre nom complet"
                 placeholderTextColor="#999"
                 value={name}
                 onChangeText={setName}
@@ -375,7 +429,7 @@ const BasicInfoScreen = ({
           </View>
           {/* Date of Birth */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Date of Birth *</Text>
+            <Text style={styles.inputLabel}>Date de Naissance *</Text>
             <TouchableOpacity
               style={[
                 styles.dateButton,
@@ -400,27 +454,78 @@ const BasicInfoScreen = ({
                 maximumDate={new Date()}
                 minimumDate={new Date(1900, 0, 1)}
               />
-            ) : null}
-          </View>
-          {/* Gender Selection */}
+            ) : null}{' '}
+          </View>{' '}
+          {/* City Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Gender *</Text>
-            {renderGenderRadio()}
-            {errors.gender ? (
-              <Text style={styles.errorText}>{errors.gender}</Text>
+            <Text style={styles.inputLabel}>Ville *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="location-city"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'city' && styles.inputFocused,
+                  errors.city && styles.inputError,
+                ]}
+                placeholder="Entrez votre ville"
+                placeholderTextColor="#999"
+                value={city}
+                onChangeText={setCity}
+                onFocus={() => setFocusedField('city')}
+                onBlur={() => setFocusedField('')}
+                maxLength={50}
+              />
+            </View>
+            {errors.city ? (
+              <Text style={styles.errorText}>{errors.city}</Text>
             ) : null}
+            <Text style={styles.characterCount}>{city.length}/50</Text>
+          </View>
+          {/* Profession Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Profession *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="work"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'profession' && styles.inputFocused,
+                  errors.profession && styles.inputError,
+                ]}
+                placeholder="Entrez votre profession"
+                placeholderTextColor="#999"
+                value={profession}
+                onChangeText={setProfession}
+                onFocus={() => setFocusedField('profession')}
+                onBlur={() => setFocusedField('')}
+                maxLength={50}
+              />
+            </View>
+            {errors.profession ? (
+              <Text style={styles.errorText}>{errors.profession}</Text>
+            ) : null}
+            <Text style={styles.characterCount}>{profession.length}/50</Text>
           </View>
         </View>
         {/* Physical Stats Section */}
         <View style={styles.section}>
           <View style={styles.sectionTitleContainer}>
             <MaterialIcons name="straighten" size={20} color="#5603AD" />
-            <Text style={styles.sectionTitle}>Physical Stats</Text>
+            <Text style={styles.sectionTitle}>Statistiques Physiques</Text>
           </View>
-
           {/* Height Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Height *</Text>
+            <Text style={styles.inputLabel}>Taille *</Text>
             <View style={styles.inputWithUnit}>
               <View style={styles.inputWrapper}>
                 <MaterialIcons
@@ -436,7 +541,7 @@ const BasicInfoScreen = ({
                     focusedField === 'height' && styles.inputFocused,
                     errors.height && styles.inputError,
                   ]}
-                  placeholder="Enter height"
+                  placeholder="Entrez la taille"
                   placeholderTextColor="#999"
                   value={height}
                   onChangeText={setHeight}
@@ -445,16 +550,15 @@ const BasicInfoScreen = ({
                   keyboardType="numeric"
                 />
               </View>
-              {renderUnitToggle(heightUnit, ['cm', 'ft'], setHeightUnit)}
+              {renderUnitToggle(heightUnit, ['cm'], setHeightUnit)}
             </View>
             {errors.height ? (
               <Text style={styles.errorText}>{errors.height}</Text>
             ) : null}
           </View>
-
           {/* Weight Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Weight *</Text>
+            <Text style={styles.inputLabel}>Poids *</Text>
             <View style={styles.inputWithUnit}>
               <View style={styles.inputWrapper}>
                 <MaterialIcons
@@ -470,7 +574,7 @@ const BasicInfoScreen = ({
                     focusedField === 'weight' && styles.inputFocused,
                     errors.weight && styles.inputError,
                   ]}
-                  placeholder="Enter weight"
+                  placeholder="Entrez le poids"
                   placeholderTextColor="#999"
                   value={weight}
                   onChangeText={setWeight}
@@ -479,16 +583,15 @@ const BasicInfoScreen = ({
                   keyboardType="numeric"
                 />
               </View>
-              {renderUnitToggle(weightUnit, ['kg', 'lbs'], setWeightUnit)}
+              {renderUnitToggle(weightUnit, ['kg'], setWeightUnit)}
             </View>
             {errors.weight ? (
               <Text style={styles.errorText}>{errors.weight}</Text>
             ) : null}
-          </View>
-
+          </View>{' '}
           {/* Activity Level */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Activity Level *</Text>
+            <Text style={styles.inputLabel}>Niveau d'Activité *</Text>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="fitness-center"
@@ -502,7 +605,315 @@ const BasicInfoScreen = ({
               <Text style={styles.errorText}>{errors.activityLevel}</Text>
             ) : null}
           </View>
-        </View>{' '}
+          {/* Waist Circumference Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Tour de Taille *</Text>
+            <View style={styles.inputWithUnit}>
+              <View style={styles.inputWrapper}>
+                <MaterialIcons
+                  name="tune"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.inputWithUnitField,
+                    focusedField === 'waistCircumference' &&
+                      styles.inputFocused,
+                    errors.waistCircumference && styles.inputError,
+                  ]}
+                  placeholder="Entrez le tour de taille"
+                  placeholderTextColor="#999"
+                  value={waistCircumference}
+                  onChangeText={setWaistCircumference}
+                  onFocus={() => setFocusedField('waistCircumference')}
+                  onBlur={() => setFocusedField('')}
+                  keyboardType="numeric"
+                />
+              </View>
+              {renderUnitToggle(waistUnit, ['cm'], setWaistUnit)}
+            </View>
+            {errors.waistCircumference ? (
+              <Text style={styles.errorText}>{errors.waistCircumference}</Text>
+            ) : null}
+          </View>
+          {/* Hip Circumference Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Tour de Hanches *</Text>
+            <View style={styles.inputWithUnit}>
+              <View style={styles.inputWrapper}>
+                <MaterialIcons
+                  name="tune"
+                  size={20}
+                  color="#666"
+                  style={styles.inputIcon}
+                />
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.inputWithUnitField,
+                    focusedField === 'hipCircumference' && styles.inputFocused,
+                    errors.hipCircumference && styles.inputError,
+                  ]}
+                  placeholder="Entrez le tour de hanches"
+                  placeholderTextColor="#999"
+                  value={hipCircumference}
+                  onChangeText={setHipCircumference}
+                  onFocus={() => setFocusedField('hipCircumference')}
+                  onBlur={() => setFocusedField('')}
+                  keyboardType="numeric"
+                />
+              </View>
+              {renderUnitToggle(hipUnit, ['cm'], setHipUnit)}
+            </View>
+            {errors.hipCircumference ? (
+              <Text style={styles.errorText}>{errors.hipCircumference}</Text>
+            ) : null}
+          </View>
+          {/* Initial Fat Mass Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Masse Grasse Initiale *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="fitness-center"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'initialFatMass' && styles.inputFocused,
+                  errors.initialFatMass && styles.inputError,
+                ]}
+                placeholder="Entrez la masse grasse initiale (kg)"
+                placeholderTextColor="#999"
+                value={initialFatMass}
+                onChangeText={setInitialFatMass}
+                onFocus={() => setFocusedField('initialFatMass')}
+                onBlur={() => setFocusedField('')}
+                keyboardType="numeric"
+              />
+            </View>
+            {errors.initialFatMass ? (
+              <Text style={styles.errorText}>{errors.initialFatMass}</Text>
+            ) : null}
+          </View>
+          {/* Initial Muscle Mass Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Masse Musculaire Initiale *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="fitness-center"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'initialMuscleMass' && styles.inputFocused,
+                  errors.initialMuscleMass && styles.inputError,
+                ]}
+                placeholder="Entrez la masse musculaire initiale (kg)"
+                placeholderTextColor="#999"
+                value={initialMuscleMass}
+                onChangeText={setInitialMuscleMass}
+                onFocus={() => setFocusedField('initialMuscleMass')}
+                onBlur={() => setFocusedField('')}
+                keyboardType="numeric"
+              />
+            </View>
+            {errors.initialMuscleMass ? (
+              <Text style={styles.errorText}>{errors.initialMuscleMass}</Text>
+            ) : null}
+          </View>
+          {/* Fat Mass Target Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Objectif de Masse Grasse *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="fitness-center"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'fatMassTarget' && styles.inputFocused,
+                  errors.fatMassTarget && styles.inputError,
+                ]}
+                placeholder="Entrez l'objectif de masse grasse (kg)"
+                placeholderTextColor="#999"
+                value={fatMassTarget}
+                onChangeText={setFatMassTarget}
+                onFocus={() => setFocusedField('fatMassTarget')}
+                onBlur={() => setFocusedField('')}
+                keyboardType="numeric"
+              />
+            </View>
+            {errors.fatMassTarget ? (
+              <Text style={styles.errorText}>{errors.fatMassTarget}</Text>
+            ) : null}
+          </View>
+          {/* Muscle Mass Target Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>
+              Objectif de Masse Musculaire *
+            </Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="fitness-center"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'muscleMassTarget' && styles.inputFocused,
+                  errors.muscleMassTarget && styles.inputError,
+                ]}
+                placeholder="Entrez l'objectif de masse musculaire (kg)"
+                placeholderTextColor="#999"
+                value={muscleMassTarget}
+                onChangeText={setMuscleMassTarget}
+                onFocus={() => setFocusedField('muscleMassTarget')}
+                onBlur={() => setFocusedField('')}
+                keyboardType="numeric"
+              />
+            </View>
+            {errors.muscleMassTarget ? (
+              <Text style={styles.errorText}>{errors.muscleMassTarget}</Text>
+            ) : null}
+          </View>
+        </View>
+        {/* Additional Information Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionTitleContainer}>
+            <MaterialIcons name="info" size={20} color="#5603AD" />
+            <Text style={styles.sectionTitle}>
+              Informations Supplémentaires
+            </Text>
+          </View>
+          {/* Smoking Habit */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Habitudes de Tabagisme *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="smoking-rooms"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={smoking}
+                  onValueChange={(itemValue) => setSmoking(itemValue)}
+                  style={[
+                    styles.picker,
+                    focusedField === 'smoking' && styles.inputFocused,
+                    errors.smoking && styles.inputError,
+                  ]}
+                >
+                  <Picker.Item
+                    label="Sélectionnez vos habitudes de tabagisme"
+                    value=""
+                    enabled={true}
+                    style={styles.pickerItem}
+                  />
+                  <Picker.Item label="Non-fumeur" value="non_smoker" />
+                  <Picker.Item
+                    label="Fumeur occasionnel"
+                    value="occasional_smoker"
+                  />
+                  <Picker.Item label="Fumeur régulier" value="regular_smoker" />
+                </Picker>
+              </View>
+            </View>
+            {errors.smoking ? (
+              <Text style={styles.errorText}>{errors.smoking}</Text>
+            ) : null}
+          </View>
+
+          {/* Alcohol Consumption Habit */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>
+              Habitudes de Consommation d'Alcool *
+            </Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="local-bar"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={alcohol}
+                  onValueChange={(itemValue) => setAlcohol(itemValue)}
+                  style={[
+                    styles.picker,
+                    focusedField === 'alcohol' && styles.inputFocused,
+                    errors.alcohol && styles.inputError,
+                  ]}
+                >
+                  <Picker.Item
+                    label="Sélectionnez vos habitudes de consommation d'alcool"
+                    value=""
+                    enabled={true}
+                    style={styles.pickerItem}
+                  />
+                  <Picker.Item label="Pas d'alcool" value="no_alcohol" />
+                  <Picker.Item
+                    label="Consommation occasionnelle"
+                    value="occasional_drinker"
+                  />
+                  <Picker.Item
+                    label="Consommation régulière"
+                    value="regular_drinker"
+                  />
+                </Picker>
+              </View>
+            </View>
+            {errors.alcohol ? (
+              <Text style={styles.errorText}>{errors.alcohol}</Text>
+            ) : null}
+          </View>
+
+          {/* Number of Children Input */}
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Nombre d'Enfants *</Text>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="child-care"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'numberOfChildren' && styles.inputFocused,
+                  errors.numberOfChildren && styles.inputError,
+                ]}
+                placeholder="Entrez le nombre d'enfants"
+                placeholderTextColor="#999"
+                value={numberOfChildren}
+                onChangeText={setNumberOfChildren}
+                onFocus={() => setFocusedField('numberOfChildren')}
+                onBlur={() => setFocusedField('')}
+                keyboardType="numeric"
+              />
+            </View>
+            {errors.numberOfChildren ? (
+              <Text style={styles.errorText}>{errors.numberOfChildren}</Text>
+            ) : null}
+          </View>
+        </View>
         {/* Action Buttons */}
         <View style={styles.actionContainer}>
           <TouchableOpacity
@@ -514,10 +925,13 @@ const BasicInfoScreen = ({
             disabled={!isFormValid}
             activeOpacity={0.8}
           >
-            <Text style={styles.continueButtonText}>Save & Continue</Text>
+            {' '}
+            <Text style={styles.continueButtonText}>
+              Sauvegarder et Continuer
+            </Text>
             <MaterialIcons name="arrow-forward" size={20} color="white" />
           </TouchableOpacity>
-        </View>{' '}
+        </View>
         <View style={styles.bottomSpacing} />
       </ScrollView>
       <SafeAreaView style={styles.safeAreaBottom} />
@@ -670,39 +1084,6 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 16,
-    color: '#333',
-  },
-  radioGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  radioOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 5,
-  },
-  radioCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-  },
-  radioSelected: {
-    borderColor: '#5603AD',
-  },
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#5603AD',
-  },
-  radioLabel: {
-    fontSize: 14,
     color: '#333',
   },
   inputWithUnit: {
@@ -889,6 +1270,27 @@ const styles = StyleSheet.create({
   },
   safeAreaBottom: {
     backgroundColor: 'white',
+  },
+  picker: {
+    flex: 1,
+    height: 50,
+    color: '#333',
+    fontSize: 16,
+  },
+  pickerContainer: {
+    flex: 1,
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    paddingLeft: 50,
+  },
+  pickerItem: {
+    fontSize: 16,
+    color: '#333',
   },
 });
 

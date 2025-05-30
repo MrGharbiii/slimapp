@@ -47,8 +47,10 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
         </View>
         {/* Content Section */}
         <View style={styles.contentSection}>
-          <Text style={styles.title}>Slim & Healthy</Text>
-          <Text style={styles.subtitle}>Your Personal Fitness Companion</Text>
+          <Text style={styles.title}>Mince & Sain</Text>
+          <Text style={styles.subtitle}>
+            Votre Compagnon de Fitness Personnel
+          </Text>
           {/* Buttons Section */}
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
@@ -63,7 +65,8 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.createAccountText}>Create Account</Text>
+              {' '}
+              <Text style={styles.createAccountText}>Créer un Compte</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -78,14 +81,15 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.signInText}>Sign In</Text>
+              <Text style={styles.signInText}>Se Connecter</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </View>{' '}
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            By continuing, you agree to our Terms & Privacy Policy
+            En continuant, vous acceptez nos Conditions d'Utilisation et notre
+            Politique de Confidentialité
           </Text>
         </View>
       </SafeAreaView>
