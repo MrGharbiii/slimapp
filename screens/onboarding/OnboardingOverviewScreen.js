@@ -112,7 +112,6 @@ const OnboardingOverviewScreen = ({
   const getSectionStatus = (sectionId) => {
     return completedSections.includes(sectionId) ? 'completed' : 'not-started';
   };
-
   // Find next incomplete section or return null if all complete
   const getNextIncompleteSection = () => {
     const requiredSections = [
@@ -120,6 +119,7 @@ const OnboardingOverviewScreen = ({
       'lifestyle',
       'medicalHistory',
       'goals',
+      'preferences',
     ];
     for (const sectionId of requiredSections) {
       if (!completedSections.includes(sectionId)) {
@@ -136,24 +136,36 @@ const OnboardingOverviewScreen = ({
       'lifestyle',
       'medicalHistory',
       'goals',
+      'preferences',
     ];
     return requiredSections.every((section) =>
       completedSections.includes(section)
     );
   };
-
   // Handle start journey button press
-  // NOTE TO SELF : I DISABLED THIS FOR NOW JUST TO BYPASS THE CHECK TO GO TO NAVIATE TO DASHBOARD
-  // REMOVE THE ! IN checkAllSectionsCompleted() TO ENABLE THE CHECK
   const handleStartJourney = () => {
     if (checkAllSectionsCompleted()) {
       // All sections complete - navigate to dashboard
+      console.log('🎉 OnboardingOverviewScreen: All sections completed!');
+      console.log('🎉 OnboardingOverviewScreen: Navigating to dashboard...');
+      console.log('📊 OnboardingOverviewScreen: Final Stats:');
+      console.log(`   - Total XP: ${currentXP}`);
+      console.log(`   - User Level: ${userLevel}`);
+      console.log(`   - Completed Sections: ${completedSections.join(', ')}`);
+      console.log(
+        '🚀 OnboardingOverviewScreen: User ready for dashboard experience!'
+      );
+
       if (onNavigateToSection) {
         onNavigateToSection('dashboard');
       }
     } else {
       // Navigate to next incomplete section
       const nextSection = getNextIncompleteSection();
+      console.log(
+        'OnboardingOverviewScreen: Navigating to next section:',
+        nextSection
+      );
       if (nextSection && onStartJourney) {
         onStartJourney(nextSection);
       }

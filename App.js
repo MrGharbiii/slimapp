@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, View } from 'react-native';
 import { AuthProvider } from './context/AuthContext';
+import { OnboardingAPI } from './services/apiService';
 import WelcomeScreen from './screens/auth/WelcomeScreen';
 import SignUpScreen from './screens/auth/SignUpScreen';
 import SignInScreen from './screens/auth/SignInScreen';
@@ -84,6 +85,11 @@ export function MainApp() {
   const handleAuthSuccess = () => {
     // Navigate to onboarding overview after successful signup
     console.log('Authentication successful! Navigating to onboarding...');
+    console.log('🚀 ONBOARDING DATA COLLECTION JOURNEY STARTED');
+    console.log(
+      '📋 Ready to collect: Basic Info → Lifestyle → Medical History → Goals → Preferences'
+    );
+    console.log('⏰ Session started at:', new Date().toLocaleString());
     setCurrentScreen('onboarding');
   };
 
@@ -185,18 +191,103 @@ export function MainApp() {
     console.log('='.repeat(60));
 
     console.log('\n🏠 BASIC INFO:');
+    if (onboardingData.basicInfo) {
+      console.log(`   • Name: ${onboardingData.basicInfo.name || 'N/A'}`);
+      console.log(`   • Age: ${onboardingData.basicInfo.age || 'N/A'}`);
+      console.log(`   • Gender: ${onboardingData.basicInfo.gender || 'N/A'}`);
+      console.log(`   • Height: ${onboardingData.basicInfo.height || 'N/A'}`);
+      console.log(`   • Weight: ${onboardingData.basicInfo.weight || 'N/A'}`);
+      console.log(
+        `   • Completed: ${onboardingData.basicInfo.completedAt || 'N/A'}`
+      );
+    }
     console.log(JSON.stringify(onboardingData.basicInfo, null, 2));
 
     console.log('\n🏃 LIFESTYLE:');
+    if (onboardingData.lifestyle) {
+      console.log(
+        `   • Activity Level: ${
+          onboardingData.lifestyle.activityLevel || 'N/A'
+        }`
+      );
+      console.log(
+        `   • Exercise Frequency: ${
+          onboardingData.lifestyle.exerciseFrequency || 'N/A'
+        }`
+      );
+      console.log(
+        `   • Preferred Workout Time: ${
+          onboardingData.lifestyle.preferredWorkoutTime || 'N/A'
+        }`
+      );
+      console.log(
+        `   • Completed: ${onboardingData.lifestyle.completedAt || 'N/A'}`
+      );
+    }
     console.log(JSON.stringify(onboardingData.lifestyle, null, 2));
 
     console.log('\n🏥 MEDICAL HISTORY:');
+    if (onboardingData.medicalHistory) {
+      console.log(
+        `   • Health Conditions: ${
+          onboardingData.medicalHistory.healthConditions &&
+          Array.isArray(onboardingData.medicalHistory.healthConditions)
+            ? onboardingData.medicalHistory.healthConditions.join(', ')
+            : 'None'
+        }`
+      );
+      console.log(
+        `   • Medications: ${
+          onboardingData.medicalHistory.medications &&
+          Array.isArray(onboardingData.medicalHistory.medications)
+            ? onboardingData.medicalHistory.medications.join(', ')
+            : 'None'
+        }`
+      );
+      console.log(
+        `   • Injuries: ${
+          onboardingData.medicalHistory.injuries &&
+          Array.isArray(onboardingData.medicalHistory.injuries)
+            ? onboardingData.medicalHistory.injuries.join(', ')
+            : 'None'
+        }`
+      );
+      console.log(
+        `   • Completed: ${onboardingData.medicalHistory.completedAt || 'N/A'}`
+      );
+    }
     console.log(JSON.stringify(onboardingData.medicalHistory, null, 2));
 
     console.log('\n🎯 GOALS:');
+    if (onboardingData.goals) {
+      console.log(
+        `   • Primary Goal: ${onboardingData.goals.primaryGoal || 'N/A'}`
+      );
+      console.log(
+        `   • Target Weight: ${onboardingData.goals.targetWeight || 'N/A'}`
+      );
+      console.log(`   • Timeline: ${onboardingData.goals.timeline || 'N/A'}`);
+      console.log(
+        `   • Completed: ${onboardingData.goals.completedAt || 'N/A'}`
+      );
+    }
     console.log(JSON.stringify(onboardingData.goals, null, 2));
 
     console.log('\n⚙️ PREFERENCES:');
+    if (onboardingData.preferences) {
+      console.log(
+        `   • Notifications: ${
+          onboardingData.preferences.notifications ? 'Enabled' : 'Disabled'
+        }`
+      );
+      console.log(`   • Units: ${onboardingData.preferences.units || 'N/A'}`);
+      console.log(
+        `   • Language: ${onboardingData.preferences.language || 'N/A'}`
+      );
+      console.log(
+        `   • Completed: ${onboardingData.preferences.completedAt || 'N/A'}`
+      );
+    }
     console.log(JSON.stringify(onboardingData.preferences, null, 2));
 
     console.log('\n📈 PROGRESS SUMMARY:');
@@ -205,6 +296,12 @@ export function MainApp() {
       `User Level: ${userLevel} (${finalXP % 100}/100 XP to next level)`
     );
     console.log(`Completed Sections: ${newCompletedSections.join(', ')}`);
+    console.log(`Total Sections: ${newCompletedSections.length}/5`);
+    console.log(
+      `Completion Rate: ${((newCompletedSections.length / 5) * 100).toFixed(
+        1
+      )}%`
+    );
     console.log(`Completion Date: ${new Date().toLocaleString()}`);
 
     console.log('\n🔗 COMPLETE USER PROFILE:');
@@ -214,15 +311,71 @@ export function MainApp() {
         level: userLevel,
         xpToNextLevel: finalXP % 100,
         completedSections: newCompletedSections,
+        totalSections: 5,
+        completionRate: `${((newCompletedSections.length / 5) * 100).toFixed(
+          1
+        )}%`,
         completionDate: new Date().toISOString(),
       },
       userData: onboardingData,
     };
     console.log(JSON.stringify(completeProfile, null, 2));
 
+    console.log('\n🎊 USER JOURNEY STATISTICS:');
+    const journeyDuration =
+      newCompletedSections.length > 0 ? 'Completed in this session' : 'No data';
+    console.log(`   • Journey Duration: ${journeyDuration}`);
+    console.log(
+      `   • XP per Section: ${finalXP / newCompletedSections.length} avg`
+    );
+    console.log(`   • User Engagement: High (completed all sections)`);
+
     console.log('='.repeat(60));
     console.log('✅ ONBOARDING COMPLETE - USER READY FOR DASHBOARD');
+    console.log('🚀 All user data has been successfully collected and logged!');
     console.log('='.repeat(60));
+
+    // Final consolidated JSON log of all collected onboarding data
+    console.log('\n🗂️ FINAL ONBOARDING DATA COLLECTION - COMPLETE JSON:');
+    console.log('='.repeat(80));
+
+    const finalOnboardingData = {
+      sessionInfo: {
+        completionTimestamp: new Date().toISOString(),
+        completionDate: new Date().toLocaleString(),
+        totalXPEarned: finalXP,
+        userLevel: userLevel,
+        sectionsCompleted: newCompletedSections.length,
+        completionRate: `${((newCompletedSections.length / 5) * 100).toFixed(
+          1
+        )}%`,
+      },
+      collectedData: {
+        basicInfo: onboardingData.basicInfo || null,
+        lifestyle: onboardingData.lifestyle || null,
+        medicalHistory: onboardingData.medicalHistory || null,
+        goals: onboardingData.goals || null,
+        preferences: onboardingData.preferences || null,
+      },
+      dataQuality: {
+        hasBasicInfo: !!onboardingData.basicInfo,
+        hasLifestyle: !!onboardingData.lifestyle,
+        hasMedicalHistory: !!onboardingData.medicalHistory,
+        hasGoals: !!onboardingData.goals,
+        hasPreferences: !!onboardingData.preferences,
+        completenessScore: `${(
+          (Object.values(onboardingData).filter(Boolean).length / 5) *
+          100
+        ).toFixed(1)}%`,
+      },
+    };
+
+    console.log(JSON.stringify(finalOnboardingData, null, 2));
+    console.log('='.repeat(80));
+    console.log(
+      '🎯 Ready to navigate to dashboard with complete user profile!'
+    );
+    console.log('='.repeat(80));
 
     setCurrentScreen('dashboard');
   };
@@ -244,17 +397,63 @@ export function MainApp() {
     }
   };
 
-  const handleBasicInfoComplete = (formData) => {
-    console.log('Basic info completed:', formData);
+  const handleBasicInfoComplete = async (formData) => {
+    console.log('✅ Basic info completed:', formData);
 
-    // Store the basic info data with timestamp
-    setOnboardingData((prev) => ({
-      ...prev,
-      basicInfo: {
-        ...formData,
-        completedAt: new Date().toISOString(),
-      },
-    }));
+    // Enhanced logging for basic info data collection
+    console.log('📝 BASIC INFO DATA COLLECTED:');
+    console.log('  • Name:', formData.name || 'Not provided');
+    console.log('  • Date of Birth:', formData.dateOfBirth || 'Not provided');
+    console.log('  • Height:', formData.height || 'Not provided');
+    console.log('  • Weight:', formData.weight || 'Not provided');
+    console.log('  • Activity Level:', formData.activityLevel || 'Not provided');
+    console.log('  • City:', formData.city || 'Not provided');
+    console.log('  • Profession:', formData.profession || 'Not provided');
+    console.log('  • Collection Time:', new Date().toLocaleString());
+
+    try {
+      // Submit basic info to backend
+      console.log('🚀 Submitting basic info to backend...');
+      const response = await OnboardingAPI.submitBasicInfo(formData);
+      
+      if (response.success) {
+        console.log('✅ Basic info successfully saved to backend!');
+        console.log('📊 Backend response:', response.data);
+        
+        // Store the basic info data with backend confirmation
+        setOnboardingData((prev) => ({
+          ...prev,
+          basicInfo: {
+            ...formData,
+            completedAt: new Date().toISOString(),
+            backendSaved: true,
+          },
+        }));
+        
+      } else {
+        console.warn('⚠️ Backend submission failed, continuing with local data');
+        // Fallback to local storage if backend fails
+        setOnboardingData((prev) => ({
+          ...prev,
+          basicInfo: {
+            ...formData,
+            completedAt: new Date().toISOString(),
+            backendSaved: false,
+          },
+        }));
+      }
+    } catch (error) {
+      console.error('❌ Error submitting to backend:', error);
+      // Continue with local data on error
+      setOnboardingData((prev) => ({
+        ...prev,
+        basicInfo: {
+          ...formData,
+          completedAt: new Date().toISOString(),
+          backendSaved: false,
+        },
+      }));
+    }
 
     // Calculate new XP total
     const newXP = currentXP + 20;
@@ -263,6 +462,21 @@ export function MainApp() {
     // Mark basic info as completed
     const newCompletedSections = [...completedSections, 'basicInfo'];
     setCompletedSections(newCompletedSections);
+
+    // Progress tracking log
+    console.log('📊 ONBOARDING PROGRESS UPDATE:');
+    console.log(
+      `  • Sections completed: ${newCompletedSections.length}/5 (${(
+        (newCompletedSections.length / 5) *
+        100
+      ).toFixed(1)}%)`
+    );
+    console.log(`  • XP earned: ${newXP}/100`);
+    console.log(
+      `  • Next section: ${
+        findNextIncompleteSection(newCompletedSections) || 'All complete!'
+      }`
+    );
 
     // Check if all sections completed and navigate accordingly
     if (checkAllSectionsCompleted(newCompletedSections)) {
@@ -274,7 +488,29 @@ export function MainApp() {
   };
 
   const handleLifestyleComplete = (formData) => {
-    console.log('Lifestyle info completed:', formData);
+    console.log('✅ Lifestyle info completed:', formData);
+
+    // Enhanced logging for lifestyle data collection
+    console.log('🏃 LIFESTYLE DATA COLLECTED:');
+    console.log(
+      '  • Activity Level:',
+      formData.activityLevel || 'Not provided'
+    );
+    console.log(
+      '  • Exercise Frequency:',
+      formData.exerciseFrequency || 'Not provided'
+    );
+    console.log(
+      '  • Preferred Workout Time:',
+      formData.preferredWorkoutTime || 'Not provided'
+    );
+    console.log(
+      '  • Workout Types:',
+      formData.workoutTypes && Array.isArray(formData.workoutTypes)
+        ? formData.workoutTypes.join(', ')
+        : 'Not provided'
+    );
+    console.log('  • Collection Time:', new Date().toLocaleString());
 
     // Store the lifestyle data with timestamp
     setOnboardingData((prev) => ({
@@ -293,6 +529,21 @@ export function MainApp() {
     const newCompletedSections = [...completedSections, 'lifestyle'];
     setCompletedSections(newCompletedSections);
 
+    // Progress tracking log
+    console.log('📊 ONBOARDING PROGRESS UPDATE:');
+    console.log(
+      `  • Sections completed: ${newCompletedSections.length}/5 (${(
+        (newCompletedSections.length / 5) *
+        100
+      ).toFixed(1)}%)`
+    );
+    console.log(`  • XP earned: ${newXP}/100`);
+    console.log(
+      `  • Next section: ${
+        findNextIncompleteSection(newCompletedSections) || 'All complete!'
+      }`
+    );
+
     // Check if all sections completed and navigate accordingly
     if (checkAllSectionsCompleted(newCompletedSections)) {
       // Pass the updated XP for accurate logging
@@ -303,7 +554,35 @@ export function MainApp() {
   };
 
   const handleMedicalHistoryComplete = (formData) => {
-    console.log('Medical history completed:', formData);
+    console.log('✅ Medical history completed:', formData);
+
+    // Enhanced logging for medical history data collection
+    console.log('🏥 MEDICAL HISTORY DATA COLLECTED:');
+    console.log(
+      '  • Health Conditions:',
+      formData.healthConditions && Array.isArray(formData.healthConditions)
+        ? formData.healthConditions.join(', ')
+        : 'None reported'
+    );
+    console.log(
+      '  • Medications:',
+      formData.medications && Array.isArray(formData.medications)
+        ? formData.medications.join(', ')
+        : 'None reported'
+    );
+    console.log(
+      '  • Injuries:',
+      formData.injuries && Array.isArray(formData.injuries)
+        ? formData.injuries.join(', ')
+        : 'None reported'
+    );
+    console.log(
+      '  • Allergies:',
+      formData.allergies && Array.isArray(formData.allergies)
+        ? formData.allergies.join(', ')
+        : 'None reported'
+    );
+    console.log('  • Collection Time:', new Date().toLocaleString());
 
     // Store the medical history data with timestamp
     setOnboardingData((prev) => ({
@@ -322,6 +601,21 @@ export function MainApp() {
     const newCompletedSections = [...completedSections, 'medicalHistory'];
     setCompletedSections(newCompletedSections);
 
+    // Progress tracking log
+    console.log('📊 ONBOARDING PROGRESS UPDATE:');
+    console.log(
+      `  • Sections completed: ${newCompletedSections.length}/5 (${(
+        (newCompletedSections.length / 5) *
+        100
+      ).toFixed(1)}%)`
+    );
+    console.log(`  • XP earned: ${newXP}/100`);
+    console.log(
+      `  • Next section: ${
+        findNextIncompleteSection(newCompletedSections) || 'All complete!'
+      }`
+    );
+
     // Check if all sections completed and navigate accordingly
     if (checkAllSectionsCompleted(newCompletedSections)) {
       // Pass the updated XP for accurate logging
@@ -332,7 +626,24 @@ export function MainApp() {
   };
 
   const handleGoalsComplete = (formData) => {
-    console.log('Goals completed:', formData);
+    console.log('✅ Goals completed:', formData);
+
+    // Enhanced logging for goals data collection
+    console.log('🎯 GOALS DATA COLLECTED:');
+    console.log('  • Primary Goal:', formData.primaryGoal || 'Not specified');
+    console.log('  • Target Weight:', formData.targetWeight || 'Not specified');
+    console.log('  • Timeline:', formData.timeline || 'Not specified');
+    console.log(
+      '  • Secondary Goals:',
+      formData.secondaryGoals && Array.isArray(formData.secondaryGoals)
+        ? formData.secondaryGoals.join(', ')
+        : 'Not specified'
+    );
+    console.log(
+      '  • Motivation Level:',
+      formData.motivationLevel || 'Not specified'
+    );
+    console.log('  • Collection Time:', new Date().toLocaleString());
 
     // Store the goals data with timestamp
     setOnboardingData((prev) => ({
@@ -351,6 +662,21 @@ export function MainApp() {
     const newCompletedSections = [...completedSections, 'goals'];
     setCompletedSections(newCompletedSections);
 
+    // Progress tracking log
+    console.log('📊 ONBOARDING PROGRESS UPDATE:');
+    console.log(
+      `  • Sections completed: ${newCompletedSections.length}/5 (${(
+        (newCompletedSections.length / 5) *
+        100
+      ).toFixed(1)}%)`
+    );
+    console.log(`  • XP earned: ${newXP}/100`);
+    console.log(
+      `  • Next section: ${
+        findNextIncompleteSection(newCompletedSections) || 'All complete!'
+      }`
+    );
+
     // Check if all sections completed and navigate accordingly
     if (checkAllSectionsCompleted(newCompletedSections)) {
       // Pass the updated XP for accurate logging
@@ -361,7 +687,19 @@ export function MainApp() {
   };
 
   const handlePreferencesComplete = (formData) => {
-    console.log('Preferences completed:', formData);
+    console.log('✅ Preferences completed:', formData);
+
+    // Enhanced logging for preferences data collection
+    console.log('⚙️ PREFERENCES DATA COLLECTED:');
+    console.log(
+      '  • Notifications:',
+      formData.notifications ? 'Enabled' : 'Disabled'
+    );
+    console.log('  • Units System:', formData.units || 'Not specified');
+    console.log('  • Language:', formData.language || 'Not specified');
+    console.log('  • Theme:', formData.theme || 'Not specified');
+    console.log('  • Privacy Level:', formData.privacyLevel || 'Not specified');
+    console.log('  • Collection Time:', new Date().toLocaleString());
 
     // Store the preferences data with timestamp
     setOnboardingData((prev) => ({
@@ -379,6 +717,21 @@ export function MainApp() {
     // Mark preferences as completed
     const newCompletedSections = [...completedSections, 'preferences'];
     setCompletedSections(newCompletedSections);
+
+    // Progress tracking log
+    console.log('📊 ONBOARDING PROGRESS UPDATE:');
+    console.log(
+      `  • Sections completed: ${newCompletedSections.length}/5 (${(
+        (newCompletedSections.length / 5) *
+        100
+      ).toFixed(1)}%)`
+    );
+    console.log(`  • XP earned: ${newXP}/100`);
+    console.log(
+      `  • Next section: ${
+        findNextIncompleteSection(newCompletedSections) || 'All complete!'
+      }`
+    );
 
     // Check if all sections completed and navigate accordingly
     if (checkAllSectionsCompleted(newCompletedSections)) {

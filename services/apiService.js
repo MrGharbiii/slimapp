@@ -14,6 +14,7 @@ const API_ENDPOINTS = {
   SIGNIN: '/api/auth/signin',
   REFRESH: '/api/auth/refresh',
   LOGOUT: '/api/auth/logout',
+  ONBOARDING_BASIC_INFO: '/api/onboarding/basic-info',
 };
 
 /**
@@ -406,6 +407,275 @@ export const checkNetworkConnectivity = async () => {
   } catch (error) {
     return false;
   }
+};
+
+/**
+ * Onboarding API functions
+ */
+export const OnboardingAPI = {
+  /**
+   * Submit basic info data
+   * @param {object} formData - Basic info form data
+   * @returns {Promise} API response
+   */ async submitBasicInfo(formData) {
+    try {
+      console.log('🚀 Submitting basic info to backend:', formData);
+
+      // Define the exact order required by the backend
+      const orderedFields = [
+        'name',
+        'dateOfBirth',
+        'height',
+        'heightUnit',
+        'weight',
+        'weightUnit',
+        'activityLevel',
+        'city',
+        'profession',
+        'waistCircumference',
+        'waistUnit',
+        'hipCircumference',
+        'hipUnit',
+        'smoking',
+        'alcohol',
+        'initialFatMass',
+        'initialMuscleMass',
+        'fatMassTarget',
+        'muscleMassTarget',
+        'numberOfChildren',
+      ]; // Enhanced data validation and transformation
+      let dateOfBirthFormatted = '';
+      if (formData.dateOfBirth instanceof Date) {
+        dateOfBirthFormatted = formData.dateOfBirth.toISOString().split('T')[0];
+      } else if (typeof formData.dateOfBirth === 'string') {
+        // Ensure YYYY-MM-DD format
+        if (formData.dateOfBirth.includes('T')) {
+          dateOfBirthFormatted = formData.dateOfBirth.split('T')[0];
+        } else {
+          dateOfBirthFormatted = formData.dateOfBirth;
+        }
+      }
+
+      // Additional validation for date of birth
+      const dobDate = new Date(dateOfBirthFormatted);
+      const currentDate = new Date();
+      const minDate = new Date();
+      minDate.setFullYear(currentDate.getFullYear() - 120); // Maximum age of 120 years
+
+      if (dobDate > currentDate) {
+        console.error(
+          '❌ Date of birth is in the future:',
+          dateOfBirthFormatted
+        );
+        throw new Error('Date of birth cannot be in the future');
+      }
+
+      if (dobDate < minDate) {
+        console.error(
+          '❌ Date of birth is too far in the past:',
+          dateOfBirthFormatted
+        );
+        throw new Error('Date of birth must be within the last 120 years');
+      }
+
+      console.log('🔍 Date validation passed:', {
+        originalDate: formData.dateOfBirth,
+        formattedDate: dateOfBirthFormatted,
+        parsedDate: dobDate.toISOString(),
+        isValid: dobDate >= minDate && dobDate <= currentDate,
+      });
+      const processedData = {
+        name: String(formData.name || '').trim(),
+        dateOfBirth: dateOfBirthFormatted,
+        height: parseFloat(formData.height) || 0,
+        heightUnit: String(formData.heightUnit || 'cm'),
+        weight: parseFloat(formData.weight) || 0,
+        weightUnit: String(formData.weightUnit || 'kg'),
+        activityLevel: String(formData.activityLevel || ''),
+        city: String(formData.city || '').trim(),
+        profession: String(formData.profession || '').trim(),
+        waistCircumference: parseFloat(formData.waistCircumference) || 0,
+        waistUnit: String(formData.waistUnit || 'cm'),
+        hipCircumference: parseFloat(formData.hipCircumference) || 0,
+        hipUnit: String(formData.hipUnit || 'cm'),
+        smoking: String(formData.smoking || ''),
+        alcohol: String(formData.alcohol || ''),
+        initialFatMass: parseFloat(formData.initialFatMass) || 0,
+        initialMuscleMass: parseFloat(formData.initialMuscleMass) || 0,
+        fatMassTarget: parseFloat(formData.fatMassTarget) || 0,
+        muscleMassTarget: parseFloat(formData.muscleMassTarget) || 0,
+        numberOfChildren: parseInt(formData.numberOfChildren) || 0,
+      };
+
+      // Additional range validation
+      if (
+        processedData.height > 0 &&
+        (processedData.height < 50 || processedData.height > 300)
+      ) {
+        console.error('❌ Height out of range:', processedData.height);
+        throw new Error('Height must be between 50 and 300 cm');
+      }
+
+      if (
+        processedData.weight > 0 &&
+        (processedData.weight < 20 || processedData.weight > 500)
+      ) {
+        console.error('❌ Weight out of range:', processedData.weight);
+        throw new Error('Weight must be between 20 and 500 kg');
+      }
+
+      if (
+        processedData.numberOfChildren < 0 ||
+        processedData.numberOfChildren > 20
+      ) {
+        console.error(
+          '❌ Number of children out of range:',
+          processedData.numberOfChildren
+        );
+        throw new Error('Number of children must be between 0 and 20');
+      }
+
+      console.log('🔍 Processed Data:', processedData);
+      console.log('🔍 Data types validation:', {
+        name: `"${processedData.name}" (${typeof processedData.name})`,
+        dateOfBirth: `"${
+          processedData.dateOfBirth
+        }" (${typeof processedData.dateOfBirth})`,
+        height: `${processedData.height} (${typeof processedData.height})`,
+        weight: `${processedData.weight} (${typeof processedData.weight})`,
+        numberOfChildren: `${
+          processedData.numberOfChildren
+        } (${typeof processedData.numberOfChildren})`,
+      });
+
+      // Validate required fields (single validation block)
+      const validationErrors = [];
+      if (!processedData.name || processedData.name.trim().length === 0) {
+        validationErrors.push('Name is required');
+      }
+      if (!processedData.dateOfBirth) {
+        validationErrors.push('Date of birth is required');
+      }
+      if (processedData.height <= 0) {
+        validationErrors.push('Height must be positive');
+      }
+      if (processedData.weight <= 0) {
+        validationErrors.push('Weight must be positive');
+      }
+      if (!processedData.activityLevel) {
+        validationErrors.push('Activity level is required');
+      }
+
+      if (validationErrors.length > 0) {
+        console.error('❌ Validation errors:', validationErrors);
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      }
+
+      // Create ordered payload manually to guarantee property order
+      const orderedPayload = {};
+
+      // Set properties in the exact order specified
+      orderedPayload.name = processedData.name;
+      orderedPayload.dateOfBirth = processedData.dateOfBirth;
+      orderedPayload.height = processedData.height;
+      orderedPayload.heightUnit = processedData.heightUnit;
+      orderedPayload.weight = processedData.weight;
+      orderedPayload.weightUnit = processedData.weightUnit;
+      orderedPayload.activityLevel = processedData.activityLevel;
+      orderedPayload.city = processedData.city;
+      orderedPayload.profession = processedData.profession;
+      orderedPayload.waistCircumference = processedData.waistCircumference;
+      orderedPayload.waistUnit = processedData.waistUnit;
+      orderedPayload.hipCircumference = processedData.hipCircumference;
+      orderedPayload.hipUnit = processedData.hipUnit;
+      orderedPayload.smoking = processedData.smoking;
+      orderedPayload.alcohol = processedData.alcohol;
+      orderedPayload.initialFatMass = processedData.initialFatMass;
+      orderedPayload.initialMuscleMass = processedData.initialMuscleMass;
+      orderedPayload.fatMassTarget = processedData.fatMassTarget;
+      orderedPayload.muscleMassTarget = processedData.muscleMassTarget;
+      orderedPayload.numberOfChildren = processedData.numberOfChildren;
+
+      // Verify order matches exactly
+      const payloadKeys = Object.keys(orderedPayload);
+      const orderMatch =
+        JSON.stringify(orderedFields) === JSON.stringify(payloadKeys);
+
+      console.log('📤 Expected Order:', orderedFields);
+      console.log('📤 Actual Order:', payloadKeys);
+      console.log('📤 Order Match:', orderMatch);
+      console.log('📤 Final Payload:', orderedPayload);
+
+      // Use JSON.stringify with replacer to guarantee serialization order
+      const orderedJSON = JSON.stringify(orderedPayload, orderedFields);
+      console.log('📤 Serialized JSON:', orderedJSON);
+
+      // Detailed data type validation
+      console.log('🔍 Detailed Data Validation:');
+      console.log(
+        '  • Name:',
+        `"${processedData.name}" (type: ${typeof processedData.name}, length: ${
+          processedData.name.length
+        })`
+      );
+      console.log(
+        '  • Date of Birth:',
+        `"${
+          processedData.dateOfBirth
+        }" (type: ${typeof processedData.dateOfBirth})`
+      );
+      console.log(
+        '  • Height:',
+        `${processedData.height} (type: ${typeof processedData.height})`
+      );
+      console.log(
+        '  • Weight:',
+        `${processedData.weight} (type: ${typeof processedData.weight})`
+      );
+      console.log(
+        '  • Activity Level:',
+        `"${
+          processedData.activityLevel
+        }" (type: ${typeof processedData.activityLevel})`
+      );
+      console.log(
+        '  • City:',
+        `"${processedData.city}" (type: ${typeof processedData.city})`
+      );
+      console.log(
+        '  • Profession:',
+        `"${
+          processedData.profession
+        }" (type: ${typeof processedData.profession})`
+      );
+
+      console.log('✅ Data validation passed');
+      console.log('====================================');
+      console.log(orderedJSON);
+      console.log('====================================');
+
+      const response = await apiRequest(API_ENDPOINTS.ONBOARDING_BASIC_INFO, {
+        method: 'PUT',
+        body: orderedJSON,
+      });
+
+      console.log('📥 Response:', response);
+
+      return {
+        success: true,
+        data: response,
+        message: 'Basic info saved successfully',
+      };
+    } catch (error) {
+      console.error('❌ Basic info submission failed:', error);
+
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to save basic info',
+      };
+    }
+  },
 };
 
 export default AuthAPI;
