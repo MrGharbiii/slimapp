@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,9 +7,13 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { useAuth } from '../../context/AuthContext';
+import { checkNetworkConnectivity } from '../../services/apiService';
 
 const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
   const [email, setEmail] = useState('');
@@ -19,6 +23,37 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState('');
+  const [networkError, setNetworkError] = useState(false);
+
+  // Use authentication context
+  const { signup, isLoading, error: authError, clearError } = useAuth();
+
+  // Check network connectivity on component mount
+  useEffect(() => {
+    const checkNetwork = async () => {
+      try {
+        const isConnected = await checkNetworkConnectivity();
+        setNetworkError(!isConnected);
+
+        if (!isConnected) {
+          setErrors({
+            network: 'Aucune connexion internet. Vérifiez votre réseau.',
+          });
+        }
+      } catch (error) {
+        console.error('Network check error:', error);
+      }
+    };
+
+    checkNetwork();
+  }, []);
+
+  // Clear errors when auth error changes
+  useEffect(() => {
+    if (authError) {
+      setErrors({ auth: authError });
+    }
+  }, [authError]);
 
   // Password strength calculation
   const getPasswordStrength = (password) => {
@@ -78,14 +113,47 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
     } else if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const handleSubmit = () => {
-    if (validateForm()) {
-      console.log('Form is valid, proceed to next step');
-      onSubmit && onSubmit();
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    // Clear previous errors
+    setErrors({});
+    clearError();
+
+    try {
+      // Check network connectivity before attempting signup
+      const isConnected = await checkNetworkConnectivity();
+      if (!isConnected) {
+        setErrors({
+          network: 'Aucune connexion internet. Vérifiez votre réseau.',
+        });
+        return;
+      }
+
+      // Attempt signup using authentication context
+      const result = await signup({
+        email: email.trim(),
+        password,
+        confirmPassword,
+      });
+
+      if (result.success) {
+        // Navigate to onboarding screen
+        if (onSubmit) {
+          onSubmit();
+        }
+      } else {
+        // Error is handled by context and displayed through authError
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      setErrors({
+        auth: "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      });
     }
   };
 
@@ -125,9 +193,17 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeTitle}>Bienvenue !</Text>
           <Text style={styles.welcomeSubtitle}>Créons votre compte</Text>
-        </View>
+        </View>{' '}
         {/* Form Section */}
         <View style={styles.formSection}>
+          {/* General Error Message */}
+          {errors.auth || errors.network ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>
+                {errors.auth || errors.network}
+              </Text>
+            </View>
+          ) : null}
           {/* Email Input */}
           <View style={styles.inputContainer}>
             <TextInput
@@ -162,7 +238,6 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
               <Text style={styles.errorText}>{errors.email}</Text>
             ) : null}
           </View>
-
           {/* Password Input */}
           <View style={styles.inputContainer}>
             <View style={styles.passwordContainer}>
@@ -241,7 +316,6 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
               <Text style={styles.errorText}>{errors.password}</Text>
             ) : null}
           </View>
-
           {/* Confirm Password Input */}
           <View style={styles.inputContainer}>
             <View style={styles.passwordContainer}>
@@ -285,19 +359,24 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             {errors.confirmPassword ? (
               <Text style={styles.errorText}>{errors.confirmPassword}</Text>
             ) : null}
-          </View>
-
+          </View>{' '}
           {/* Create Account Button */}
           <TouchableOpacity
             style={[
               styles.createAccountButton,
-              !isFormValid && styles.disabledButton,
+              (!isFormValid || isLoading) && styles.disabledButton,
             ]}
             onPress={handleSubmit}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
             activeOpacity={0.8}
           >
-            <Text style={styles.createAccountButtonText}>Créer un Compte</Text>
+            {isLoading ? (
+              <ActivityIndicator color="white" size="small" />
+            ) : (
+              <Text style={styles.createAccountButtonText}>
+                Créer un Compte
+              </Text>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -394,6 +473,14 @@ const styles = StyleSheet.create({
   },
   formSection: {
     width: '100%',
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255, 68, 68, 0.1)',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 20,
+    borderLeftWidth: 4,
+    borderLeftColor: '#FF4444',
   },
   inputContainer: {
     marginBottom: 20,

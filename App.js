@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Platform, View } from 'react-native';
+import { AuthProvider } from './context/AuthContext';
 import WelcomeScreen from './screens/auth/WelcomeScreen';
 import SignUpScreen from './screens/auth/SignUpScreen';
 import SignInScreen from './screens/auth/SignInScreen';
@@ -22,7 +23,24 @@ import NutritionResultsScreen from './screens/NutritionResultsScreen';
 import MapScreen from './screens/MapScreen';
 import AnalysisResultsScreen from './screens/AnalysisResultsScreen';
 
+/**
+ * Root App Component
+ * Provides authentication context and handles app-wide state
+ */
 export default function App() {
+  console.log('🏁 App: Using MainApp for manual navigation');
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
+  );
+}
+
+/**
+ * Main App Component (after authentication)
+ * Handles navigation between app screens
+ */
+export function MainApp() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
   const [currentXP, setCurrentXP] = useState(0);
   const [completedSections, setCompletedSections] = useState([]);
@@ -44,6 +62,15 @@ export default function App() {
   const handleSignIn = () => {
     console.log('Sign In button pressed in App.js');
     setCurrentScreen('signin');
+  };
+
+  const handleSignInSuccess = () => {
+    // Navigate directly to dashboard after successful signin
+    console.log('🎯 MainApp: handleSignInSuccess called');
+    console.log('🎯 MainApp: Signin successful! Navigating to dashboard...');
+    console.log('🎯 MainApp: Current screen before change:', currentScreen);
+    setCurrentScreen('dashboard');
+    console.log('🎯 MainApp: Screen changed to dashboard');
   };
 
   const handleBackToWelcome = () => {
@@ -363,8 +390,11 @@ export default function App() {
   };
 
   const renderCurrentScreen = () => {
+    console.log('🖥️ MainApp: renderCurrentScreen called with:', currentScreen);
+
     switch (currentScreen) {
       case 'signup':
+        console.log('🔵 MainApp: Rendering SignUpScreen');
         return (
           <SignUpScreen
             onBack={handleBackToWelcome}
@@ -373,11 +403,12 @@ export default function App() {
           />
         );
       case 'signin':
+        console.log('🔵 MainApp: Rendering SignInScreen');
         return (
           <SignInScreen
             onBack={handleBackToWelcome}
             onCreateAccount={handleCreateAccount}
-            onSubmit={handleAuthSuccess}
+            onSubmit={handleSignInSuccess}
           />
         );
       case 'onboarding':

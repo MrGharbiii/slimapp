@@ -14,6 +14,8 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import * as LocalAuthentication from 'expo-local-authentication';
 import Constants from 'expo-constants';
+import { useAuth } from '../../context/AuthContext';
+import { checkNetworkConnectivity } from '../../services/apiService';
 
 const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
   const [email, setEmail] = useState('');
@@ -21,16 +23,42 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
 
-  // Check if device supports biometric authentication
+  // Use authentication context
+  const { signin, isLoading, error: authError, clearError } = useAuth();
+  // Check if device supports biometric authentication and network connectivity
   useEffect(() => {
-    (async () => {
-      const compatible = await LocalAuthentication.hasHardwareAsync();
-      setIsBiometricSupported(compatible);
-    })();
+    const initializeScreen = async () => {
+      try {
+        // Check biometric support
+        const compatible = await LocalAuthentication.hasHardwareAsync();
+        setIsBiometricSupported(compatible);
+
+        // Check network connectivity
+        const isConnected = await checkNetworkConnectivity();
+        setNetworkError(!isConnected);
+
+        if (!isConnected) {
+          setErrors({
+            network: 'Aucune connexion internet. Vérifiez votre réseau.',
+          });
+        }
+      } catch (error) {
+        console.error('Screen initialization error:', error);
+      }
+    };
+
+    initializeScreen();
   }, []);
+
+  // Clear errors when auth error changes
+  useEffect(() => {
+    if (authError) {
+      setErrors({ auth: authError });
+    }
+  }, [authError]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -53,26 +81,38 @@ const SignInScreen = ({ onBack, onCreateAccount, onSubmit }) => {
     return Object.keys(newErrors).length === 0;
   };
   const handleSignIn = async () => {
-    if (validateForm()) {
-      setIsLoading(true);
+    if (!validateForm()) return;
 
-      // Simulate API call
-      setTimeout(() => {
-        setIsLoading(false); // This is where you'd handle authentication logic
-        // For demo purposes, we'll simulate a failed authentication
-        if (email !== 'test@example.com' || password !== 'password123') {
-          setErrors({
-            auth: 'Email ou mot de passe invalide. Veuillez réessayer.',
-          });
-        } else {
-          // Successful login
-          console.log('Sign in successful');
-          // Call the onSubmit callback to navigate to next screen
-          if (onSubmit) {
-            onSubmit();
-          }
+    // Clear previous errors
+    setErrors({});
+    clearError();
+
+    try {
+      // Check network connectivity before attempting signin
+      const isConnected = await checkNetworkConnectivity();
+      if (!isConnected) {
+        setErrors({
+          network: 'Aucune connexion internet. Vérifiez votre réseau.',
+        });
+        return;
+      }
+
+      // Attempt signin using authentication context
+      const result = await signin({ email: email.trim(), password });
+      if (result.success) {
+        // Navigate directly to dashboard
+        console.log('🎉 SignInScreen: Signin successful! Calling onSubmit...');
+        if (onSubmit) {
+          onSubmit();
         }
-      }, 1500);
+      } else {
+        // Error is handled by context and displayed through authError
+      }
+    } catch (error) {
+      console.error('Signin error:', error);
+      setErrors({
+        auth: "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      });
     }
   };
 

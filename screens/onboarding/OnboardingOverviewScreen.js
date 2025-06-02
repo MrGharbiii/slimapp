@@ -146,7 +146,7 @@ const OnboardingOverviewScreen = ({
   // NOTE TO SELF : I DISABLED THIS FOR NOW JUST TO BYPASS THE CHECK TO GO TO NAVIATE TO DASHBOARD
   // REMOVE THE ! IN checkAllSectionsCompleted() TO ENABLE THE CHECK
   const handleStartJourney = () => {
-    if (!checkAllSectionsCompleted()) {
+    if (checkAllSectionsCompleted()) {
       // All sections complete - navigate to dashboard
       if (onNavigateToSection) {
         onNavigateToSection('dashboard');
