@@ -406,7 +406,10 @@ export function MainApp() {
     console.log('  • Date of Birth:', formData.dateOfBirth || 'Not provided');
     console.log('  • Height:', formData.height || 'Not provided');
     console.log('  • Weight:', formData.weight || 'Not provided');
-    console.log('  • Activity Level:', formData.activityLevel || 'Not provided');
+    console.log(
+      '  • Activity Level:',
+      formData.activityLevel || 'Not provided'
+    );
     console.log('  • City:', formData.city || 'Not provided');
     console.log('  • Profession:', formData.profession || 'Not provided');
     console.log('  • Collection Time:', new Date().toLocaleString());
@@ -415,11 +418,11 @@ export function MainApp() {
       // Submit basic info to backend
       console.log('🚀 Submitting basic info to backend...');
       const response = await OnboardingAPI.submitBasicInfo(formData);
-      
+
       if (response.success) {
         console.log('✅ Basic info successfully saved to backend!');
         console.log('📊 Backend response:', response.data);
-        
+
         // Store the basic info data with backend confirmation
         setOnboardingData((prev) => ({
           ...prev,
@@ -429,9 +432,10 @@ export function MainApp() {
             backendSaved: true,
           },
         }));
-        
       } else {
-        console.warn('⚠️ Backend submission failed, continuing with local data');
+        console.warn(
+          '⚠️ Backend submission failed, continuing with local data'
+        );
         // Fallback to local storage if backend fails
         setOnboardingData((prev) => ({
           ...prev,
