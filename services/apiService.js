@@ -15,6 +15,8 @@ const API_ENDPOINTS = {
   REFRESH: '/api/auth/refresh',
   LOGOUT: '/api/auth/logout',
   ONBOARDING_BASIC_INFO: '/api/onboarding/basic-info',
+  ONBOARDING_LIFESTYLE: '/api/onboarding/lifestyle',
+  ONBOARDING_MEDICAL_HISTORY: '/api/onboarding/medical-history',
 };
 
 /**
@@ -418,8 +420,14 @@ export const OnboardingAPI = {
    * @param {object} formData - Basic info form data
    * @returns {Promise} API response
    */ async submitBasicInfo(formData) {
+    const startTime = new Date().toISOString();
     try {
+      console.log('====================================');
+      console.log('🚀 STARTING BASIC INFO SUBMISSION');
+      console.log('====================================');
+      console.log('🕐 Timestamp:', startTime);
       console.log('🚀 Submitting basic info to backend:', formData);
+      console.log('====================================');
 
       // Define the exact order required by the backend
       const orderedFields = [
@@ -648,10 +656,19 @@ export const OnboardingAPI = {
           processedData.profession
         }" (type: ${typeof processedData.profession})`
       );
-
       console.log('✅ Data validation passed');
       console.log('====================================');
+      console.log('📤 BASIC INFO PAYLOAD BEING SENT:');
+      console.log('====================================');
       console.log(orderedJSON);
+      console.log('====================================');
+      console.log('📤 Payload Size:', new Blob([orderedJSON]).size, 'bytes');
+      console.log(
+        '📤 Request URL:',
+        `${API_BASE_URL}${API_ENDPOINTS.ONBOARDING_BASIC_INFO}`
+      );
+      console.log('📤 Request Method: PUT');
+      console.log('📤 Content-Type: application/json');
       console.log('====================================');
 
       const response = await apiRequest(API_ENDPOINTS.ONBOARDING_BASIC_INFO, {
@@ -660,6 +677,17 @@ export const OnboardingAPI = {
       });
 
       console.log('📥 Response:', response);
+      console.log('====================================');
+      console.log('📥 BASIC INFO RESPONSE RECEIVED:');
+      console.log('====================================');
+      console.log('📥 Response Status: SUCCESS');
+      console.log('📥 Response Data:', JSON.stringify(response, null, 2));
+      console.log(
+        '📥 Response Size:',
+        new Blob([JSON.stringify(response)]).size,
+        'bytes'
+      );
+      console.log('====================================');
 
       return {
         success: true,
@@ -668,11 +696,560 @@ export const OnboardingAPI = {
       };
     } catch (error) {
       console.error('❌ Basic info submission failed:', error);
-
+      console.log('====================================');
+      console.log('❌ BASIC INFO SUBMISSION ERROR:');
+      console.log('====================================');
+      console.log('❌ Error Message:', error.message);
+      console.log('❌ Error Stack:', error.stack);
+      console.log('❌ Error Details:', JSON.stringify(error, null, 2));
+      console.log('====================================');
       return {
         success: false,
         error: error.message,
         message: 'Failed to save basic info',
+      };
+    }
+  },
+
+  /**
+   * Submit lifestyle data
+   * @param {object} formData - Lifestyle form data
+   * @returns {Promise} API response
+   */
+  async submitLifestyle(formData) {
+    try {
+      console.log('🚀 Submitting lifestyle data to backend:', formData);
+
+      // Define the exact order required by the backend
+      const orderedFields = [
+        'wakeUpTime',
+        'sleepTime',
+        'workSchedule',
+        'exerciseFrequency',
+        'exerciseTime',
+        'favoriteActivities',
+        'stressLevel',
+        'sleepHours',
+        'sleepQuality',
+      ];
+
+      // Enhanced data validation and transformation
+      const processedData = {
+        wakeUpTime: String(formData.wakeUpTime || '').trim(),
+        sleepTime: String(formData.sleepTime || '').trim(),
+        workSchedule: String(formData.workSchedule || '').trim(),
+        exerciseFrequency: String(formData.exerciseFrequency || '').trim(),
+        exerciseTime: String(formData.exerciseTime || '').trim(),
+        favoriteActivities: Array.isArray(formData.favoriteActivities)
+          ? formData.favoriteActivities
+          : [],
+        stressLevel: parseInt(formData.stressLevel) || 0,
+        sleepHours: parseFloat(formData.sleepHours) || 0,
+        sleepQuality: String(formData.sleepQuality || '').trim(),
+      };
+
+      console.log('🔍 Processed Lifestyle Data:', processedData);
+
+      // Validate required fields
+      const validationErrors = [];
+      if (!processedData.wakeUpTime) {
+        validationErrors.push('Wake up time is required');
+      }
+      if (!processedData.sleepTime) {
+        validationErrors.push('Sleep time is required');
+      }
+      if (!processedData.workSchedule) {
+        validationErrors.push('Work schedule is required');
+      }
+      if (!processedData.exerciseFrequency) {
+        validationErrors.push('Exercise frequency is required');
+      }
+      if (!processedData.exerciseTime) {
+        validationErrors.push('Exercise time is required');
+      }
+      if (processedData.stressLevel < 1 || processedData.stressLevel > 10) {
+        validationErrors.push('Stress level must be between 1 and 10');
+      }
+      if (processedData.sleepHours <= 0 || processedData.sleepHours > 24) {
+        validationErrors.push('Sleep hours must be between 0 and 24');
+      }
+      if (!processedData.sleepQuality) {
+        validationErrors.push('Sleep quality is required');
+      }
+
+      if (validationErrors.length > 0) {
+        console.error('❌ Lifestyle validation errors:', validationErrors);
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      }
+
+      // Create ordered payload manually to guarantee property order
+      const orderedPayload = {};
+
+      // Set properties in the exact order specified
+      orderedPayload.wakeUpTime = processedData.wakeUpTime;
+      orderedPayload.sleepTime = processedData.sleepTime;
+      orderedPayload.workSchedule = processedData.workSchedule;
+      orderedPayload.exerciseFrequency = processedData.exerciseFrequency;
+      orderedPayload.exerciseTime = processedData.exerciseTime;
+      orderedPayload.favoriteActivities = processedData.favoriteActivities;
+      orderedPayload.stressLevel = processedData.stressLevel;
+      orderedPayload.sleepHours = processedData.sleepHours;
+      orderedPayload.sleepQuality = processedData.sleepQuality;
+
+      // Verify order matches exactly
+      const payloadKeys = Object.keys(orderedPayload);
+      const orderMatch =
+        JSON.stringify(orderedFields) === JSON.stringify(payloadKeys);
+
+      console.log('📤 Expected Order:', orderedFields);
+      console.log('📤 Actual Order:', payloadKeys);
+      console.log('📤 Order Match:', orderMatch);
+      console.log('📤 Final Lifestyle Payload:', orderedPayload);
+
+      // Use JSON.stringify with replacer to guarantee serialization order
+      const orderedJSON = JSON.stringify(orderedPayload, orderedFields);
+      console.log('📤 Serialized Lifestyle JSON:', orderedJSON);
+
+      // Detailed data type validation
+      console.log('🔍 Detailed Lifestyle Data Validation:');
+      console.log(
+        '  • Wake Up Time:',
+        `"${
+          processedData.wakeUpTime
+        }" (type: ${typeof processedData.wakeUpTime})`
+      );
+      console.log(
+        '  • Sleep Time:',
+        `"${processedData.sleepTime}" (type: ${typeof processedData.sleepTime})`
+      );
+      console.log(
+        '  • Work Schedule:',
+        `"${
+          processedData.workSchedule
+        }" (type: ${typeof processedData.workSchedule})`
+      );
+      console.log(
+        '  • Exercise Frequency:',
+        `"${
+          processedData.exerciseFrequency
+        }" (type: ${typeof processedData.exerciseFrequency})`
+      );
+      console.log(
+        '  • Exercise Time:',
+        `"${
+          processedData.exerciseTime
+        }" (type: ${typeof processedData.exerciseTime})`
+      );
+      console.log(
+        '  • Favorite Activities:',
+        `${JSON.stringify(
+          processedData.favoriteActivities
+        )} (type: ${typeof processedData.favoriteActivities}, length: ${
+          processedData.favoriteActivities.length
+        })`
+      );
+      console.log(
+        '  • Stress Level:',
+        `${
+          processedData.stressLevel
+        } (type: ${typeof processedData.stressLevel})`
+      );
+      console.log(
+        '  • Sleep Hours:',
+        `${processedData.sleepHours} (type: ${typeof processedData.sleepHours})`
+      );
+      console.log(
+        '  • Sleep Quality:',
+        `"${
+          processedData.sleepQuality
+        }" (type: ${typeof processedData.sleepQuality})`
+      );
+      console.log('✅ Lifestyle data validation passed');
+      console.log('====================================');
+      console.log('📤 LIFESTYLE PAYLOAD BEING SENT:');
+      console.log('====================================');
+      console.log(orderedJSON);
+      console.log('====================================');
+      console.log('📤 Payload Size:', new Blob([orderedJSON]).size, 'bytes');
+      console.log(
+        '📤 Request URL:',
+        `${API_BASE_URL}${API_ENDPOINTS.ONBOARDING_LIFESTYLE}`
+      );
+      console.log('📤 Request Method: PUT');
+      console.log('📤 Content-Type: application/json');
+      console.log('====================================');
+
+      const response = await apiRequest(API_ENDPOINTS.ONBOARDING_LIFESTYLE, {
+        method: 'PUT',
+        body: orderedJSON,
+      });
+
+      console.log('📥 Lifestyle Response:', response);
+      console.log('====================================');
+      console.log('📥 LIFESTYLE RESPONSE RECEIVED:');
+      console.log('====================================');
+      console.log('📥 Response Status: SUCCESS');
+      console.log('📥 Response Data:', JSON.stringify(response, null, 2));
+      console.log(
+        '📥 Response Size:',
+        new Blob([JSON.stringify(response)]).size,
+        'bytes'
+      );
+      console.log('====================================');
+
+      return {
+        success: true,
+        data: response,
+        message: 'Lifestyle data saved successfully',
+      };
+    } catch (error) {
+      console.error('❌ Lifestyle submission failed:', error);
+      console.log('====================================');
+      console.log('❌ LIFESTYLE SUBMISSION ERROR:');
+      console.log('====================================');
+      console.log('❌ Error Message:', error.message);
+      console.log('❌ Error Stack:', error.stack);
+      console.log('❌ Error Details:', JSON.stringify(error, null, 2));
+      console.log('====================================');
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to save lifestyle data',
+      };
+    }
+  },
+  /**
+   * Submit medical history data
+   * @param {object} formData - Medical history form data
+   * @returns {Promise} API response
+   */ async submitMedicalHistory(formData) {
+    try {
+      console.log('====================================');
+      console.log('🏥 MEDICAL HISTORY SUBMISSION START');
+      console.log('====================================');
+      console.log(
+        '📋 Raw form data received:',
+        JSON.stringify(formData, null, 2)
+      );
+
+      console.log('🔍 ANALYZING RECEIVED DATA:');
+      console.log('====================================');
+      console.log('📊 Form Data Keys:', Object.keys(formData));
+      console.log('📊 Form Data Type:', typeof formData);
+      console.log('📊 Is Form Data Array?:', Array.isArray(formData));
+      console.log('📊 Form Data Length:', Object.keys(formData).length);
+
+      // Log each key-value pair in detail
+      Object.keys(formData).forEach((key) => {
+        const value = formData[key];
+        console.log(`📊 ${key}:`, {
+          value: value,
+          type: typeof value,
+          isArray: Array.isArray(value),
+          isEmpty: value === null || value === undefined || value === '',
+          stringLength: typeof value === 'string' ? value.length : 'N/A',
+          objectKeys:
+            typeof value === 'object' && value !== null
+              ? Object.keys(value)
+              : 'N/A',
+        });
+      });
+
+      console.log('====================================');
+      console.log('🔧 PROCESSING NESTED OBJECTS:');
+      console.log('====================================');
+
+      // Log family history in detail
+      console.log('👨‍👩‍👧‍👦 FAMILY HISTORY ANALYSIS:');
+      console.log('  Raw familyHistory:', formData.familyHistory);
+      console.log('  Type:', typeof formData.familyHistory);
+      console.log(
+        '  Is null/undefined:',
+        formData.familyHistory === null || formData.familyHistory === undefined
+      );
+      if (
+        formData.familyHistory &&
+        typeof formData.familyHistory === 'object'
+      ) {
+        console.log('  Keys:', Object.keys(formData.familyHistory));
+        console.log('  Values:', Object.values(formData.familyHistory));
+        Object.entries(formData.familyHistory).forEach(([key, value]) => {
+          console.log(`    ${key}: "${value}" (${typeof value})`);
+        });
+      }
+
+      // Log personal medical history in detail
+      console.log('🩺 PERSONAL MEDICAL HISTORY ANALYSIS:');
+      console.log(
+        '  Raw personalMedicalHistory:',
+        formData.personalMedicalHistory
+      );
+      console.log('  Type:', typeof formData.personalMedicalHistory);
+      console.log(
+        '  Is null/undefined:',
+        formData.personalMedicalHistory === null ||
+          formData.personalMedicalHistory === undefined
+      );
+      if (
+        formData.personalMedicalHistory &&
+        typeof formData.personalMedicalHistory === 'object'
+      ) {
+        console.log('  Keys:', Object.keys(formData.personalMedicalHistory));
+        console.log(
+          '  Values:',
+          Object.values(formData.personalMedicalHistory)
+        );
+        Object.entries(formData.personalMedicalHistory).forEach(
+          ([key, value]) => {
+            console.log(`    ${key}: "${value}" (${typeof value})`);
+          }
+        );
+      }
+
+      // Log treatment history in detail
+      console.log('💊 TREATMENT HISTORY ANALYSIS:');
+      console.log('  Raw treatmentHistory:', formData.treatmentHistory);
+      console.log('  Type:', typeof formData.treatmentHistory);
+      console.log(
+        '  Is null/undefined:',
+        formData.treatmentHistory === null ||
+          formData.treatmentHistory === undefined
+      );
+      if (
+        formData.treatmentHistory &&
+        typeof formData.treatmentHistory === 'object'
+      ) {
+        console.log('  Keys:', Object.keys(formData.treatmentHistory));
+        console.log('  Values:', Object.values(formData.treatmentHistory));
+        Object.entries(formData.treatmentHistory).forEach(([key, value]) => {
+          console.log(`    ${key}: "${value}" (${typeof value})`);
+        });
+      }
+
+      // Log female specific attributes in detail
+      console.log('♀️ FEMALE SPECIFIC ATTRIBUTES ANALYSIS:');
+      console.log(
+        '  Raw femaleSpecificAttributes:',
+        formData.femaleSpecificAttributes
+      );
+      console.log('  Type:', typeof formData.femaleSpecificAttributes);
+      console.log(
+        '  Is null/undefined:',
+        formData.femaleSpecificAttributes === null ||
+          formData.femaleSpecificAttributes === undefined
+      );
+      if (
+        formData.femaleSpecificAttributes &&
+        typeof formData.femaleSpecificAttributes === 'object'
+      ) {
+        console.log('  Keys:', Object.keys(formData.femaleSpecificAttributes));
+        console.log(
+          '  Values:',
+          Object.values(formData.femaleSpecificAttributes)
+        );
+        Object.entries(formData.femaleSpecificAttributes).forEach(
+          ([key, value]) => {
+            console.log(`    ${key}: "${value}" (${typeof value})`);
+          }
+        );
+      }
+
+      console.log('====================================');
+
+      // Define the exact order required by the backend
+      const orderedFields = [
+        'chronicConditions',
+        'medications',
+        'allergies',
+        'physicalLimitations',
+        'avoidAreas',
+        'gender',
+        'femaleSpecificAttributes',
+        'personalMedicalHistory',
+        'familyHistory',
+        'treatmentHistory',
+      ]; // Enhanced data validation and transformation
+      const processedData = {
+        chronicConditions: Array.isArray(formData.chronicConditions)
+          ? formData.chronicConditions
+          : [],
+        medications: String(formData.medications || '').trim(),
+        allergies: String(formData.allergies || '').trim(),
+        physicalLimitations: String(formData.physicalLimitations || '').trim(),
+        avoidAreas: Array.isArray(formData.avoidAreas)
+          ? formData.avoidAreas
+          : [],
+        gender: String(formData.gender || '').trim(),
+        femaleSpecificAttributes: formData.femaleSpecificAttributes || {},
+        personalMedicalHistory: formData.personalMedicalHistory || {},
+        familyHistory: formData.familyHistory || {},
+        treatmentHistory: formData.treatmentHistory || {},
+      };
+
+      console.log('🔄 PROCESSED DATA AFTER TRANSFORMATION:');
+      console.log('====================================');
+      console.log('📋 Processed Data:', JSON.stringify(processedData, null, 2));
+
+      // Log each processed field in detail
+      console.log('🔍 DETAILED PROCESSED DATA ANALYSIS:');
+      console.log(
+        '  • Chronic Conditions:',
+        `${JSON.stringify(
+          processedData.chronicConditions
+        )} (type: ${typeof processedData.chronicConditions}, length: ${
+          processedData.chronicConditions.length
+        })`
+      );
+      console.log(
+        '  • Medications:',
+        `"${
+          processedData.medications
+        }" (type: ${typeof processedData.medications}, length: ${
+          processedData.medications.length
+        })`
+      );
+      console.log(
+        '  • Allergies:',
+        `"${
+          processedData.allergies
+        }" (type: ${typeof processedData.allergies}, length: ${
+          processedData.allergies.length
+        })`
+      );
+      console.log(
+        '  • Physical Limitations:',
+        `"${
+          processedData.physicalLimitations
+        }" (type: ${typeof processedData.physicalLimitations}, length: ${
+          processedData.physicalLimitations.length
+        })`
+      );
+      console.log(
+        '  • Avoid Areas:',
+        `${JSON.stringify(
+          processedData.avoidAreas
+        )} (type: ${typeof processedData.avoidAreas}, length: ${
+          processedData.avoidAreas.length
+        })`
+      );
+      console.log(
+        '  • Gender:',
+        `"${
+          processedData.gender
+        }" (type: ${typeof processedData.gender}, length: ${
+          processedData.gender.length
+        })`
+      );
+
+      // Detailed nested object analysis
+      console.log('  • Female Specific Attributes:', {
+        data: processedData.femaleSpecificAttributes,
+        type: typeof processedData.femaleSpecificAttributes,
+        keys: Object.keys(processedData.femaleSpecificAttributes),
+        keyCount: Object.keys(processedData.femaleSpecificAttributes).length,
+        isEmpty:
+          Object.keys(processedData.femaleSpecificAttributes).length === 0,
+      });
+
+      console.log('  • Personal Medical History:', {
+        data: processedData.personalMedicalHistory,
+        type: typeof processedData.personalMedicalHistory,
+        keys: Object.keys(processedData.personalMedicalHistory),
+        keyCount: Object.keys(processedData.personalMedicalHistory).length,
+        isEmpty: Object.keys(processedData.personalMedicalHistory).length === 0,
+      });
+
+      console.log('  • Family History:', {
+        data: processedData.familyHistory,
+        type: typeof processedData.familyHistory,
+        keys: Object.keys(processedData.familyHistory),
+        keyCount: Object.keys(processedData.familyHistory).length,
+        isEmpty: Object.keys(processedData.familyHistory).length === 0,
+      });
+
+      console.log('  • Treatment History:', {
+        data: processedData.treatmentHistory,
+        type: typeof processedData.treatmentHistory,
+        keys: Object.keys(processedData.treatmentHistory),
+        keyCount: Object.keys(processedData.treatmentHistory).length,
+        isEmpty: Object.keys(processedData.treatmentHistory).length === 0,
+      });
+
+      console.log('====================================');
+
+      // Validate required fields
+      const validationErrors = [];
+      if (!processedData.gender) {
+        validationErrors.push('Gender is required');
+      }
+
+      // Validate nested objects have required structure
+      if (typeof processedData.personalMedicalHistory !== 'object') {
+        validationErrors.push('Personal medical history must be an object');
+      }
+      if (typeof processedData.familyHistory !== 'object') {
+        validationErrors.push('Family history must be an object');
+      }
+      if (typeof processedData.treatmentHistory !== 'object') {
+        validationErrors.push('Treatment history must be an object');
+      }
+
+      if (validationErrors.length > 0) {
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      }
+
+      // Create ordered payload manually to guarantee property order
+      const orderedPayload = {};
+
+      // Set properties in the exact order specified
+      orderedPayload.chronicConditions = processedData.chronicConditions;
+      orderedPayload.medications = processedData.medications;
+      orderedPayload.allergies = processedData.allergies;
+      orderedPayload.physicalLimitations = processedData.physicalLimitations;
+      orderedPayload.avoidAreas = processedData.avoidAreas;
+      orderedPayload.gender = processedData.gender;
+      orderedPayload.femaleSpecificAttributes =
+        processedData.femaleSpecificAttributes;
+      orderedPayload.personalMedicalHistory =
+        processedData.personalMedicalHistory;
+      orderedPayload.familyHistory = processedData.familyHistory;
+      orderedPayload.treatmentHistory = processedData.treatmentHistory; // Use JSON.stringify with replacer to guarantee serialization order
+      const orderedJSON = JSON.stringify(orderedPayload, orderedFields);
+      const send = JSON.stringify(orderedPayload, null, 2);
+
+      console.log(
+        '📤 Final ordered payload being sent:',
+        JSON.stringify(orderedPayload, null, 2)
+      );
+      console.log('📤 Serialized JSON:', orderedJSON);
+      console.log('====================================');
+
+      const response = await apiRequest(
+        API_ENDPOINTS.ONBOARDING_MEDICAL_HISTORY,
+        {
+          method: 'PUT',
+          body: send,
+        }
+      );
+
+      console.log(
+        '📥 Medical history response received:',
+        JSON.stringify(response, null, 2)
+      );
+      console.log('====================================');
+
+      return {
+        success: true,
+        data: response,
+        message: 'Medical history data saved successfully',
+      };
+    } catch (error) {
+      console.error('❌ Medical history submission failed:', error.message);
+      console.error('❌ Error details:', JSON.stringify(error, null, 2));
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to save medical history data',
       };
     }
   },

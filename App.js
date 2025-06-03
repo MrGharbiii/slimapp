@@ -491,29 +491,45 @@ export function MainApp() {
     }
   };
 
-  const handleLifestyleComplete = (formData) => {
+  const handleLifestyleComplete = async (formData) => {
     console.log('✅ Lifestyle info completed:', formData);
+
+    try {
+      // Submit to backend API
+      console.log('🚀 Submitting lifestyle data to backend...');
+      const result = await OnboardingAPI.submitLifestyle(formData);
+
+      if (result.success) {
+        console.log('✅ Lifestyle data successfully saved to backend');
+      } else {
+        console.warn(
+          '⚠️ Lifestyle backend submission failed, saving locally:',
+          result.error
+        );
+      }
+    } catch (error) {
+      console.error('❌ Lifestyle backend submission error:', error);
+    }
 
     // Enhanced logging for lifestyle data collection
     console.log('🏃 LIFESTYLE DATA COLLECTED:');
-    console.log(
-      '  • Activity Level:',
-      formData.activityLevel || 'Not provided'
-    );
+    console.log('  • Wake Up Time:', formData.wakeUpTime || 'Not provided');
+    console.log('  • Sleep Time:', formData.sleepTime || 'Not provided');
+    console.log('  • Work Schedule:', formData.workSchedule || 'Not provided');
     console.log(
       '  • Exercise Frequency:',
       formData.exerciseFrequency || 'Not provided'
     );
+    console.log('  • Exercise Time:', formData.exerciseTime || 'Not provided');
     console.log(
-      '  • Preferred Workout Time:',
-      formData.preferredWorkoutTime || 'Not provided'
-    );
-    console.log(
-      '  • Workout Types:',
-      formData.workoutTypes && Array.isArray(formData.workoutTypes)
-        ? formData.workoutTypes.join(', ')
+      '  • Favorite Activities:',
+      formData.favoriteActivities && Array.isArray(formData.favoriteActivities)
+        ? formData.favoriteActivities.join(', ')
         : 'Not provided'
     );
+    console.log('  • Stress Level:', formData.stressLevel || 'Not provided');
+    console.log('  • Sleep Hours:', formData.sleepHours || 'Not provided');
+    console.log('  • Sleep Quality:', formData.sleepQuality || 'Not provided');
     console.log('  • Collection Time:', new Date().toLocaleString());
 
     // Store the lifestyle data with timestamp
@@ -557,35 +573,47 @@ export function MainApp() {
     }
   };
 
-  const handleMedicalHistoryComplete = (formData) => {
+  const handleMedicalHistoryComplete = async (formData) => {
     console.log('✅ Medical history completed:', formData);
+
+    try {
+      // Submit to backend API
+      console.log('🚀 Submitting medical history data to backend...');
+      const result = await OnboardingAPI.submitMedicalHistory(formData);
+
+      if (result.success) {
+        console.log('✅ Medical history data successfully saved to backend');
+      } else {
+        console.warn(
+          '⚠️ Medical history backend submission failed, saving locally:',
+          result.error
+        );
+      }
+    } catch (error) {
+      console.error('❌ Medical history backend submission error:', error);
+    }
 
     // Enhanced logging for medical history data collection
     console.log('🏥 MEDICAL HISTORY DATA COLLECTED:');
     console.log(
-      '  • Health Conditions:',
-      formData.healthConditions && Array.isArray(formData.healthConditions)
-        ? formData.healthConditions.join(', ')
+      '  • Chronic Conditions:',
+      formData.chronicConditions && Array.isArray(formData.chronicConditions)
+        ? formData.chronicConditions.join(', ')
         : 'None reported'
+    );
+    console.log('  • Medications:', formData.medications || 'None reported');
+    console.log('  • Allergies:', formData.allergies || 'None reported');
+    console.log(
+      '  • Physical Limitations:',
+      formData.physicalLimitations || 'None reported'
     );
     console.log(
-      '  • Medications:',
-      formData.medications && Array.isArray(formData.medications)
-        ? formData.medications.join(', ')
+      '  • Avoid Areas:',
+      formData.avoidAreas && Array.isArray(formData.avoidAreas)
+        ? formData.avoidAreas.join(', ')
         : 'None reported'
     );
-    console.log(
-      '  • Injuries:',
-      formData.injuries && Array.isArray(formData.injuries)
-        ? formData.injuries.join(', ')
-        : 'None reported'
-    );
-    console.log(
-      '  • Allergies:',
-      formData.allergies && Array.isArray(formData.allergies)
-        ? formData.allergies.join(', ')
-        : 'None reported'
-    );
+    console.log('  • Gender:', formData.gender || 'Not specified');
     console.log('  • Collection Time:', new Date().toLocaleString());
 
     // Store the medical history data with timestamp

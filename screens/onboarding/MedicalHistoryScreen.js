@@ -169,9 +169,56 @@ const MedicalHistoryScreen = ({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   // Handle form submission
   const handleSubmit = () => {
+    console.log('📤 Medical History Form - STARTING SUBMISSION');
+    console.log('====================================');
+
+    // Log current state values before validation
+    console.log('📊 CURRENT FORM STATE VALUES:');
+    console.log('  • Gender:', `"${gender}"`);
+    console.log('  • Chronic Conditions:', chronicConditions);
+    console.log('  • Medications:', `"${medications}"`);
+    console.log('  • Allergies:', `"${allergies}"`);
+    console.log('  • Physical Limitations:', `"${physicalLimitations}"`);
+    console.log('  • Avoid Areas:', avoidAreas);
+
+    console.log('👨‍👩‍👧‍👦 FAMILY HISTORY STATE:');
+    console.log('  • Family Heart Disease:', `"${familyHeartDisease}"`);
+    console.log('  • Family Diabetes:', `"${familyDiabetes}"`);
+    console.log('  • Family Obesity:', `"${familyObesity}"`);
+    console.log('  • Family Thyroid Issues:', `"${familyThyroidIssues}"`);
+
+    console.log('🩺 PERSONAL MEDICAL HISTORY STATE:');
+    console.log('  • Personal Diabetes:', `"${personalDiabetes}"`);
+    console.log('  • Personal Obesity:', `"${personalObesity}"`);
+    console.log('  • Hypothyroidism:', `"${hypothyroidism}"`);
+    console.log('  • Sleep Apnea:', `"${sleepApnea}"`);
+    console.log('  • Psychological Issues:', `"${psychologicalIssues}"`);
+    console.log('  • Digestive Issues:', `"${digestiveIssues}"`);
+    console.log('  • Gastric Balloon:', `"${gastricBalloon}"`);
+    console.log('  • Bariatric Surgery:', `"${bariatricSurgery}"`);
+    console.log('  • Sexual Dysfunction:', `"${sexualDysfunction}"`);
+    console.log('  • Other Health Issues:', `"${otherHealthIssues}"`);
+    console.log(
+      '  • Water Retention Percentage:',
+      `"${waterRetentionPercentage}"`
+    );
+
+    console.log('💊 TREATMENT HISTORY STATE:');
+    console.log('  • Medical Treatment:', `"${medicalTreatment}"`);
+    console.log('  • Psychotherapy:', `"${psychotherapy}"`);
+    console.log('  • Prior Obesity Treatments:', `"${priorObesityTreatments}"`);
+
+    console.log('♀️ FEMALE SPECIFIC ATTRIBUTES STATE:');
+    console.log('  • Gravidity:', `"${gravidity}"`);
+    console.log('  • Recent Delivery/Abortion:', `"${recentDeliveryAbortion}"`);
+    console.log('  • Contraception Use:', `"${contraceptionUse}"`);
+    console.log('  • Menopausal Status:', `"${menopausalStatus}"`);
+    console.log('  • SOPK:', `"${sopk}"`);
+
+    console.log('====================================');
+
     if (validateForm()) {
       const formData = {
         chronicConditions,
@@ -238,7 +285,9 @@ const MedicalHistoryScreen = ({
         console.error('Error during navigation:', error);
       }
     }
-  }; // Check if form has minimal data
+  };
+
+  // Check if form has minimal data
   const hasMinimalData = () => {
     // Require gender selection
     if (!gender) return false;
@@ -253,14 +302,14 @@ const MedicalHistoryScreen = ({
         sopk;
 
       if (!femaleFieldsComplete) return false;
-    }
-
-    // Require all family history fields to be completed
+    } // Require all family history fields to be completed
     const familyHistoryComplete =
       familyHeartDisease &&
       familyDiabetes &&
       familyObesity &&
-      familyThyroidIssues; // Require all personal medical history fields to be completed
+      familyThyroidIssues;
+
+    // Require all personal medical history fields to be completed
     const personalHistoryComplete =
       personalDiabetes &&
       personalObesity &&
@@ -358,7 +407,12 @@ const MedicalHistoryScreen = ({
   };
 
   // Render toggle button
-  const renderToggleButton = (value, onPress, labels) => (
+  const renderToggleButton = (
+    value,
+    onPress,
+    labels,
+    fieldName = 'unknown'
+  ) => (
     <View style={styles.toggleContainer}>
       {labels.map((label, index) => (
         <TouchableOpacity
@@ -369,7 +423,15 @@ const MedicalHistoryScreen = ({
             index === 0 && styles.toggleButtonFirst,
             index === labels.length - 1 && styles.toggleButtonLast,
           ]}
-          onPress={() => onPress(label.value)}
+          onPress={() => {
+            console.log(
+              `🔘 Toggle button pressed: ${fieldName} - Value: "${label.value}" (Previous: "${value}")`
+            );
+            onPress(label.value);
+            console.log(
+              `✅ Toggle button updated: ${fieldName} - New Value: "${label.value}"`
+            );
+          }}
           activeOpacity={0.8}
         >
           <Text
@@ -966,12 +1028,17 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Les antécédents familiaux de maladie cardiaque peuvent nécessiter une surveillance cardiovasculaire plus attentive'
               )}
-            </View>
-            {renderToggleButton(familyHeartDisease, setFamilyHeartDisease, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-              { value: 'unknown', label: 'Je ne sais pas' },
-            ])}
+            </View>{' '}
+            {renderToggleButton(
+              familyHeartDisease,
+              setFamilyHeartDisease,
+              [
+                { value: 'yes', label: 'Oui' },
+                { value: 'no', label: 'Non' },
+                { value: 'unknown', label: 'Je ne sais pas' },
+              ],
+              'familyHeartDisease'
+            )}
           </View>
           {/* Diabetes */}
           <View style={styles.fieldContainer}>
@@ -982,12 +1049,17 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 "Les antécédents familiaux de diabète nous aident à adapter les recommandations nutritionnelles et d'exercice"
               )}
-            </View>
-            {renderToggleButton(familyDiabetes, setFamilyDiabetes, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-              { value: 'unknown', label: 'Je ne sais pas' },
-            ])}
+            </View>{' '}
+            {renderToggleButton(
+              familyDiabetes,
+              setFamilyDiabetes,
+              [
+                { value: 'yes', label: 'Oui' },
+                { value: 'no', label: 'Non' },
+                { value: 'unknown', label: 'Je ne sais pas' },
+              ],
+              'familyDiabetes'
+            )}
           </View>
           {/* Obesity */}
           <View style={styles.fieldContainer}>
@@ -998,12 +1070,17 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Comprendre la prédisposition génétique aide à créer des plans de gestion du poids plus efficaces'
               )}
-            </View>
-            {renderToggleButton(familyObesity, setFamilyObesity, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-              { value: 'unknown', label: 'Je ne sais pas' },
-            ])}
+            </View>{' '}
+            {renderToggleButton(
+              familyObesity,
+              setFamilyObesity,
+              [
+                { value: 'yes', label: 'Oui' },
+                { value: 'no', label: 'Non' },
+                { value: 'unknown', label: 'Je ne sais pas' },
+              ],
+              'familyObesity'
+            )}
           </View>
           {/* Thyroid Issues */}
           <View style={styles.fieldContainer}>
@@ -1014,12 +1091,17 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Les problèmes thyroïdiens familiaux peuvent affecter le métabolisme et nécessiter une surveillance'
               )}
-            </View>
-            {renderToggleButton(familyThyroidIssues, setFamilyThyroidIssues, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-              { value: 'unknown', label: 'Je ne sais pas' },
-            ])}
+            </View>{' '}
+            {renderToggleButton(
+              familyThyroidIssues,
+              setFamilyThyroidIssues,
+              [
+                { value: 'yes', label: 'Oui' },
+                { value: 'no', label: 'Non' },
+                { value: 'unknown', label: 'Je ne sais pas' },
+              ],
+              'familyThyroidIssues'
+            )}
           </View>
         </View>
 
@@ -1042,11 +1124,16 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 "Les traitements médicaux peuvent affecter votre capacité d'exercice et vos besoins nutritionnels"
               )}
-            </View>
-            {renderToggleButton(medicalTreatment, setMedicalTreatment, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-            ])}
+            </View>{' '}
+            {renderToggleButton(
+              medicalTreatment,
+              setMedicalTreatment,
+              [
+                { value: 'yes', label: 'Oui' },
+                { value: 'no', label: 'Non' },
+              ],
+              'medicalTreatment'
+            )}
           </View>
 
           {/* Psychotherapy */}
@@ -1058,11 +1145,16 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'La psychothérapie peut influencer votre approche du bien-être et de la motivation'
               )}
-            </View>
-            {renderToggleButton(psychotherapy, setPsychotherapy, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-            ])}
+            </View>{' '}
+            {renderToggleButton(
+              psychotherapy,
+              setPsychotherapy,
+              [
+                { value: 'yes', label: 'Oui' },
+                { value: 'no', label: 'Non' },
+              ],
+              'psychotherapy'
+            )}
           </View>
 
           {/* Prior Obesity Treatments */}
