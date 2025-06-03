@@ -17,6 +17,7 @@ const API_ENDPOINTS = {
   ONBOARDING_BASIC_INFO: '/api/onboarding/basic-info',
   ONBOARDING_LIFESTYLE: '/api/onboarding/lifestyle',
   ONBOARDING_MEDICAL_HISTORY: '/api/onboarding/medical-history',
+  ONBOARDING_GOALS: '/api/onboarding/goals',
 };
 
 /**
@@ -1250,6 +1251,189 @@ export const OnboardingAPI = {
         success: false,
         error: error.message,
         message: 'Failed to save medical history data',
+      };
+    }
+  },
+
+  /**
+   * Submit goals data
+   * @param {object} formData - Goals form data
+   * @returns {Promise} API response
+   */
+  async submitGoals(formData) {
+    try {
+      console.log('====================================');
+      console.log('🎯 GOALS SUBMISSION START');
+      console.log('====================================');
+      console.log(
+        '📋 Raw goals form data received:',
+        JSON.stringify(formData, null, 2)
+      );
+
+      console.log('🔍 ANALYZING RECEIVED GOALS DATA:');
+      console.log('====================================');
+      console.log('📊 Form Data Keys:', Object.keys(formData));
+      console.log('📊 Form Data Type:', typeof formData);
+      console.log('📊 Is Form Data Array?:', Array.isArray(formData));
+      console.log('📊 Form Data Length:', Object.keys(formData).length);
+
+      // Log each key-value pair in detail
+      Object.keys(formData).forEach((key) => {
+        const value = formData[key];
+        console.log(`📊 ${key}:`, {
+          value: value,
+          type: typeof value,
+          isArray: Array.isArray(value),
+          isEmpty: value === null || value === undefined || value === '',
+          stringLength: typeof value === 'string' ? value.length : 'N/A',
+          arrayLength: Array.isArray(value) ? value.length : 'N/A',
+        });
+      });
+
+      console.log('====================================');
+      console.log('🔧 PROCESSING GOALS DATA:');
+      console.log('====================================');
+
+      // Define the exact order required by the backend
+      const orderedFields = ['primaryGoal', 'secondaryGoals'];
+
+      // Enhanced data validation and transformation
+      const processedData = {
+        primaryGoal: String(formData.primaryGoal || '').trim(),
+        secondaryGoals: Array.isArray(formData.secondaryGoals)
+          ? formData.secondaryGoals
+          : [],
+      };
+
+      console.log('🔄 PROCESSED GOALS DATA AFTER TRANSFORMATION:');
+      console.log('====================================');
+      console.log('📋 Processed Data:', JSON.stringify(processedData, null, 2));
+
+      // Log each processed field in detail
+      console.log('🔍 DETAILED PROCESSED GOALS DATA ANALYSIS:');
+      console.log(
+        '  • Primary Goal:',
+        `"${
+          processedData.primaryGoal
+        }" (type: ${typeof processedData.primaryGoal}, length: ${
+          processedData.primaryGoal.length
+        })`
+      );
+      console.log(
+        '  • Secondary Goals:',
+        `${JSON.stringify(
+          processedData.secondaryGoals
+        )} (type: ${typeof processedData.secondaryGoals}, length: ${
+          processedData.secondaryGoals.length
+        })`
+      );
+
+      console.log('====================================');
+
+      // Validate required fields
+      const validationErrors = [];
+      if (!processedData.primaryGoal) {
+        validationErrors.push('Primary goal is required');
+      }
+
+      // Validate secondary goals array
+      if (!Array.isArray(processedData.secondaryGoals)) {
+        validationErrors.push('Secondary goals must be an array');
+      }
+
+      if (validationErrors.length > 0) {
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      }
+
+      // Create ordered payload manually to guarantee property order
+      const orderedPayload = {};
+
+      // Set properties in the exact order specified
+      orderedPayload.primaryGoal = processedData.primaryGoal;
+      orderedPayload.secondaryGoals = processedData.secondaryGoals;
+
+      // Verify order matches exactly
+      const payloadKeys = Object.keys(orderedPayload);
+      const orderMatch =
+        JSON.stringify(orderedFields) === JSON.stringify(payloadKeys);
+
+      console.log('📤 Expected Order:', orderedFields);
+      console.log('📤 Actual Order:', payloadKeys);
+      console.log('📤 Order Match:', orderMatch);
+      console.log('📤 Final Goals Payload:', orderedPayload);
+
+      // Use JSON.stringify with replacer to guarantee serialization order
+      const orderedJSON = JSON.stringify(orderedPayload, orderedFields);
+      console.log('📤 Serialized Goals JSON:', orderedJSON);
+
+      // Detailed data type validation
+      console.log('🔍 Detailed Goals Data Validation:');
+      console.log(
+        '  • Primary Goal:',
+        `"${
+          processedData.primaryGoal
+        }" (type: ${typeof processedData.primaryGoal})`
+      );
+      console.log(
+        '  • Secondary Goals:',
+        `${JSON.stringify(
+          processedData.secondaryGoals
+        )} (type: ${typeof processedData.secondaryGoals}, length: ${
+          processedData.secondaryGoals.length
+        })`
+      );
+
+      console.log('✅ Goals data validation passed');
+      console.log('====================================');
+      console.log('📤 GOALS PAYLOAD BEING SENT:');
+      console.log('====================================');
+      console.log(orderedJSON);
+      console.log('====================================');
+      console.log('📤 Payload Size:', new Blob([orderedJSON]).size, 'bytes');
+      console.log(
+        '📤 Request URL:',
+        `${API_BASE_URL}${API_ENDPOINTS.ONBOARDING_GOALS}`
+      );
+      console.log('📤 Request Method: PUT');
+      console.log('📤 Content-Type: application/json');
+      console.log('====================================');
+
+      const response = await apiRequest(API_ENDPOINTS.ONBOARDING_GOALS, {
+        method: 'PUT',
+        body: orderedJSON,
+      });
+
+      console.log('📥 Goals Response:', response);
+      console.log('====================================');
+      console.log('📥 GOALS RESPONSE RECEIVED:');
+      console.log('====================================');
+      console.log('📥 Response Status: SUCCESS');
+      console.log('📥 Response Data:', JSON.stringify(response, null, 2));
+      console.log(
+        '📥 Response Size:',
+        new Blob([JSON.stringify(response)]).size,
+        'bytes'
+      );
+      console.log('====================================');
+
+      return {
+        success: true,
+        data: response,
+        message: 'Goals data saved successfully',
+      };
+    } catch (error) {
+      console.error('❌ Goals submission failed:', error);
+      console.log('====================================');
+      console.log('❌ GOALS SUBMISSION ERROR:');
+      console.log('====================================');
+      console.log('❌ Error Message:', error.message);
+      console.log('❌ Error Stack:', error.stack);
+      console.log('❌ Error Details:', JSON.stringify(error, null, 2));
+      console.log('====================================');
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to save goals data',
       };
     }
   },

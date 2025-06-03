@@ -656,9 +656,25 @@ export function MainApp() {
       handleCompletionNavigation(newCompletedSections);
     }
   };
-
-  const handleGoalsComplete = (formData) => {
+  const handleGoalsComplete = async (formData) => {
     console.log('✅ Goals completed:', formData);
+
+    try {
+      // Submit to backend API
+      console.log('🚀 Submitting goals data to backend...');
+      const result = await OnboardingAPI.submitGoals(formData);
+
+      if (result.success) {
+        console.log('✅ Goals data successfully saved to backend');
+      } else {
+        console.warn(
+          '⚠️ Goals backend submission failed, saving locally:',
+          result.error
+        );
+      }
+    } catch (error) {
+      console.error('❌ Goals backend submission error:', error);
+    }
 
     // Enhanced logging for goals data collection
     console.log('🎯 GOALS DATA COLLECTED:');

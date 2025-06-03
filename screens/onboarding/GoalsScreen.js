@@ -8,17 +8,9 @@ import {
   ScrollView,
   StatusBar,
   Animated,
-  Modal,
-  TextInput,
-  Dimensions,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { LineChart } from 'react-native-chart-kit';
-import Slider from '@react-native-community/slider';
-import LottieView from 'lottie-react-native';
 import Constants from 'expo-constants';
-
-const { width: screenWidth } = Dimensions.get('window');
 
 const GoalsScreen = ({
   onBack,
@@ -31,13 +23,8 @@ const GoalsScreen = ({
   // Form state
   const [primaryGoal, setPrimaryGoal] = useState('');
   const [secondaryGoals, setSecondaryGoals] = useState([]);
-  const [targetTimeline, setTargetTimeline] = useState(6); // months
-  const [currentWeight, setCurrentWeight] = useState('');
-  const [targetWeight, setTargetWeight] = useState('');
-  const [weeklyGoal, setWeeklyGoal] = useState(1); // lbs per week
   const [errors, setErrors] = useState({});
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
-  const [focusedField, setFocusedField] = useState('');
 
   // Animation refs
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -95,23 +82,13 @@ const GoalsScreen = ({
       color: '#9013FE',
       gradient: ['#9013FE', '#6200EA'],
     },
-  ];
-  // Secondary goals data
+  ]; // Secondary goals data
   const secondaryGoalsData = [
     { id: 'betterSleep', label: 'Meilleur Sommeil', icon: 'bedtime' },
     { id: 'stressReduction', label: 'Réduction du Stress', icon: 'spa' },
     { id: 'flexibility', label: 'Flexibilité', icon: 'self-improvement' },
     { id: 'balance', label: 'Équilibre', icon: 'balance' },
     { id: 'energyBoost', label: "Boost d'Énergie", icon: 'bolt' },
-  ];
-
-  // Timeline milestones
-  const timelineMilestones = [
-    { value: 1, label: '1M' },
-    { value: 3, label: '3M' },
-    { value: 6, label: '6M' },
-    { value: 9, label: '9M' },
-    { value: 12, label: '1Y' },
   ];
   // Animate quotes carousel
   useEffect(() => {
@@ -156,8 +133,7 @@ const GoalsScreen = ({
     const goalIndex = primaryGoalsData.findIndex((goal) => goal.id === goalId);
     setPrimaryGoal(goalId);
     animateCard(goalIndex);
-  };
-  // Handle secondary goal toggle
+  }; // Handle secondary goal toggle
   const toggleSecondaryGoal = (goalId) => {
     setSecondaryGoals((prev) => {
       if (prev.includes(goalId)) {
@@ -165,35 +141,6 @@ const GoalsScreen = ({
       }
       return [...prev, goalId];
     });
-  };
-  // Generate weight progress chart data
-  const generateWeightChartData = () => {
-    if (!currentWeight || !targetWeight || !targetTimeline) return null;
-
-    const current = Number.parseFloat(currentWeight);
-    const target = Number.parseFloat(targetWeight);
-    const weeks = targetTimeline * 4;
-    const totalChange = target - current;
-    const weeklyChange = totalChange / weeks;
-
-    const labels = [];
-    const data = [];
-
-    for (let i = 0; i <= weeks; i += 4) {
-      labels.push(`Week ${i}`);
-      data.push(current + weeklyChange * i);
-    }
-
-    return {
-      labels,
-      datasets: [
-        {
-          data,
-          strokeWidth: 3,
-          color: (opacity = 1) => `rgba(86, 3, 173, ${opacity})`,
-        },
-      ],
-    };
   };
 
   // Check if all required sections are completed
@@ -209,7 +156,6 @@ const GoalsScreen = ({
     );
     return { allCompleted: !missingSection, missingSection };
   };
-
   // Validation
   const validateForm = () => {
     const newErrors = {};
@@ -217,50 +163,14 @@ const GoalsScreen = ({
       newErrors.primaryGoal = 'Veuillez sélectionner un objectif principal';
     }
 
-    if (primaryGoal === 'weightLoss' || primaryGoal === 'muscleGain') {
-      if (!currentWeight || Number.isNaN(Number.parseFloat(currentWeight))) {
-        newErrors.currentWeight = 'Veuillez entrer un poids actuel valide';
-      }
-      if (!targetWeight || Number.isNaN(Number.parseFloat(targetWeight))) {
-        newErrors.targetWeight = 'Veuillez entrer un poids cible valide';
-      }
-      if (currentWeight && targetWeight) {
-        const current = Number.parseFloat(currentWeight);
-        const target = Number.parseFloat(targetWeight);
-        if (Math.abs(current - target) < 1) {
-          newErrors.targetWeight =
-            'Le poids cible doit être différent du poids actuel';
-        }
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-  // Check if goals are ambitious but realistic
-  const areGoalsAmbitious = () => {
-    if (primaryGoal === 'weightLoss' && currentWeight && targetWeight) {
-      const current = Number.parseFloat(currentWeight);
-      const target = Number.parseFloat(targetWeight);
-      const weightLoss = current - target;
-      const weeksToGoal = targetTimeline * 4;
-      const lbsPerWeek = weightLoss / weeksToGoal;
-
-      return lbsPerWeek >= 1 && lbsPerWeek <= 2; // Ambitious but realistic
-    }
-
-    return targetTimeline >= 3 && targetTimeline <= 9; // Good timeline range
-  };
-  // Handle form submission
+  }; // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
       const formData = {
         primaryGoal,
         secondaryGoals,
-        targetTimeline,
-        currentWeight: currentWeight ? Number.parseFloat(currentWeight) : null,
-        targetWeight: targetWeight ? Number.parseFloat(targetWeight) : null,
-        weeklyGoal,
       };
 
       // Check if all required sections are completed
@@ -300,15 +210,9 @@ const GoalsScreen = ({
       ]).start();
     }
   };
-
   // Check if form is valid
   const isFormValid = () => {
     if (!primaryGoal) return false;
-    if (
-      (primaryGoal === 'weightLoss' || primaryGoal === 'muscleGain') &&
-      (!currentWeight || !targetWeight)
-    )
-      return false;
     return true;
   };
 
@@ -384,41 +288,6 @@ const GoalsScreen = ({
           ) : null}
         </TouchableOpacity>
       </Animated.View>
-    );
-  };
-
-  // Render weight progress chart
-  const renderWeightChart = () => {
-    const chartData = generateWeightChartData();
-    if (!chartData) return null;
-
-    return (
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Projected Progress</Text>
-        <LineChart
-          data={chartData}
-          width={screenWidth - 60}
-          height={200}
-          chartConfig={{
-            backgroundColor: '#ffffff',
-            backgroundGradientFrom: '#ffffff',
-            backgroundGradientTo: '#ffffff',
-            decimalPlaces: 1,
-            color: (opacity = 1) => `rgba(86, 3, 173, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(102, 102, 102, ${opacity})`,
-            style: {
-              borderRadius: 16,
-            },
-            propsForDots: {
-              r: '6',
-              strokeWidth: '2',
-              stroke: '#5603AD',
-            },
-          }}
-          bezier
-          style={styles.chart}
-        />
-      </View>
     );
   };
   return (
@@ -523,138 +392,9 @@ const GoalsScreen = ({
                     {goal.label}
                   </Text>
                 </TouchableOpacity>
-              ))}
+              ))}{' '}
             </View>
           </View>
-          {/* Target Timeline Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <MaterialIcons name="schedule" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Calendrier Cible</Text>
-            </View>
-            <Text style={styles.sectionSubtitle}>
-              En combien de temps voulez-vous atteindre votre objectif ?
-            </Text>
-            <View style={styles.timelineContainer}>
-              <View style={styles.timelineHeader}>
-                <Text style={styles.timelineValue}>
-                  {`${targetTimeline || 6} ${
-                    (targetTimeline || 6) === 1 ? 'mois' : 'mois'
-                  }`}
-                </Text>
-                <MaterialIcons name="event" size={24} color="#5603AD" />
-              </View>
-              <Slider
-                style={styles.timelineSlider}
-                minimumValue={1}
-                maximumValue={12}
-                step={1}
-                value={targetTimeline}
-                onValueChange={setTargetTimeline}
-                minimumTrackTintColor="#5603AD"
-                maximumTrackTintColor="#E0E0E0"
-                thumbStyle={styles.sliderThumb}
-              />
-              <View style={styles.timelineMilestones}>
-                {timelineMilestones.map((milestone) => (
-                  <View key={milestone.value} style={styles.milestone}>
-                    <View
-                      style={[
-                        styles.milestoneMarker,
-                        targetTimeline >= milestone.value &&
-                          styles.milestoneMarkerActive,
-                      ]}
-                    />
-                    <Text style={styles.milestoneLabel}>{milestone.label}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-          {/* Weight Target Section */}
-          {primaryGoal === 'weightLoss' || primaryGoal === 'muscleGain' ? (
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
-                <MaterialIcons
-                  name="monitor-weight"
-                  size={24}
-                  color="#5603AD"
-                />
-                <Text style={styles.sectionTitle}>Objectifs de Poids</Text>
-              </View>
-
-              <View style={styles.weightInputsContainer}>
-                <View style={styles.weightInputGroup}>
-                  <Text style={styles.weightLabel}>Poids Actuel (lbs)</Text>
-                  <TextInput
-                    style={[
-                      styles.weightInput,
-                      focusedField === 'currentWeight' &&
-                        styles.weightInputFocused,
-                      errors.currentWeight && styles.weightInputError,
-                    ]}
-                    placeholder="150"
-                    placeholderTextColor="#999"
-                    value={currentWeight}
-                    onChangeText={setCurrentWeight}
-                    onFocus={() => setFocusedField('currentWeight')}
-                    onBlur={() => setFocusedField('')}
-                    keyboardType="numeric"
-                  />
-                  {errors.currentWeight ? (
-                    <Text style={styles.errorText}>{errors.currentWeight}</Text>
-                  ) : null}
-                </View>
-
-                <View style={styles.weightInputGroup}>
-                  <Text style={styles.weightLabel}>Poids Cible (lbs)</Text>
-                  <TextInput
-                    style={[
-                      styles.weightInput,
-                      focusedField === 'targetWeight' &&
-                        styles.weightInputFocused,
-                      errors.targetWeight && styles.weightInputError,
-                    ]}
-                    placeholder="140"
-                    placeholderTextColor="#999"
-                    value={targetWeight}
-                    onChangeText={setTargetWeight}
-                    onFocus={() => setFocusedField('targetWeight')}
-                    onBlur={() => setFocusedField('')}
-                    keyboardType="numeric"
-                  />
-                  {errors.targetWeight ? (
-                    <Text style={styles.errorText}>{errors.targetWeight}</Text>
-                  ) : null}
-                </View>
-              </View>
-
-              {/* Weekly Goal Slider */}
-              <View style={styles.weeklyGoalContainer}>
-                <Text style={styles.weeklyGoalLabel}>
-                  Objectif Hebdomadaire : {weeklyGoal} lbs/semaine
-                </Text>
-                <Slider
-                  style={styles.weeklyGoalSlider}
-                  minimumValue={0.5}
-                  maximumValue={2}
-                  step={0.25}
-                  value={weeklyGoal}
-                  onValueChange={setWeeklyGoal}
-                  minimumTrackTintColor="#5603AD"
-                  maximumTrackTintColor="#E0E0E0"
-                  thumbStyle={styles.sliderThumb}
-                />
-                <View style={styles.weeklyGoalLabels}>
-                  <Text style={styles.weeklyGoalLabelText}>Graduel</Text>
-                  <Text style={styles.weeklyGoalLabelText}>Agressif</Text>
-                </View>
-              </View>
-
-              {/* Weight Progress Chart */}
-              {renderWeightChart()}
-            </View>
-          ) : null}
           {/* Buttons */}
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
@@ -895,117 +635,6 @@ const styles = StyleSheet.create({
   secondaryGoalLabelSelected: {
     color: '#5603AD',
     fontWeight: '600',
-  },
-  timelineContainer: {
-    marginTop: 8,
-  },
-  timelineHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  timelineValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#5603AD',
-  },
-  timelineSlider: {
-    width: '100%',
-    height: 40,
-  },
-  timelineMilestones: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    marginTop: 8,
-  },
-  milestone: {
-    alignItems: 'center',
-  },
-  milestoneMarker: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#E0E0E0',
-    marginBottom: 4,
-  },
-  milestoneMarkerActive: {
-    backgroundColor: '#5603AD',
-  },
-  milestoneLabel: {
-    fontSize: 12,
-    color: '#666',
-  },
-  weightInputsContainer: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  weightInputGroup: {
-    flex: 1,
-  },
-  weightLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  weightInput: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#F8F9FA',
-  },
-  weightInputFocused: {
-    borderColor: '#5603AD',
-    backgroundColor: 'white',
-  },
-  weightInputError: {
-    borderColor: '#FF6B6B',
-  },
-  weeklyGoalContainer: {
-    marginTop: 20,
-  },
-  weeklyGoalLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  weeklyGoalSlider: {
-    width: '100%',
-    height: 40,
-  },
-  weeklyGoalLabels: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 8,
-  },
-  weeklyGoalLabelText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  chartContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
-  },
-  chart: {
-    marginVertical: 8,
-    borderRadius: 16,
-  },
-  sliderThumb: {
-    backgroundColor: '#5603AD',
-    width: 20,
-    height: 20,
   },
   buttonsContainer: {
     paddingHorizontal: 20,
