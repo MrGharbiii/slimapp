@@ -45,7 +45,6 @@ export function MainApp() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
   const [currentXP, setCurrentXP] = useState(0);
   const [completedSections, setCompletedSections] = useState([]);
-
   // State to store all onboarding data
   const [onboardingData, setOnboardingData] = useState({
     basicInfo: null,
@@ -53,7 +52,25 @@ export function MainApp() {
     medicalHistory: null,
     goals: null,
     preferences: null,
-  });
+  }); // State to track analysis completion
+  const [isAnalysisCompleted, setIsAnalysisCompleted] = useState(false);
+
+  // State to track plan request status
+  const [isPlanRequested, setIsPlanRequested] = useState(false);
+
+  // Handler for when analysis is completed
+  const handleAnalysisComplete = () => {
+    console.log(
+      '📊 Analysis completed! Setting analysis completion state to true'
+    );
+    setIsAnalysisCompleted(true);
+  };
+
+  // Handler for when plan is requested
+  const handlePlanRequested = () => {
+    console.log('🚀 Plan requested! Setting plan request state to true');
+    setIsPlanRequested(true);
+  };
 
   const handleCreateAccount = () => {
     console.log('Create Account button pressed in App.js');
@@ -733,23 +750,60 @@ export function MainApp() {
       handleCompletionNavigation(newCompletedSections);
     }
   };
-
-  const handlePreferencesComplete = (formData) => {
+  const handlePreferencesComplete = async (formData) => {
     console.log('✅ Preferences completed:', formData);
 
     // Enhanced logging for preferences data collection
     console.log('⚙️ PREFERENCES DATA COLLECTED:');
     console.log(
-      '  • Notifications:',
-      formData.notifications ? 'Enabled' : 'Disabled'
+      '  • Workout Duration:',
+      formData.workoutDuration || 'Not specified'
     );
-    console.log('  • Units System:', formData.units || 'Not specified');
-    console.log('  • Language:', formData.language || 'Not specified');
-    console.log('  • Theme:', formData.theme || 'Not specified');
-    console.log('  • Privacy Level:', formData.privacyLevel || 'Not specified');
+    console.log(
+      '  • Equipment Access:',
+      formData.equipmentAccess || 'Not specified'
+    );
+    console.log(
+      '  • Workout Intensity:',
+      formData.workoutIntensity || 'Not specified'
+    );
+    console.log(
+      '  • Dietary Restrictions:',
+      formData.dietaryRestrictions || 'Not specified'
+    );
+    console.log(
+      '  • Food Allergies:',
+      formData.foodAllergies || 'None specified'
+    );
+    console.log(
+      '  • Cooking Frequency:',
+      formData.cookingFrequency || 'Not specified'
+    );
     console.log('  • Collection Time:', new Date().toLocaleString());
 
-    // Store the preferences data with timestamp
+    // Try to submit to backend API
+    try {
+      console.log('🌐 Submitting preferences to backend...');
+      const result = await OnboardingAPI.submitPreferences(formData);
+
+      if (result.success) {
+        console.log('✅ Preferences submitted to backend successfully');
+        console.log('📥 Backend response:', result.data);
+      } else {
+        console.warn(
+          '⚠️ Backend submission failed, continuing with local storage:',
+          result.error
+        );
+      }
+    } catch (error) {
+      console.error(
+        '❌ Error submitting preferences to backend:',
+        error.message
+      );
+      console.log('💾 Continuing with local storage fallback...');
+    }
+
+    // Store the preferences data with timestamp (local storage)
     setOnboardingData((prev) => ({
       ...prev,
       preferences: {
@@ -888,6 +942,9 @@ export function MainApp() {
               goBack: () => setCurrentScreen('dashboard'),
               navigate: (screen) => setCurrentScreen(screen),
             }}
+            isAnalysisCompleted={isAnalysisCompleted}
+            isPlanRequested={isPlanRequested}
+            onPlanRequested={handlePlanRequested}
           />
         );
       case 'nutrition':
@@ -969,11 +1026,8 @@ export function MainApp() {
               goBack: () => setCurrentScreen('dashboard'),
               navigate: (screen) => setCurrentScreen(screen),
             }}
-            route={{
-              params: {
-                gender: onboardingData?.medicalHistory?.gender || 'Male',
-              },
-            }}
+            onboardingData={onboardingData}
+            onAnalysisComplete={handleAnalysisComplete}
           />
         );
       default:

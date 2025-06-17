@@ -11,6 +11,7 @@ import {
   Modal,
   Animated,
   Alert,
+  Image,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -50,10 +51,12 @@ const BasicInfoScreen = ({
   const [initialMuscleMass, setInitialMuscleMass] = useState('');
   const [fatMassTarget, setFatMassTarget] = useState('');
   const [muscleMassTarget, setMuscleMassTarget] = useState('');
+  const [waterRetentionPercentage, setWaterRetentionPercentage] = useState('');
   const [numberOfChildren, setNumberOfChildren] = useState('');
-
   const [errors, setErrors] = useState({});
   const [focusedField, setFocusedField] = useState('');
+  const [showMeasurementModal, setShowMeasurementModal] = useState(false);
+  const [showMassModal, setShowMassModal] = useState(false);
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
   // Activity level options
@@ -147,26 +150,19 @@ const BasicInfoScreen = ({
     if (!smoking) {
       newErrors.smoking = 'Veuillez indiquer vos habitudes de tabagisme';
     }
-
     if (!alcohol) {
       newErrors.alcohol =
         "Veuillez indiquer vos habitudes de consommation d'alcool";
-    }
+    } // initialFatMass and initialMuscleMass are now optional - no validation required
+    // fatMassTarget and muscleMassTarget are now optional - no validation required
 
-    if (!initialFatMass) {
-      newErrors.initialFatMass = 'La masse grasse initiale est requise';
-    }
-
-    if (!initialMuscleMass) {
-      newErrors.initialMuscleMass = 'La masse musculaire initiale est requise';
-    }
-
-    if (!fatMassTarget) {
-      newErrors.fatMassTarget = "L'objectif de masse grasse est requis";
-    }
-
-    if (!muscleMassTarget) {
-      newErrors.muscleMassTarget = "L'objectif de masse musculaire est requis";
+    // Validate water retention percentage format if provided
+    if (waterRetentionPercentage && waterRetentionPercentage.trim()) {
+      const percentage = parseFloat(waterRetentionPercentage.replace('%', ''));
+      if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+        newErrors.waterRetentionPercentage =
+          'Veuillez entrer un pourcentage valide entre 0 et 100';
+      }
     }
 
     if (!numberOfChildren) {
@@ -187,10 +183,6 @@ const BasicInfoScreen = ({
     hipCircumference &&
     smoking &&
     alcohol &&
-    initialFatMass &&
-    initialMuscleMass &&
-    fatMassTarget &&
-    muscleMassTarget &&
     numberOfChildren;
 
   // Handle date change
@@ -228,10 +220,13 @@ const BasicInfoScreen = ({
         hipUnit,
         smoking,
         alcohol,
-        initialFatMass: Number.parseFloat(initialFatMass),
-        initialMuscleMass: Number.parseFloat(initialMuscleMass),
+        initialFatMass: initialFatMass ? Number.parseFloat(initialFatMass) : 0,
+        initialMuscleMass: initialMuscleMass
+          ? Number.parseFloat(initialMuscleMass)
+          : 0,
         fatMassTarget: Number.parseFloat(fatMassTarget),
         muscleMassTarget: Number.parseFloat(muscleMassTarget),
+        waterRetentionPercentage: waterRetentionPercentage,
         numberOfChildren: Number.parseInt(numberOfChildren, 10),
       };
 
@@ -284,6 +279,25 @@ const BasicInfoScreen = ({
       </View>
     );
   };
+  // Render measurement tooltip
+  const renderMeasurementTooltip = () => (
+    <TouchableOpacity
+      style={styles.tooltipIcon}
+      onPress={() => setShowMeasurementModal(true)}
+    >
+      <MaterialIcons name="info-outline" size={16} color="#5603AD" />
+    </TouchableOpacity>
+  );
+
+  // Render mass measurement tooltip
+  const renderMassTooltip = () => (
+    <TouchableOpacity
+      style={styles.tooltipIcon}
+      onPress={() => setShowMassModal(true)}
+    >
+      <MaterialIcons name="info-outline" size={16} color="#5603AD" />
+    </TouchableOpacity>
+  );
 
   // Render activity level dropdown
   const renderActivityDropdown = () => {
@@ -356,6 +370,162 @@ const BasicInfoScreen = ({
             </View>
           </View>
         </Modal>
+
+        {/* Measurement Explanation Modal */}
+        <Modal
+          visible={showMeasurementModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowMeasurementModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>
+                  Comment Mesurer Correctement
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowMeasurementModal(false)}
+                >
+                  <MaterialIcons name="close" size={24} color="#666" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.modalScrollView}>
+                <View style={styles.measurementImageContainer}>
+                  <Image
+                    source={require('../../assets/taille.jpg')}
+                    style={styles.measurementImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View style={styles.measurementInstructions}>
+                  <View style={styles.instructionSection}>
+                    <Text style={styles.instructionTitle}>Tour de Taille:</Text>
+                    <Text style={styles.instructionText}>
+                      • Mesurez au niveau le plus étroit de votre taille
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Généralement situé entre les côtes et les hanches
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Gardez le mètre ruban parallèle au sol
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Respirez normalement, ne retenez pas votre souffle
+                    </Text>
+                  </View>
+                  <View style={styles.instructionSection}>
+                    <Text style={styles.instructionTitle}>
+                      Tour de Hanches:
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Mesurez au niveau le plus large de vos hanches
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Généralement au niveau des fesses
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Gardez les pieds joints et décontractés
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Le mètre ruban doit être bien ajusté mais pas serré
+                    </Text>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Mass Measurement Explanation Modal */}
+        <Modal
+          visible={showMassModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowMassModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>
+                  Mesures de Composition Corporelle
+                </Text>
+                <TouchableOpacity onPress={() => setShowMassModal(false)}>
+                  <MaterialIcons name="close" size={24} color="#666" />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.modalScrollView}>
+                <View style={styles.measurementInstructions}>
+                  <View style={styles.instructionSection}>
+                    <Text style={styles.instructionTitle}>
+                      Où faire ces mesures ?
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Rendez-vous dans une pharmacie équipée d'un
+                      impédancemètre
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Certaines salles de sport proposent également ce service
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Les balances classiques ne peuvent pas mesurer ces
+                      données
+                    </Text>
+                  </View>
+                  <View style={styles.instructionSection}>
+                    <Text style={styles.instructionTitle}>
+                      Qu'est-ce qu'un impédancemètre ?
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Appareil qui mesure la composition corporelle par
+                      bioimpédance
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Analyse précise de la masse grasse et musculaire
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Résultats fiables pour un suivi personnalisé
+                    </Text>
+                  </View>
+                  <View style={styles.instructionSection}>
+                    <Text style={styles.instructionTitle}>
+                      Conseils pour la mesure :
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Mesurez-vous toujours à la même heure
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Évitez de boire beaucoup d'eau avant la mesure
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Ne faites pas de sport intense 24h avant
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Ces mesures sont optionnelles mais très utiles
+                    </Text>
+                  </View>
+                  <View style={styles.instructionSection}>
+                    <Text style={styles.instructionTitle}>
+                      Rétention d'eau :
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Également mesurée par l'impédancemètre
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Indique le pourcentage d'eau retenue dans le corps
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Utile pour comprendre les variations de poids
+                    </Text>
+                    <Text style={styles.instructionText}>
+                      • Peut être affectée par l'alimentation et l'hydratation
+                    </Text>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   };
@@ -397,7 +567,7 @@ const BasicInfoScreen = ({
           </View>
           {/* Name Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Nom Complet *</Text>
+            <Text style={styles.inputLabel}>Pseudonom *</Text>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="badge"
@@ -411,7 +581,7 @@ const BasicInfoScreen = ({
                   focusedField === 'name' && styles.inputFocused,
                   errors.name && styles.inputError,
                 ]}
-                placeholder="Entrez votre nom complet"
+                placeholder="Entrez votre Pseudonom"
                 placeholderTextColor="#999"
                 value={name}
                 onChangeText={setName}
@@ -605,7 +775,10 @@ const BasicInfoScreen = ({
           </View>
           {/* Waist Circumference Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Tour de Taille *</Text>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>Tour de Taille *</Text>
+              {renderMeasurementTooltip()}
+            </View>
             <View style={styles.inputWithUnit}>
               <View style={styles.inputWrapper}>
                 <MaterialIcons
@@ -639,7 +812,10 @@ const BasicInfoScreen = ({
           </View>
           {/* Hip Circumference Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Tour de Hanches *</Text>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>Tour de Hanches *</Text>
+              {renderMeasurementTooltip()}
+            </View>
             <View style={styles.inputWithUnit}>
               <View style={styles.inputWrapper}>
                 <MaterialIcons
@@ -672,7 +848,12 @@ const BasicInfoScreen = ({
           </View>
           {/* Initial Fat Mass Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Masse Grasse Initiale *</Text>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>
+                Masse Grasse Initiale (Optionnel)
+              </Text>
+              {renderMassTooltip()}
+            </View>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="fitness-center"
@@ -686,7 +867,7 @@ const BasicInfoScreen = ({
                   focusedField === 'initialFatMass' && styles.inputFocused,
                   errors.initialFatMass && styles.inputError,
                 ]}
-                placeholder="Entrez la masse grasse initiale (kg)"
+                placeholder="Entrez la masse grasse initiale (kg) - Optionnel"
                 placeholderTextColor="#999"
                 value={initialFatMass}
                 onChangeText={setInitialFatMass}
@@ -701,7 +882,12 @@ const BasicInfoScreen = ({
           </View>
           {/* Initial Muscle Mass Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Masse Musculaire Initiale *</Text>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>
+                Masse Musculaire Initiale (Optionnel)
+              </Text>
+              {renderMassTooltip()}
+            </View>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="fitness-center"
@@ -715,7 +901,7 @@ const BasicInfoScreen = ({
                   focusedField === 'initialMuscleMass' && styles.inputFocused,
                   errors.initialMuscleMass && styles.inputError,
                 ]}
-                placeholder="Entrez la masse musculaire initiale (kg)"
+                placeholder="Entrez la masse musculaire initiale (kg) - Optionnel"
                 placeholderTextColor="#999"
                 value={initialMuscleMass}
                 onChangeText={setInitialMuscleMass}
@@ -730,7 +916,12 @@ const BasicInfoScreen = ({
           </View>
           {/* Fat Mass Target Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>Objectif de Masse Grasse *</Text>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>
+                Objectif de Masse Grasse (Optionnel)
+              </Text>
+              {renderMassTooltip()}
+            </View>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="fitness-center"
@@ -744,7 +935,7 @@ const BasicInfoScreen = ({
                   focusedField === 'fatMassTarget' && styles.inputFocused,
                   errors.fatMassTarget && styles.inputError,
                 ]}
-                placeholder="Entrez l'objectif de masse grasse (kg)"
+                placeholder="Entrez l'objectif de masse grasse (kg) - Optionnel"
                 placeholderTextColor="#999"
                 value={fatMassTarget}
                 onChangeText={setFatMassTarget}
@@ -759,9 +950,12 @@ const BasicInfoScreen = ({
           </View>
           {/* Muscle Mass Target Input */}
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>
-              Objectif de Masse Musculaire *
-            </Text>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>
+                Objectif de Masse Musculaire (Optionnel)
+              </Text>
+              {renderMassTooltip()}
+            </View>
             <View style={styles.inputWrapper}>
               <MaterialIcons
                 name="fitness-center"
@@ -775,7 +969,7 @@ const BasicInfoScreen = ({
                   focusedField === 'muscleMassTarget' && styles.inputFocused,
                   errors.muscleMassTarget && styles.inputError,
                 ]}
-                placeholder="Entrez l'objectif de masse musculaire (kg)"
+                placeholder="Entrez l'objectif de masse musculaire (kg) - Optionnel"
                 placeholderTextColor="#999"
                 value={muscleMassTarget}
                 onChangeText={setMuscleMassTarget}
@@ -786,6 +980,43 @@ const BasicInfoScreen = ({
             </View>
             {errors.muscleMassTarget ? (
               <Text style={styles.errorText}>{errors.muscleMassTarget}</Text>
+            ) : null}
+          </View>
+          {/* Water Retention Percentage Input */}
+          <View style={styles.inputContainer}>
+            <View style={styles.fieldHeader}>
+              <Text style={styles.inputLabel}>
+                Pourcentage de Rétention d'Eau (Optionnel)
+              </Text>
+              {renderMassTooltip()}
+            </View>
+            <View style={styles.inputWrapper}>
+              <MaterialIcons
+                name="water-drop"
+                size={20}
+                color="#666"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  focusedField === 'waterRetentionPercentage' &&
+                    styles.inputFocused,
+                  errors.waterRetentionPercentage && styles.inputError,
+                ]}
+                placeholder="Entrez le pourcentage de rétention d'eau (ex: 5%) - Optionnel"
+                placeholderTextColor="#999"
+                value={waterRetentionPercentage}
+                onChangeText={setWaterRetentionPercentage}
+                onFocus={() => setFocusedField('waterRetentionPercentage')}
+                onBlur={() => setFocusedField('')}
+                keyboardType="numeric"
+              />
+            </View>
+            {errors.waterRetentionPercentage ? (
+              <Text style={styles.errorText}>
+                {errors.waterRetentionPercentage}
+              </Text>
             ) : null}
           </View>
         </View>
@@ -868,11 +1099,11 @@ const BasicInfoScreen = ({
                   <Picker.Item label="Pas d'alcool" value="no_alcohol" />
                   <Picker.Item
                     label="Consommation occasionnelle"
-                    value="occasional_drinker"
+                    value="occasional_consumption"
                   />
                   <Picker.Item
                     label="Consommation régulière"
-                    value="regular_drinker"
+                    value="regular_consumption"
                   />
                 </Picker>
               </View>
@@ -1288,6 +1519,47 @@ const styles = StyleSheet.create({
   pickerItem: {
     fontSize: 16,
     color: '#333',
+  },
+  // Measurement modal styles
+  modalScrollView: {
+    paddingHorizontal: 20,
+  },
+  measurementImageContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  measurementImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+  },
+  measurementInstructions: {
+    marginBottom: 20,
+  },
+  instructionSection: {
+    marginBottom: 20,
+  },
+  instructionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#5603AD',
+    marginBottom: 10,
+  },
+  instructionText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5,
+    paddingLeft: 10,
+  },
+  // Tooltip styles
+  tooltipIcon: {
+    marginLeft: 8,
+    padding: 4,
+  },
+  fieldHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
 });
 

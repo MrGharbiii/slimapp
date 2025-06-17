@@ -11,6 +11,7 @@ import {
   Animated,
   Alert,
   Platform,
+  TextInput,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -33,12 +34,11 @@ const LifestyleScreen = ({
   const [showWakeUpPicker, setShowWakeUpPicker] = useState(false);
   const [showSleepPicker, setShowSleepPicker] = useState(false);
   const [workSchedule, setWorkSchedule] = useState('');
-  const [showWorkDropdown, setShowWorkDropdown] = useState(false);
-
-  // Exercise habits
+  const [showWorkDropdown, setShowWorkDropdown] = useState(false); // Exercise habits
   const [exerciseFrequency, setExerciseFrequency] = useState('');
-  const [exerciseTime, setExerciseTime] = useState('');
+  const [exerciseTime, setExerciseTime] = useState([]); // Changed to array for multi-choice
   const [favoriteActivities, setFavoriteActivities] = useState([]);
+  const [autreActivity, setAutreActivity] = useState(''); // State for "autre" text input
 
   // Stress & Sleep
   const [stressLevel, setStressLevel] = useState(5);
@@ -55,10 +55,9 @@ const LifestyleScreen = ({
     { value: 'shift', label: 'Travail par Équipes', icon: 'schedule' },
     { value: 'student', label: 'Étudiant', icon: 'school' },
     { value: 'retired', label: 'Retraité', icon: 'elderly' },
-  ];
-  // Exercise frequency options
+  ]; // Exercise frequency options
   const exerciseFrequencyOptions = [
-    { value: 'never', label: 'Jamais', emoji: '😴', color: '#FF6B6B' },
+    { value: '0', label: 'Jamais', emoji: '😴', color: '#FF6B6B' },
     {
       value: '1-2',
       label: '1-2 fois par semaine',
@@ -72,10 +71,16 @@ const LifestyleScreen = ({
       color: '#66BB6A',
     },
     {
-      value: '5+',
-      label: '5+ fois par semaine',
+      value: '5-6',
+      label: '5-6 fois par semaine',
       emoji: '💪',
       color: '#42A5F5',
+    },
+    {
+      value: '7+',
+      label: '7+ fois par semaine (Quotidien)',
+      emoji: '🔥',
+      color: '#8E44AD',
     },
   ];
   // Exercise time options
@@ -83,8 +88,7 @@ const LifestyleScreen = ({
     { value: 'morning', label: 'Matin', emoji: '🌅' },
     { value: 'afternoon', label: 'Après-midi', emoji: '☀️' },
     { value: 'evening', label: 'Soir', emoji: '🌙' },
-  ];
-  // Favorite activities options
+  ]; // Favorite activities options
   const activityOptions = [
     { value: 'running', label: 'Course', emoji: '🏃‍♂️' },
     { value: 'cycling', label: 'Cyclisme', emoji: '🚴‍♀️' },
@@ -93,6 +97,10 @@ const LifestyleScreen = ({
     { value: 'yoga', label: 'Yoga', emoji: '🧘‍♀️' },
     { value: 'sports', label: 'Sports', emoji: '⚽' },
     { value: 'walking', label: 'Marche', emoji: '🚶‍♀️' },
+    { value: 'dance', label: 'Danse', emoji: '💃' },
+    { value: 'padel', label: 'Padel', emoji: '🎾' },
+    { value: 'pilates', label: 'Pilates', emoji: '🤸‍♀️' },
+    { value: 'autre', label: 'Autre', emoji: '❓' },
   ];
   // Sleep quality options
   const sleepQualityOptions = [
@@ -114,20 +122,36 @@ const LifestyleScreen = ({
     8: '😨',
     9: '😫',
     10: '🤯',
-  };
-
-  // Format time for display
+  }; // Format time for display and API (12-hour format with AM/PM)
   const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
-  // Handle favorite activity toggle
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    const hoursStr = hours.toString();
+    return `${hoursStr}:${minutes} ${ampm}`;
+  }; // Handle favorite activity toggle
   const toggleActivity = (activity) => {
     setFavoriteActivities((prev) => {
       if (prev.includes(activity)) {
+        // If deselecting "autre", clear the custom activity text
+        if (activity === 'autre') {
+          setAutreActivity('');
+        }
         return prev.filter((item) => item !== activity);
       }
       return [...prev, activity];
+    });
+  };
+
+  // Handle exercise time toggle
+  const toggleExerciseTime = (time) => {
+    setExerciseTime((prev) => {
+      if (prev.includes(time)) {
+        return prev.filter((item) => item !== time);
+      }
+      return [...prev, time];
     });
   };
 
@@ -144,25 +168,30 @@ const LifestyleScreen = ({
     );
     return { allCompleted: !missingSection, missingSection };
   };
-
   // Validation
   const validateForm = () => {
     const newErrors = {};
     if (!workSchedule) {
       newErrors.workSchedule = "L'horaire de travail est requis";
     }
-
     if (!exerciseFrequency) {
       newErrors.exerciseFrequency = "La fréquence d'exercice est requise";
     }
 
-    if (!exerciseTime) {
-      newErrors.exerciseTime = "L'heure d'exercice préférée est requise";
+    if (!exerciseTime || exerciseTime.length === 0) {
+      newErrors.exerciseTime =
+        "Veuillez sélectionner au moins une heure d'exercice préférée";
     }
 
     if (favoriteActivities.length === 0) {
       newErrors.favoriteActivities =
         'Veuillez sélectionner au moins une activité';
+    }
+
+    // Validate "autre" activity text input
+    if (favoriteActivities.includes('autre') && !autreActivity.trim()) {
+      newErrors.autreActivity =
+        'Veuillez spécifier votre activité personnalisée';
     }
 
     if (!sleepQuality) {
@@ -171,22 +200,38 @@ const LifestyleScreen = ({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-  // Handle form submission
+  }; // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
+      // Prepare favorite activities list
+      let finalFavoriteActivities = [...favoriteActivities];
+
+      // If "autre" is selected and custom activity is provided, replace "autre" with the custom activity
+      if (favoriteActivities.includes('autre') && autreActivity.trim()) {
+        finalFavoriteActivities = finalFavoriteActivities.filter(
+          (activity) => activity !== 'autre'
+        );
+        finalFavoriteActivities.push(autreActivity.trim());
+      }
+
       // Prepare form data
       const formData = {
         wakeUpTime: formatTime(wakeUpTime),
         sleepTime: formatTime(sleepTime),
         workSchedule,
         exerciseFrequency,
-        exerciseTime,
-        favoriteActivities,
+        exerciseTime: exerciseTime.length > 0 ? exerciseTime[0] : '', // Send only first selected time as string
+        favoriteActivities: finalFavoriteActivities,
+        otherActivity: autreActivity.trim(), // Add the original "autre" text
         stressLevel,
         sleepHours,
         sleepQuality,
       };
+      console.log('📝 Lifestyle form data:', formData);
+      console.log('🎯 Final favorite activities:', finalFavoriteActivities);
+      console.log('🎯 Other activity:', autreActivity.trim());
+      console.log('⏰ Exercise time array:', exerciseTime);
+      console.log('⏰ Exercise time sent to backend:', formData.exerciseTime);
 
       // Check if all required sections are completed
       const { allCompleted, missingSection } = checkAllSectionsCompleted();
@@ -224,27 +269,26 @@ const LifestyleScreen = ({
         }),
       ]).start();
     }
-  };
-  // Generate motivational message
+  }; // Generate motivational message
   const getMotivationalMessage = () => {
-    if (exerciseFrequency === '5+' && stressLevel <= 3) {
+    if (exerciseFrequency === '7+' && stressLevel <= 3) {
       return '🌟 Incroyable ! Vous êtes une superstar du fitness avec un faible niveau de stress !';
     }
-    if (exerciseFrequency === 'never' && stressLevel >= 7) {
+    if (exerciseFrequency === '0' && stressLevel >= 7) {
       return '💪 Commençons petit - même une marche de 10 minutes peut améliorer votre humeur !';
     }
     if (sleepHours >= 7 && sleepQuality === 'excellent') {
       return '😴 Excellentes habitudes de sommeil ! Un repos de qualité est la base du bien-être.';
     }
     return '🚀 Chaque choix sain compte pour votre parcours de remise en forme !';
-  };
-
-  // Check if form is valid
+  }; // Check if form is valid
   const isFormValid =
     workSchedule &&
     exerciseFrequency &&
     exerciseTime &&
+    exerciseTime.length > 0 &&
     favoriteActivities.length > 0 &&
+    (!favoriteActivities.includes('autre') || autreActivity.trim()) &&
     sleepQuality;
   return (
     <View style={styles.container}>
@@ -424,27 +468,38 @@ const LifestyleScreen = ({
             {/* Exercise Time */}
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Heure d'Exercice Préférée</Text>
+              <Text style={styles.sublabel}>
+                Sélectionnez toutes celles qui s'appliquent
+              </Text>
               <View style={styles.timeOptionsContainer}>
                 {exerciseTimeOptions.map((option) => (
                   <TouchableOpacity
                     key={option.value}
                     style={[
                       styles.timeOption,
-                      exerciseTime === option.value &&
+                      exerciseTime.includes(option.value) &&
                         styles.timeOptionSelected,
                     ]}
-                    onPress={() => setExerciseTime(option.value)}
+                    onPress={() => toggleExerciseTime(option.value)}
                   >
                     <Text style={styles.timeEmoji}>{option.emoji}</Text>
                     <Text
                       style={[
                         styles.timeLabel,
-                        exerciseTime === option.value &&
+                        exerciseTime.includes(option.value) &&
                           styles.timeLabelSelected,
                       ]}
                     >
                       {option.label}
                     </Text>
+                    {exerciseTime.includes(option.value) ? (
+                      <MaterialIcons
+                        name="check-circle"
+                        size={16}
+                        color="#5603AD"
+                        style={styles.timeCheck}
+                      />
+                    ) : null}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -490,6 +545,26 @@ const LifestyleScreen = ({
                   </TouchableOpacity>
                 ))}
               </View>
+              {/* "Autre" text input - appears when "autre" is selected */}
+              {favoriteActivities.includes('autre') && (
+                <View style={styles.autreInputContainer}>
+                  <Text style={styles.autreLabel}>
+                    Spécifiez votre activité:
+                  </Text>
+                  <TextInput
+                    style={styles.autreInput}
+                    value={autreActivity}
+                    onChangeText={setAutreActivity}
+                    placeholder="Ex: Tennis, Boxe, Escalade..."
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                  {errors.autreActivity ? (
+                    <Text style={styles.errorText}>{errors.autreActivity}</Text>
+                  ) : null}
+                </View>
+              )}
+
               {errors.favoriteActivities ? (
                 <Text style={styles.errorText}>
                   {errors.favoriteActivities}
@@ -896,6 +971,35 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   activityCheck: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+  },
+  autreInputContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  autreLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#5603AD',
+    marginBottom: 8,
+  },
+  autreInput: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: 'white',
+    fontSize: 16,
+    color: '#333',
+  },
+  timeCheck: {
     position: 'absolute',
     top: 4,
     right: 4,

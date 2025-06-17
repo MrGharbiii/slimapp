@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,10 +14,23 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
+import { AnalysisAPI } from '../services/apiService';
 
-const AnalysisResultsScreen = ({ navigation, route }) => {
-  // Get gender from route params or use a default (this would come from user data)
-  const userGender = route?.params?.gender || 'Male'; // This should come from your app state/medical history
+const AnalysisResultsScreen = ({
+  navigation,
+  route,
+  onboardingData,
+  onAnalysisComplete,
+}) => {
+  // Get gender from onboarding medical history data (French values: "Homme"/"Femme")
+  const userGenderFrench = onboardingData?.medicalHistory?.gender || '';
+  // Convert French gender to English for compatibility with existing logic
+  const userGender =
+    userGenderFrench === 'Homme'
+      ? 'Male'
+      : userGenderFrench === 'Femme'
+      ? 'Female'
+      : 'Male';
 
   // Form state for lab results
   const [homaIR, setHomaIR] = useState('');
@@ -35,6 +48,18 @@ const AnalysisResultsScreen = ({ navigation, route }) => {
 
   // Animation
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  // Debug log to verify gender is properly retrieved
+  useEffect(() => {
+    console.log('📊 AnalysisResultsScreen initialized');
+    console.log('📋 Onboarding data available:', !!onboardingData);
+    console.log(
+      '🏥 Medical history available:',
+      !!onboardingData?.medicalHistory
+    );
+    console.log('⚥ Gender from onboarding (French):', userGenderFrench);
+    console.log('⚥ Gender converted (English):', userGender);
+  }, [userGenderFrench, userGender, onboardingData]);
 
   // Lab test reference ranges and descriptions
   const labTests = [
@@ -147,46 +172,57 @@ const AnalysisResultsScreen = ({ navigation, route }) => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle form submission
+  }; // Handle form submission
   const handleSubmit = async () => {
     if (validateForm()) {
       setIsSubmitting(true);
 
-      // Prepare form data
+      // Prepare form data for API submission - FLAT STRUCTURE as backend expects
       const formData = {
-        gender: userGender,
-        labResults: {
-          homaIR: parseFloat(homaIR),
-          vitD: parseFloat(vitD),
-          ferritin: parseFloat(ferritin),
-          hemoglobin: parseFloat(hemoglobin),
-          a1c: parseFloat(a1c),
-          tsh: parseFloat(tsh),
-          ...(userGender === 'Female' && { prolactin: parseFloat(prolactin) }),
-          testosterone: parseFloat(testosterone),
-        },
+        gender: userGender, // Send English gender ("Male" or "Female")
+        homaIR: parseFloat(homaIR),
+        vitD: parseFloat(vitD),
+        ferritin: parseFloat(ferritin),
+        hemoglobin: parseFloat(hemoglobin),
+        a1c: parseFloat(a1c),
+        tsh: parseFloat(tsh),
+        testosterone: parseFloat(testosterone),
+        ...(userGender === 'Female' && { prolactin: parseFloat(prolactin) }),
         submittedAt: new Date().toISOString(),
       };
-
       try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        console.log('📤 Submitting lab results to API...');
+        console.log('📊 Form data (flat structure):', formData);
 
-        console.log('Lab results submitted:', formData);
+        // Use the real API call instead of simulation
+        const result = await AnalysisAPI.submitLabResults(formData);
+        if (result.success) {
+          console.log('✅ Lab results submitted successfully:', result.data);
 
-        Alert.alert(
-          'Success!',
-          'Your lab results have been saved successfully.',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation?.goBack(),
-            },
-          ]
-        );
+          // Notify App.js that analysis is completed
+          if (onAnalysisComplete) {
+            onAnalysisComplete();
+          }
+
+          Alert.alert(
+            'Success!',
+            'Your lab results have been saved successfully.',
+            [
+              {
+                text: 'OK',
+                onPress: () => navigation?.goBack(),
+              },
+            ]
+          );
+        } else {
+          console.error('❌ Lab results submission failed:', result.error);
+          Alert.alert(
+            'Error',
+            result.message || 'Failed to save lab results. Please try again.'
+          );
+        }
       } catch (error) {
+        console.error('❌ Lab results submission error:', error);
         Alert.alert('Error', 'Failed to save lab results. Please try again.');
       } finally {
         setIsSubmitting(false);
@@ -293,7 +329,7 @@ const AnalysisResultsScreen = ({ navigation, route }) => {
               <Text style={styles.genderText}>Gender: {userGender}</Text>
             </View>
             <Text style={styles.genderDescription}>
-              Lab results form customized for {userGender.toLowerCase()}{' '}
+              Lab results form customized for {userGender.toLowerCase()}
               reference ranges
             </Text>
           </View>

@@ -47,7 +47,7 @@ const WelcomeScreen = ({ onCreateAccount, onSignIn }) => {
         </View>
         {/* Content Section */}
         <View style={styles.contentSection}>
-          <Text style={styles.title}>Mince & Sain</Text>
+          <Text style={styles.title}>Slim & Healthy</Text>
           <Text style={styles.subtitle}>
             Votre Compagnon de Fitness Personnel
           </Text>

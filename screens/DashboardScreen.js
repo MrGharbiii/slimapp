@@ -37,57 +37,68 @@ const DashboardScreen = ({ navigation }) => {
     workoutsThisWeek: 4,
     workoutGoal: 5,
   };
-
   const motivationalQuotes = [
-    "You're stronger than your excuses! 💪",
-    'Progress, not perfection! 🌟',
-    'Every healthy choice counts! 🥗',
-    'Believe in yourself! ✨',
-    'Small steps, big results! 👟',
+    'Vous êtes plus fort que vos excuses ! 💪',
+    'Le progrès, pas la perfection ! 🌟',
+    'Chaque choix sain compte ! 🥗',
+    'Croyez en vous ! ✨',
+    'Petits pas, grands résultats ! 👟',
   ];
 
   const achievements = [
     {
       id: 1,
-      title: 'First Week',
+      title: 'Première Semaine',
       icon: 'trophy',
       color: '#FFD700',
       unlocked: true,
     },
     {
       id: 2,
-      title: 'Water Hero',
+      title: "Héros de l'Eau",
       icon: 'water',
       color: '#00BFFF',
       unlocked: true,
     },
     {
       id: 3,
-      title: 'Calorie Counter',
+      title: 'Compteur de Calories',
       icon: 'calculator',
       color: '#FF6B6B',
       unlocked: true,
     },
     {
       id: 4,
-      title: 'Workout Warrior',
+      title: 'Guerrier du Sport',
       icon: 'dumbbell',
       color: '#9B59B6',
       unlocked: false,
     },
     {
       id: 5,
-      title: 'Consistency King',
+      title: 'Roi de la Constance',
       icon: 'calendar-check',
       color: '#2ECC71',
       unlocked: false,
     },
   ];
   const todaysPlan = [
-    { id: 1, time: '08:00', meal: 'Breakfast', calories: 350, completed: true },
-    { id: 2, time: '12:30', meal: 'Lunch', calories: 450, completed: true },
-    { id: 3, time: '15:00', meal: 'Snack', calories: 150, completed: false },
-    { id: 4, time: '19:00', meal: 'Dinner', calories: 500, completed: false },
+    {
+      id: 1,
+      time: '08:00',
+      meal: 'Petit-déjeuner',
+      calories: 350,
+      completed: true,
+    },
+    { id: 2, time: '12:30', meal: 'Déjeuner', calories: 450, completed: true },
+    {
+      id: 3,
+      time: '15:00',
+      meal: 'Collation',
+      calories: 150,
+      completed: false,
+    },
+    { id: 4, time: '19:00', meal: 'Dîner', calories: 500, completed: false },
   ];
 
   useEffect(() => {
@@ -96,12 +107,11 @@ const DashboardScreen = ({ navigation }) => {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
-
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return 'Bonjour';
+    if (hour < 17) return 'Bon après-midi';
+    return 'Bonsoir';
   };
 
   const calculateProgress = (current, goal) => {
@@ -121,7 +131,7 @@ const DashboardScreen = ({ navigation }) => {
           </View>
           <View style={styles.greetingSection}>
             <Text style={styles.greeting}>{getGreeting()},</Text>
-            <Text style={styles.userName}>{userName}!</Text>
+            <Text style={styles.userName}>{userName} !</Text>
           </View>
         </View>
       </View>
@@ -138,7 +148,7 @@ const DashboardScreen = ({ navigation }) => {
       >
         <View style={styles.levelContent}>
           <View style={styles.levelInfo}>
-            <Text style={styles.levelTitle}>Level {userStats.level}</Text>
+            <Text style={styles.levelTitle}>Niveau {userStats.level}</Text>
             <Text style={styles.xpText}>
               {userStats.currentXP} / {userStats.nextLevelXP} XP
             </Text>
@@ -168,7 +178,7 @@ const DashboardScreen = ({ navigation }) => {
       delay={400}
       style={styles.progressSection}
     >
-      <Text style={styles.sectionTitle}>Today's Progress</Text>
+      <Text style={styles.sectionTitle}>Progrès d'Aujourd'hui</Text>
       <View style={styles.progressGrid}>
         <View style={styles.progressItem}>
           <AnimatedCircularProgress
@@ -319,7 +329,7 @@ const DashboardScreen = ({ navigation }) => {
       delay={1000}
       style={styles.actionsSection}
     >
-      <Text style={styles.sectionTitle}>Quick Actions</Text>{' '}
+      <Text style={styles.sectionTitle}>Quick Actions</Text>
       <View style={styles.actionsContainer}>
         {/* My Plan - Full Width at Top */}
         <TouchableOpacity

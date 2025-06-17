@@ -5,7 +5,7 @@
 
 const ENV = {
   development: {
-    API_BASE_URL: 'http://192.168.117.1:3000',
+    API_BASE_URL: 'http://192.168.0.185:3000',
     REQUEST_TIMEOUT: 10000,
     DEBUG_MODE: true,
   },

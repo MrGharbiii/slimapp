@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Animated,
-  Modal,
-  Switch,
   TextInput,
-  Platform,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import LottieView from 'lottie-react-native';
 import Constants from 'expo-constants';
 
 const PreferencesScreen = ({
@@ -28,24 +23,11 @@ const PreferencesScreen = ({
   // Workout Preferences
   const [workoutDuration, setWorkoutDuration] = useState('');
   const [equipmentAccess, setEquipmentAccess] = useState([]);
-  const [workoutIntensity, setWorkoutIntensity] = useState('');
-
-  // Nutrition Preferences
+  const [workoutIntensity, setWorkoutIntensity] = useState(''); // Nutrition Preferences
   const [dietaryRestrictions, setDietaryRestrictions] = useState([]);
   const [foodAllergies, setFoodAllergies] = useState('');
+  const [otherDietaryRegime, setOtherDietaryRegime] = useState('');
   const [cookingFrequency, setCookingFrequency] = useState('');
-
-  // Notifications
-  const [workoutReminders, setWorkoutReminders] = useState(true);
-  const [mealReminders, setMealReminders] = useState(true);
-  const [progressUpdates, setProgressUpdates] = useState(true);
-  const [motivationQuotes, setMotivationQuotes] = useState(true);
-  const [reminderTime, setReminderTime] = useState(new Date());
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  // Language & Units
-  const [language, setLanguage] = useState('English');
-  const [useMetric, setUseMetric] = useState(true);
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Animation
@@ -121,15 +103,21 @@ const PreferencesScreen = ({
       color: '#FF6B6B',
       description: 'Effort maximum',
     },
-  ];
-  // Dietary restrictions options
+  ]; // Dietary restrictions options
   const dietaryOptions = [
-    { value: 'none', label: 'Aucune', emoji: '🍽️' },
+    { value: 'keto', label: 'Keto', emoji: '🥑' },
+    { value: 'intermittentFasting', label: 'Jeûne intermittent', emoji: '⏰' },
+    { value: 'restrictive', label: 'Restrictif', emoji: '🚫' },
+    { value: 'hyperproteic', label: 'Hyperprotéique', emoji: '💪' },
+    { value: 'if', label: 'IF', emoji: '⏱️' },
+    { value: 'yoyoEffect', label: 'Effet yoyo', emoji: '🔄' },
+    { value: 'diabetic', label: 'Régime diabétique', emoji: '🩺' },
     { value: 'vegetarian', label: 'Végétarien', emoji: '🥗' },
     { value: 'vegan', label: 'Végan', emoji: '🌱' },
     { value: 'gluten-free', label: 'Sans Gluten', emoji: '🌾' },
-    { value: 'keto', label: 'Kéto', emoji: '🥑' },
     { value: 'mediterranean', label: 'Méditerranéen', emoji: '🫒' },
+    { value: 'other', label: 'Autre', emoji: '✍️' },
+    { value: 'none', label: 'Aucune', emoji: '🍽️' },
   ];
   // Cooking frequency options
   const cookingOptions = [
@@ -158,19 +146,7 @@ const PreferencesScreen = ({
       description: 'La plupart des jours',
     },
   ];
-  // Language options
-  const languageOptions = [
-    { value: 'English', label: 'Anglais', flag: '🇺🇸' },
-    { value: 'Spanish', label: 'Español', flag: '🇪🇸' },
-    { value: 'French', label: 'Français', flag: '🇫🇷' },
-    { value: 'German', label: 'Deutsch', flag: '🇩🇪' },
-    { value: 'Italian', label: 'Italiano', flag: '🇮🇹' },
-  ];
 
-  // Format time for display
-  const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
   // Handle equipment toggle
   const toggleEquipment = (equipment) => {
     setEquipmentAccess((prev) => {
@@ -179,14 +155,28 @@ const PreferencesScreen = ({
       }
       return [...prev, equipment];
     });
-  };
-
-  // Handle dietary restrictions toggle
+  }; // Handle dietary restrictions toggle
   const toggleDietaryRestriction = (restriction) => {
     setDietaryRestrictions((prev) => {
       if (prev.includes(restriction)) {
+        // If deselecting "other", clear the text field
+        if (restriction === 'other') {
+          setOtherDietaryRegime('');
+        }
         return prev.filter((item) => item !== restriction);
       }
+
+      // If selecting "none", clear all other selections
+      if (restriction === 'none') {
+        setOtherDietaryRegime(''); // Clear the text field if it was open
+        return ['none'];
+      }
+
+      // If selecting any other option while "none" is selected, remove "none"
+      if (prev.includes('none')) {
+        return [restriction];
+      }
+
       return [...prev, restriction];
     });
   }; // Validation
@@ -205,10 +195,14 @@ const PreferencesScreen = ({
     if (!workoutIntensity) {
       newErrors.workoutIntensity = "L'intensité d'entraînement est requise";
     }
-
     if (dietaryRestrictions.length === 0) {
       newErrors.dietaryRestrictions =
         'Veuillez sélectionner au moins une option alimentaire';
+    }
+
+    if (dietaryRestrictions.includes('other') && !otherDietaryRegime.trim()) {
+      newErrors.otherDietaryRegime =
+        'Veuillez spécifier votre régime alimentaire';
     }
 
     if (!cookingFrequency) {
@@ -216,31 +210,45 @@ const PreferencesScreen = ({
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle form submission
+  }; // Handle form submission
   const handleSubmit = () => {
     if (validateForm()) {
+      // Process dietary restrictions - replace "other" with actual custom text
+      const processedDietaryRestrictions = dietaryRestrictions.map(
+        (restriction) => {
+          if (restriction === 'other' && otherDietaryRegime.trim()) {
+            return otherDietaryRegime.trim();
+          }
+          return restriction;
+        }
+      );
+
       // Create form data
       const formData = {
         workoutDuration,
         equipmentAccess,
         workoutIntensity,
-        dietaryRestrictions,
+        dietaryRestrictions: processedDietaryRestrictions,
+        otherDietaryRegime: '', // No longer needed since text is in the array
         foodAllergies,
         cookingFrequency,
-        notifications: {
-          workoutReminders,
-          mealReminders,
-          progressUpdates,
-          motivationQuotes,
-          reminderTime: formatTime(reminderTime),
-        },
-        language,
-        useMetric,
-      }; // Save preferences data and let App.js handle navigation logic
+      }; // Log detailed submission data
+      console.log('=== PREFERENCES SCREEN SUBMISSION ===');
+      console.log('Workout Duration:', workoutDuration);
+      console.log('Equipment Access:', equipmentAccess);
+      console.log('Workout Intensity:', workoutIntensity);
+      console.log('Dietary Restrictions:', dietaryRestrictions);
+      console.log(
+        'Other Dietary Regime:',
+        formData.otherDietaryRegime || 'None specified'
+      );
+      console.log('Food Allergies:', foodAllergies || 'None specified');
+      console.log('Cooking Frequency:', cookingFrequency);
+      console.log('Complete Form Data:', JSON.stringify(formData, null, 2));
+      console.log('=====================================');
+
+      // Save preferences data and let App.js handle navigation logic
       try {
-        console.log('Preferences completed. Form data:', formData);
         onComplete?.(formData);
       } catch (error) {
         console.error('Error during navigation:', error);
@@ -274,14 +282,13 @@ const PreferencesScreen = ({
       (section) => !completedSections.includes(section)
     );
     return { allCompleted: !missingSection, missingSection };
-  };
-
-  // Check if form is valid
+  }; // Check if form is valid
   const isFormValid =
     workoutDuration &&
     equipmentAccess.length > 0 &&
     workoutIntensity &&
     dietaryRestrictions.length > 0 &&
+    (!dietaryRestrictions.includes('other') || otherDietaryRegime.trim()) &&
     cookingFrequency;
   return (
     <View style={styles.container}>
@@ -489,6 +496,30 @@ const PreferencesScreen = ({
                   {errors.dietaryRestrictions}
                 </Text>
               ) : null}
+              {/* Conditional text input for "Autre" dietary regime */}
+              {dietaryRestrictions.includes('other') && (
+                <View style={styles.otherDietaryContainer}>
+                  <Text style={styles.otherDietaryLabel}>
+                    Veuillez spécifier votre régime alimentaire :
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      errors.otherDietaryRegime && styles.textInputError,
+                    ]}
+                    placeholder="Décrivez votre régime alimentaire..."
+                    value={otherDietaryRegime}
+                    onChangeText={setOtherDietaryRegime}
+                    multiline
+                    numberOfLines={2}
+                  />
+                  {errors.otherDietaryRegime ? (
+                    <Text style={styles.errorText}>
+                      {errors.otherDietaryRegime}
+                    </Text>
+                  ) : null}
+                </View>
+              )}
             </View>
             {/* Food Allergies */}
             <View style={styles.inputContainer}>
@@ -540,173 +571,6 @@ const PreferencesScreen = ({
               ) : null}
             </View>
           </View>
-          {/* Notifications Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <MaterialIcons name="notifications" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Notifications</Text>
-            </View>
-            {/* Notification Toggles */}
-            <View style={styles.notificationContainer}>
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationLabel}>
-                    Rappels d'entraînement quotidiens
-                  </Text>
-                  <Text style={styles.notificationDescription}>
-                    Restez motivé pour rester actif
-                  </Text>
-                </View>
-                <Switch
-                  value={workoutReminders}
-                  onValueChange={setWorkoutReminders}
-                  trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
-                  thumbColor={workoutReminders ? '#5603AD' : '#f4f3f4'}
-                />
-              </View>
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationLabel}>Rappels de repas</Text>
-                  <Text style={styles.notificationDescription}>
-                    Ne manquez jamais un repas sain
-                  </Text>
-                </View>
-                <Switch
-                  value={mealReminders}
-                  onValueChange={setMealReminders}
-                  trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
-                  thumbColor={mealReminders ? '#5603AD' : '#f4f3f4'}
-                />
-              </View>
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationLabel}>
-                    Mises à jour de progrès
-                  </Text>
-                  <Text style={styles.notificationDescription}>
-                    Réalisations et aperçus hebdomadaires
-                  </Text>
-                </View>
-                <Switch
-                  value={progressUpdates}
-                  onValueChange={setProgressUpdates}
-                  trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
-                  thumbColor={progressUpdates ? '#5603AD' : '#f4f3f4'}
-                />
-              </View>
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationLabel}>
-                    Citations de motivation
-                  </Text>
-                  <Text style={styles.notificationDescription}>
-                    Inspiration quotidienne pour continuer
-                  </Text>
-                </View>
-                <Switch
-                  value={motivationQuotes}
-                  onValueChange={setMotivationQuotes}
-                  trackColor={{ false: '#E0E0E0', true: '#B3E9C7' }}
-                  thumbColor={motivationQuotes ? '#5603AD' : '#f4f3f4'}
-                />
-              </View>
-            </View>
-            {/* Reminder Time */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Heure de Rappel Préférée</Text>
-              <TouchableOpacity
-                style={styles.timePickerButton}
-                onPress={() => setShowTimePicker(true)}
-              >
-                <MaterialIcons name="access-time" size={20} color="#5603AD" />
-                <Text style={styles.timePickerText}>
-                  {formatTime(reminderTime)}
-                </Text>
-                <MaterialIcons
-                  name="keyboard-arrow-down"
-                  size={20}
-                  color="#999"
-                />
-              </TouchableOpacity>
-
-              {showTimePicker ? (
-                <DateTimePicker
-                  value={reminderTime}
-                  mode="time"
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={(event, selectedTime) => {
-                    setShowTimePicker(Platform.OS === 'ios');
-                    if (selectedTime) {
-                      setReminderTime(selectedTime);
-                    }
-                  }}
-                />
-              ) : null}
-            </View>
-          </View>
-          {/* Language & Units Section */}
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <MaterialIcons name="language" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Langue et Unités</Text>
-            </View>
-            {/* Language */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Langue</Text>
-              <TouchableOpacity
-                style={styles.dropdownButton}
-                onPress={() => setShowLanguageDropdown(true)}
-              >
-                <Text style={styles.languageFlag}>
-                  {languageOptions.find((opt) => opt.value === language)?.flag}
-                </Text>
-                <Text style={styles.dropdownText}>{language}</Text>
-                <MaterialIcons
-                  name="keyboard-arrow-down"
-                  size={20}
-                  color="#999"
-                />
-              </TouchableOpacity>
-            </View>
-            {/* Units */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.label}>Unités</Text>
-              <View style={styles.unitsContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.unitOption,
-                    useMetric && styles.unitOptionSelected,
-                  ]}
-                  onPress={() => setUseMetric(true)}
-                >
-                  <Text
-                    style={[
-                      styles.unitLabel,
-                      useMetric && styles.unitLabelSelected,
-                    ]}
-                  >
-                    Métrique (kg, cm)
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.unitOption,
-                    !useMetric && styles.unitOptionSelected,
-                  ]}
-                  onPress={() => setUseMetric(false)}
-                >
-                  <Text
-                    style={[
-                      styles.unitLabel,
-                      !useMetric && styles.unitLabelSelected,
-                    ]}
-                  >
-                    Impérial (lbs, ft)
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
           {/* Buttons Container */}
           <View style={styles.buttonsContainer}>
             {/* Complete Setup Button */}
@@ -731,35 +595,6 @@ const PreferencesScreen = ({
           <View style={styles.bottomSpacing} />
         </ScrollView>
       </Animated.View>
-      {/* Language Dropdown Modal */}
-      <Modal visible={showLanguageDropdown} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Sélectionner la Langue</Text>
-              <TouchableOpacity onPress={() => setShowLanguageDropdown(false)}>
-                <MaterialIcons name="close" size={24} color="#999" />
-              </TouchableOpacity>
-            </View>
-            {languageOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={styles.modalOption}
-                onPress={() => {
-                  setLanguage(option.value);
-                  setShowLanguageDropdown(false);
-                }}
-              >
-                <Text style={styles.modalOptionFlag}>{option.flag}</Text>
-                <Text style={styles.modalOptionText}>{option.label}</Text>
-                {language === option.value ? (
-                  <MaterialIcons name="check" size={20} color="#5603AD" />
-                ) : null}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Modal>
       <SafeAreaView style={styles.safeAreaBottom} />
     </View>
   );
@@ -1035,6 +870,22 @@ const styles = StyleSheet.create({
     right: 8,
   },
 
+  // Other Dietary Regime Styles
+  otherDietaryContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#F0E6FF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#5603AD',
+  },
+  otherDietaryLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#5603AD',
+    marginBottom: 8,
+  },
+
   // Text Input Styles
   textInput: {
     borderWidth: 1,
@@ -1045,6 +896,9 @@ const styles = StyleSheet.create({
     color: '#2D3748',
     backgroundColor: 'white',
     textAlignVertical: 'top',
+  },
+  textInputError: {
+    borderColor: '#FF6B6B',
   },
 
   // Cooking Styles
@@ -1086,91 +940,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  notificationContainer: {
-    gap: 16,
-  },
-  notificationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-  },
-  notificationInfo: {
-    flex: 1,
-    marginRight: 16,
-  },
-  notificationLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2D3748',
-    marginBottom: 4,
-  },
-  notificationDescription: {
-    fontSize: 14,
-    color: '#666',
-  },
-
-  // Time Picker Styles
-  timePickerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    backgroundColor: 'white',
-  },
-  timePickerText: {
-    fontSize: 16,
-    color: '#2D3748',
-    marginLeft: 10,
-    flex: 1,
-  },
-
-  // Language & Units Styles
-  dropdownButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    backgroundColor: 'white',
-  },
-  languageFlag: {
-    fontSize: 20,
-    marginRight: 10,
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: '#2D3748',
-    flex: 1,
-  },
-  unitsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  unitOption: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 16,
-    borderWidth: 2,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    backgroundColor: '#F8F9FA',
-  },
-  unitOptionSelected: {
-    borderColor: '#5603AD',
-    backgroundColor: '#F0E6FF',
-  },
-  unitLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#2D3748',
-  },
-  unitLabelSelected: {
-    color: '#5603AD',
-  },
   // Button Styles
   buttonsContainer: {
     paddingHorizontal: 20,
@@ -1220,57 +989,11 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
 
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 20,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#2D3748',
-  },
-  modalOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  modalOptionFlag: {
-    fontSize: 20,
-    marginRight: 15,
-  },
-  modalOptionText: {
-    fontSize: 16,
-    color: '#2D3748',
-    flex: 1,
-  },
-
   // Error Styles
   errorText: {
     fontSize: 14,
     color: '#FF6B6B',
     marginTop: 5,
-  },
-  inputError: {
-    borderColor: '#FF6B6B',
   },
 
   bottomSpacing: {

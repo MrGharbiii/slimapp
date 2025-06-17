@@ -26,7 +26,14 @@ const MedicalHistoryScreen = ({
 }) => {
   // Form state
   const [chronicConditions, setChronicConditions] = useState([]);
-  const [medications, setMedications] = useState('');
+  const [chronicConditionsOtherText, setChronicConditionsOtherText] =
+    useState('');
+  const [isOtherChronicConditionSelected, setIsOtherChronicConditionSelected] =
+    useState(false);
+  const [medications, setMedications] = useState([]);
+  const [medicationsOtherText, setMedicationsOtherText] = useState('');
+  const [isOtherMedicationSelected, setIsOtherMedicationSelected] =
+    useState(false);
   const [allergies, setAllergies] = useState('');
   const [physicalLimitations, setPhysicalLimitations] = useState('');
   const [avoidAreas, setAvoidAreas] = useState([]);
@@ -37,20 +44,31 @@ const MedicalHistoryScreen = ({
   const [recentDeliveryAbortion, setRecentDeliveryAbortion] = useState('');
   const [contraceptionUse, setContraceptionUse] = useState('');
   const [menopausalStatus, setMenopausalStatus] = useState('');
-  const [sopk, setSopk] = useState('');
-
-  // Personal Medical History
-  const [personalDiabetes, setPersonalDiabetes] = useState('');
-  const [personalObesity, setPersonalObesity] = useState('');
+  const [sopk, setSopk] = useState(''); // Personal Medical History
+  const [personalDiabetesDT1, setPersonalDiabetesDT1] = useState('');
+  const [personalDiabetesDT2, setPersonalDiabetesDT2] = useState('');
   const [hypothyroidism, setHypothyroidism] = useState('');
   const [sleepApnea, setSleepApnea] = useState('');
   const [psychologicalIssues, setPsychologicalIssues] = useState('');
+  const [psychologicalIssuesDetails, setPsychologicalIssuesDetails] =
+    useState('');
   const [digestiveIssues, setDigestiveIssues] = useState('');
-  const [gastricBalloon, setGastricBalloon] = useState('');
-  const [bariatricSurgery, setBariatricSurgery] = useState('');
-  const [otherHealthIssues, setOtherHealthIssues] = useState('');
-  const [sexualDysfunction, setSexualDysfunction] = useState('');
-  const [waterRetentionPercentage, setWaterRetentionPercentage] = useState('');
+  const [sexualDysfunction, setSexualDysfunction] = useState([]);
+  const [sexualDysfunctionOtherText, setSexualDysfunctionOtherText] =
+    useState('');
+  const [
+    isOtherSexualDysfunctionSelected,
+    setIsOtherSexualDysfunctionSelected,
+  ] = useState(false);
+
+  // Anti-obesity treatments
+  const [antiObesityTreatments, setAntiObesityTreatments] = useState([]);
+  const [antiObesityTreatmentsOtherText, setAntiObesityTreatmentsOtherText] =
+    useState('');
+  const [
+    isOtherAntiObesityTreatmentSelected,
+    setIsOtherAntiObesityTreatmentSelected,
+  ] = useState(false);
 
   // Family Medical History
   const [familyHeartDisease, setFamilyHeartDisease] = useState('');
@@ -77,9 +95,24 @@ const MedicalHistoryScreen = ({
     },
     { id: 'asthma', label: 'Asthme', icon: 'air' },
     { id: 'arthritis', label: 'Arthrite', icon: 'accessibility' },
+    { id: 'autre', label: 'Autre', icon: 'add-circle' },
     { id: 'none', label: 'Aucune de ces conditions', icon: 'check-circle' },
   ];
 
+  // Medication options
+  const medicationOptions = [
+    { id: 'corticoide', label: 'Corticoïdes', icon: 'medical-services' },
+    { id: 'anti-depresseurs', label: 'Anti-dépresseurs', icon: 'psychology' },
+    { id: 'hormonotherapie', label: 'Hormonothérapie', icon: 'local-pharmacy' },
+    {
+      id: 'inducteurs_fertilite',
+      label: 'Inducteurs de fertilité',
+      icon: 'child-care',
+    },
+    { id: 'hypolipemiants', label: 'Hypolipémiants', icon: 'medication' },
+    { id: 'autres', label: 'Autres', icon: 'add-circle' },
+    { id: 'aucun', label: 'Aucun médicament', icon: 'check-circle' },
+  ];
   // Avoid areas options
   const avoidAreasOptions = [
     { id: 'back', label: 'Dos', icon: 'accessibility-new' },
@@ -90,13 +123,67 @@ const MedicalHistoryScreen = ({
     { id: 'none', label: 'Aucune limitation', icon: 'check-circle' },
   ];
 
-  // Handle chronic conditions selection
+  // Anti-obesity treatment options
+  const antiObesityTreatmentOptions = [
+    { id: 'sleeve', label: 'Sleeve', icon: 'medical-services' },
+    { id: 'metformine', label: 'Metformine', icon: 'medication' },
+    { id: 'abdominoplastie', label: 'Abdominoplastie', icon: 'healing' },
+    {
+      id: 'massage_anti_cellulites',
+      label: 'Massage anti-cellulites',
+      icon: 'spa',
+    },
+    {
+      id: 'anneau_gastrique',
+      label: 'Anneau Gastrique',
+      icon: 'medical-services',
+    },
+    { id: 'liposuccion', label: 'Liposuccion', icon: 'healing' },
+    {
+      id: 'ballon_gastrique',
+      label: 'Ballon gastrique',
+      icon: 'medical-services',
+    },
+    { id: 'victoza', label: 'Victoza', icon: 'medication' },
+    { id: 'autres_traitement', label: 'Autres traitement', icon: 'add-circle' },
+    { id: 'aucun_traitement', label: 'Aucun traitement', icon: 'check-circle' },
+  ];
+
+  // Sexual dysfunction options
+  const sexualDysfunctionOptions = [
+    { id: 'trouble_desir', label: 'Trouble désir', icon: 'favorite' },
+    { id: 'trouble_erection', label: 'Trouble érection', icon: 'male' },
+    { id: 'trouble_orgasme', label: 'Trouble orgasme', icon: 'mood' },
+    { id: 'autre', label: 'Autre', icon: 'add-circle' },
+    { id: 'aucun', label: 'Aucun', icon: 'check-circle' },
+  ]; // Handle chronic conditions selection
   const handleChronicConditionToggle = (conditionId) => {
     if (conditionId === 'none') {
       if (chronicConditions.includes('none')) {
         setChronicConditions([]);
       } else {
         setChronicConditions(['none']);
+        // Clear "autre" selection when selecting "none"
+        setIsOtherChronicConditionSelected(false);
+        setChronicConditionsOtherText('');
+      }
+    } else if (conditionId === 'autre') {
+      const newConditions = chronicConditions.filter((id) => id !== 'none');
+      if (isOtherChronicConditionSelected) {
+        // Deselecting "autre"
+        setIsOtherChronicConditionSelected(false);
+        setChronicConditionsOtherText('');
+        // Remove the custom chronic condition text from the array if it exists
+        const filteredConditions = newConditions.filter(
+          (condition) => condition !== 'autre'
+        );
+        setChronicConditions(filteredConditions);
+      } else {
+        // Selecting "autre"
+        setIsOtherChronicConditionSelected(true);
+        if (!newConditions.includes('autre')) {
+          setChronicConditions([...newConditions, 'autre']);
+        }
       }
     } else {
       const newConditions = chronicConditions.filter((id) => id !== 'none');
@@ -106,8 +193,52 @@ const MedicalHistoryScreen = ({
         setChronicConditions([...newConditions, conditionId]);
       }
     }
+  }; // Handle medication selection
+  const handleMedicationToggle = (medicationId) => {
+    if (medicationId === 'aucun') {
+      if (medications.includes('aucun')) {
+        setMedications([]);
+      } else {
+        setMedications(['aucun']);
+        setMedicationsOtherText(''); // Clear other text when selecting "aucun"
+        setIsOtherMedicationSelected(false);
+      }
+    } else if (medicationId === 'autres') {
+      const newMedications = medications.filter((id) => id !== 'aucun');
+      if (isOtherMedicationSelected) {
+        // Deselecting "autres"
+        setIsOtherMedicationSelected(false);
+        setMedicationsOtherText('');
+        // Remove the custom medication text from the array if it exists
+        const filteredMedications = newMedications.filter(
+          (med) => med !== 'autres'
+        );
+        setMedications(filteredMedications);
+      } else {
+        // Selecting "autres"
+        setIsOtherMedicationSelected(true);
+        if (!newMedications.includes('autres')) {
+          setMedications([...newMedications, 'autres']);
+        }
+      }
+    } else {
+      const newMedications = medications.filter((id) => id !== 'aucun');
+      if (newMedications.includes(medicationId)) {
+        setMedications(newMedications.filter((id) => id !== medicationId));
+      } else {
+        setMedications([...newMedications, medicationId]);
+      }
+    }
+  };
+  // Handle other medication text change
+  const handleOtherMedicationChange = (text) => {
+    setMedicationsOtherText(text);
   };
 
+  // Handle other chronic condition text change
+  const handleOtherChronicConditionChange = (text) => {
+    setChronicConditionsOtherText(text);
+  };
   // Handle avoid areas selection
   const handleAvoidAreaToggle = (areaId) => {
     if (areaId === 'none') {
@@ -126,6 +257,85 @@ const MedicalHistoryScreen = ({
     }
   };
 
+  // Handle anti-obesity treatment selection
+  const handleAntiObesityTreatmentToggle = (treatmentId) => {
+    if (treatmentId === 'aucun_traitement') {
+      if (antiObesityTreatments.includes('aucun_traitement')) {
+        setAntiObesityTreatments([]);
+      } else {
+        setAntiObesityTreatments(['aucun_traitement']);
+        setAntiObesityTreatmentsOtherText('');
+        setIsOtherAntiObesityTreatmentSelected(false);
+      }
+    } else if (treatmentId === 'autres_traitement') {
+      const newTreatments = antiObesityTreatments.filter(
+        (id) => id !== 'aucun_traitement'
+      );
+      if (isOtherAntiObesityTreatmentSelected) {
+        setIsOtherAntiObesityTreatmentSelected(false);
+        setAntiObesityTreatmentsOtherText('');
+        setAntiObesityTreatments(
+          newTreatments.filter((id) => id !== 'autres_traitement')
+        );
+      } else {
+        setIsOtherAntiObesityTreatmentSelected(true);
+        setAntiObesityTreatments([...newTreatments, 'autres_traitement']);
+      }
+    } else {
+      const newTreatments = antiObesityTreatments.filter(
+        (id) => id !== 'aucun_traitement'
+      );
+      if (newTreatments.includes(treatmentId)) {
+        setAntiObesityTreatments(
+          newTreatments.filter((id) => id !== treatmentId)
+        );
+      } else {
+        setAntiObesityTreatments([...newTreatments, treatmentId]);
+      }
+    }
+  };
+  // Handle other anti-obesity treatment text change
+  const handleOtherAntiObesityTreatmentChange = (text) => {
+    setAntiObesityTreatmentsOtherText(text);
+  };
+
+  // Handle sexual dysfunction selection
+  const handleSexualDysfunctionToggle = (dysfunctionId) => {
+    if (dysfunctionId === 'aucun') {
+      if (sexualDysfunction.includes('aucun')) {
+        setSexualDysfunction([]);
+      } else {
+        setSexualDysfunction(['aucun']);
+        setSexualDysfunctionOtherText('');
+        setIsOtherSexualDysfunctionSelected(false);
+      }
+    } else if (dysfunctionId === 'autre') {
+      const newDysfunctions = sexualDysfunction.filter((id) => id !== 'aucun');
+      if (isOtherSexualDysfunctionSelected) {
+        setIsOtherSexualDysfunctionSelected(false);
+        setSexualDysfunctionOtherText('');
+        setSexualDysfunction(newDysfunctions.filter((id) => id !== 'autre'));
+      } else {
+        setIsOtherSexualDysfunctionSelected(true);
+        setSexualDysfunction([...newDysfunctions, 'autre']);
+      }
+    } else {
+      const newDysfunctions = sexualDysfunction.filter((id) => id !== 'aucun');
+      if (newDysfunctions.includes(dysfunctionId)) {
+        setSexualDysfunction(
+          newDysfunctions.filter((id) => id !== dysfunctionId)
+        );
+      } else {
+        setSexualDysfunction([...newDysfunctions, dysfunctionId]);
+      }
+    }
+  };
+
+  // Handle other sexual dysfunction text change
+  const handleOtherSexualDysfunctionChange = (text) => {
+    setSexualDysfunctionOtherText(text);
+  };
+
   // Check if all required sections are completed
   const checkAllSectionsCompleted = () => {
     const requiredSections = [
@@ -138,95 +348,169 @@ const MedicalHistoryScreen = ({
       (section) => !completedSections.includes(section)
     );
     return { allCompleted: !missingSection, missingSection };
-  };
-  // Validation
+  }; // Validation
   const validateForm = () => {
-    const newErrors = {}; // Medical history is optional, but we validate format if provided
-    if (medications && medications.length > 500) {
-      newErrors.medications =
-        'Veuillez limiter la liste des médicaments à moins de 500 caractères';
+    const newErrors = {};
+
+    // Check if "autre" checkbox is selected but no text is provided for chronic conditions
+    if (
+      isOtherChronicConditionSelected &&
+      chronicConditionsOtherText.trim().length === 0
+    ) {
+      newErrors.chronicConditionsOtherText =
+        'Veuillez spécifier les autres conditions chroniques';
+    }
+
+    if (chronicConditionsOtherText && chronicConditionsOtherText.length > 200) {
+      newErrors.chronicConditionsOtherText =
+        'Veuillez limiter la description à moins de 200 caractères';
+    }
+
+    // Check if "autres" checkbox is selected but no text is provided for medications
+    if (isOtherMedicationSelected && medicationsOtherText.trim().length === 0) {
+      newErrors.medicationsOtherText =
+        'Veuillez spécifier les autres médicaments';
+    }
+
+    if (medicationsOtherText && medicationsOtherText.length > 200) {
+      newErrors.medicationsOtherText =
+        'Veuillez limiter la description à moins de 200 caractères';
     }
 
     if (allergies && allergies.length > 300) {
       newErrors.allergies =
         'Veuillez limiter la liste des allergies à moins de 300 caractères';
     }
-
     if (physicalLimitations && physicalLimitations.length > 500) {
       newErrors.physicalLimitations =
         'Veuillez limiter les limitations à moins de 500 caractères';
     }
 
-    // Validate water retention percentage format if provided
-    if (waterRetentionPercentage && waterRetentionPercentage.trim()) {
-      const percentage = parseFloat(waterRetentionPercentage.replace('%', ''));
-      if (isNaN(percentage) || percentage < 0 || percentage > 100) {
-        newErrors.waterRetentionPercentage =
-          'Veuillez entrer un pourcentage valide entre 0 et 100';
-      }
+    // Check if psychological issues is "yes" but no details are provided
+    if (
+      psychologicalIssues === 'yes' &&
+      psychologicalIssuesDetails.trim().length === 0
+    ) {
+      newErrors.psychologicalIssuesDetails =
+        'Veuillez spécifier les problèmes psychologiques';
+    }
+    if (psychologicalIssuesDetails && psychologicalIssuesDetails.length > 300) {
+      newErrors.psychologicalIssuesDetails =
+        'Veuillez limiter la description à moins de 300 caractères';
+    }
+
+    // Check if "autres_traitement" checkbox is selected but no text is provided for anti-obesity treatments
+    if (
+      isOtherAntiObesityTreatmentSelected &&
+      antiObesityTreatmentsOtherText.trim().length === 0
+    ) {
+      newErrors.antiObesityTreatmentsOtherText =
+        'Veuillez spécifier les autres traitements anti-obésité';
+    }
+    if (
+      antiObesityTreatmentsOtherText &&
+      antiObesityTreatmentsOtherText.length > 200
+    ) {
+      newErrors.antiObesityTreatmentsOtherText =
+        'Veuillez limiter la description à moins de 200 caractères';
+    }
+
+    // Check if "autre" checkbox is selected but no text is provided for sexual dysfunction
+    if (
+      isOtherSexualDysfunctionSelected &&
+      sexualDysfunctionOtherText.trim().length === 0
+    ) {
+      newErrors.sexualDysfunctionOtherText =
+        'Veuillez spécifier les autres problèmes de dysfonction sexuelle';
+    }
+
+    if (sexualDysfunctionOtherText && sexualDysfunctionOtherText.length > 200) {
+      newErrors.sexualDysfunctionOtherText =
+        'Veuillez limiter la description à moins de 200 caractères';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-  // Handle form submission
+  }; // Handle form submission
   const handleSubmit = () => {
-    console.log('📤 Medical History Form - STARTING SUBMISSION');
-    console.log('====================================');
-
-    // Log current state values before validation
-    console.log('📊 CURRENT FORM STATE VALUES:');
-    console.log('  • Gender:', `"${gender}"`);
-    console.log('  • Chronic Conditions:', chronicConditions);
-    console.log('  • Medications:', `"${medications}"`);
-    console.log('  • Allergies:', `"${allergies}"`);
-    console.log('  • Physical Limitations:', `"${physicalLimitations}"`);
-    console.log('  • Avoid Areas:', avoidAreas);
-
-    console.log('👨‍👩‍👧‍👦 FAMILY HISTORY STATE:');
-    console.log('  • Family Heart Disease:', `"${familyHeartDisease}"`);
-    console.log('  • Family Diabetes:', `"${familyDiabetes}"`);
-    console.log('  • Family Obesity:', `"${familyObesity}"`);
-    console.log('  • Family Thyroid Issues:', `"${familyThyroidIssues}"`);
-
-    console.log('🩺 PERSONAL MEDICAL HISTORY STATE:');
-    console.log('  • Personal Diabetes:', `"${personalDiabetes}"`);
-    console.log('  • Personal Obesity:', `"${personalObesity}"`);
-    console.log('  • Hypothyroidism:', `"${hypothyroidism}"`);
-    console.log('  • Sleep Apnea:', `"${sleepApnea}"`);
-    console.log('  • Psychological Issues:', `"${psychologicalIssues}"`);
-    console.log('  • Digestive Issues:', `"${digestiveIssues}"`);
-    console.log('  • Gastric Balloon:', `"${gastricBalloon}"`);
-    console.log('  • Bariatric Surgery:', `"${bariatricSurgery}"`);
-    console.log('  • Sexual Dysfunction:', `"${sexualDysfunction}"`);
-    console.log('  • Other Health Issues:', `"${otherHealthIssues}"`);
-    console.log(
-      '  • Water Retention Percentage:',
-      `"${waterRetentionPercentage}"`
-    );
-
-    console.log('💊 TREATMENT HISTORY STATE:');
-    console.log('  • Medical Treatment:', `"${medicalTreatment}"`);
-    console.log('  • Psychotherapy:', `"${psychotherapy}"`);
-    console.log('  • Prior Obesity Treatments:', `"${priorObesityTreatments}"`);
-
-    console.log('♀️ FEMALE SPECIFIC ATTRIBUTES STATE:');
-    console.log('  • Gravidity:', `"${gravidity}"`);
-    console.log('  • Recent Delivery/Abortion:', `"${recentDeliveryAbortion}"`);
-    console.log('  • Contraception Use:', `"${contraceptionUse}"`);
-    console.log('  • Menopausal Status:', `"${menopausalStatus}"`);
-    console.log('  • SOPK:', `"${sopk}"`);
-
-    console.log('====================================');
+    console.log('📤 DÉMARRAGE DE LA SOUMISSION DU FORMULAIRE MÉDICAL...');
 
     if (validateForm()) {
+      // Process medications array to replace "autres" with actual custom text
+      let finalMedications = [...medications];
+      if (isOtherMedicationSelected && medicationsOtherText.trim()) {
+        // Remove "autres" and add the custom medication text
+        finalMedications = finalMedications.filter((med) => med !== 'autres');
+        finalMedications.push(medicationsOtherText.trim());
+      } // Process chronic conditions array to replace "autre" with actual custom text
+      let finalChronicConditions = [...chronicConditions];
+      if (
+        isOtherChronicConditionSelected &&
+        chronicConditionsOtherText.trim()
+      ) {
+        // Remove "autre" and add the custom chronic condition text
+        finalChronicConditions = finalChronicConditions.filter(
+          (condition) => condition !== 'autre'
+        );
+        finalChronicConditions.push(chronicConditionsOtherText.trim());
+      } // Process anti-obesity treatments array to replace "autres_traitement" with actual custom text
+      let finalAntiObesityTreatments = [...antiObesityTreatments];
+      if (
+        isOtherAntiObesityTreatmentSelected &&
+        antiObesityTreatmentsOtherText.trim()
+      ) {
+        // Remove "autres_traitement" and add the custom treatment text
+        finalAntiObesityTreatments = finalAntiObesityTreatments.filter(
+          (treatment) => treatment !== 'autres_traitement'
+        );
+        finalAntiObesityTreatments.push(antiObesityTreatmentsOtherText.trim());
+      }
+
+      // Process sexual dysfunction array to replace "autre" with actual custom text
+      let finalSexualDysfunction = [...sexualDysfunction];
+      if (
+        isOtherSexualDysfunctionSelected &&
+        sexualDysfunctionOtherText.trim()
+      ) {
+        // Remove "autre" and add the custom dysfunction text
+        finalSexualDysfunction = finalSexualDysfunction.filter(
+          (dysfunction) => dysfunction !== 'autre'
+        );
+        finalSexualDysfunction.push(sexualDysfunctionOtherText.trim());
+      }
       const formData = {
-        chronicConditions,
-        medications: medications.trim(),
+        // Conditions chroniques - données finales et métadonnées
+        chronicConditions: finalChronicConditions,
+        chronicConditionsOtherText: chronicConditionsOtherText.trim(),
+        isOtherChronicConditionSelected: isOtherChronicConditionSelected,
+        chronicConditionsRaw: chronicConditions, // État brut avant traitement
+
+        // Médicaments - données finales et métadonnées
+        medications: finalMedications,
+        medicationsOtherText: medicationsOtherText.trim(),
+        isOtherMedicationSelected: isOtherMedicationSelected,
+        medicationsRaw: medications, // État brut avant traitement
+
+        // Allergies et limitations physiques
         allergies: allergies.trim(),
         physicalLimitations: physicalLimitations.trim(),
-        avoidAreas,
-        gender,
+        avoidAreas: avoidAreas,
+
+        // Traitements anti-obésité - données finales et métadonnées
+        antiObesityTreatments: finalAntiObesityTreatments,
+        antiObesityTreatmentsOtherText: antiObesityTreatmentsOtherText.trim(),
+        isOtherAntiObesityTreatmentSelected:
+          isOtherAntiObesityTreatmentSelected,
+        antiObesityTreatmentsRaw: antiObesityTreatments, // État brut avant traitement
+
+        // Dysfonction sexuelle - données finales et métadonnées
+        sexualDysfunctionProcessed: finalSexualDysfunction,
+        sexualDysfunctionOtherText: sexualDysfunctionOtherText.trim(),
+        isOtherSexualDysfunctionSelected: isOtherSexualDysfunctionSelected,
+        sexualDysfunctionRaw: sexualDysfunction, // État brut avant traitement
+
+        // Sexe et attributs spécifiques
+        gender: gender,
         femaleSpecificAttributes:
           gender === 'Femme'
             ? {
@@ -237,39 +521,211 @@ const MedicalHistoryScreen = ({
                 sopk: sopk,
               }
             : {},
+
+        // Antécédents médicaux personnels complets
         personalMedicalHistory: {
-          diabetes: personalDiabetes,
-          obesity: personalObesity,
+          diabetesDT1: personalDiabetesDT1,
+          diabetesDT2: personalDiabetesDT2,
           hypothyroidism: hypothyroidism,
           sleepApnea: sleepApnea,
           psychologicalIssues: psychologicalIssues,
+          psychologicalIssuesDetails: psychologicalIssuesDetails.trim(),
           digestiveIssues: digestiveIssues,
-          gastricBalloon: gastricBalloon,
-          bariatricSurgery: bariatricSurgery,
-          otherHealthIssues: otherHealthIssues.trim(),
-          sexualDysfunction: sexualDysfunction,
-          waterRetentionPercentage: waterRetentionPercentage,
+          sexualDysfunction: finalSexualDysfunction,
         },
+
+        // Antécédents familiaux complets
         familyHistory: {
           heartDisease: familyHeartDisease,
           diabetes: familyDiabetes,
           obesity: familyObesity,
           thyroidIssues: familyThyroidIssues,
         },
+
+        // Historique des traitements complet
         treatmentHistory: {
           medicalTreatment: medicalTreatment,
           psychotherapy: psychotherapy,
           priorObesityTreatments: priorObesityTreatments.trim(),
         },
+
+        // Métadonnées de validation et état du formulaire
+        formMetadata: {
+          errors: errors,
+          focusedField: focusedField,
+          completedSections: completedSections,
+          hasMinimalData: hasMinimalData(),
+          allSectionsCompleted: checkAllSectionsCompleted().allCompleted,
+          missingSection: checkAllSectionsCompleted().missingSection,
+          submissionTimestamp: new Date().toISOString(),
+          formVersion: '1.0.0',
+        },
+
+        // États de sélection pour tous les champs "autre"
+        selectionStates: {
+          isOtherChronicConditionSelected: isOtherChronicConditionSelected,
+          isOtherMedicationSelected: isOtherMedicationSelected,
+          isOtherAntiObesityTreatmentSelected:
+            isOtherAntiObesityTreatmentSelected,
+          isOtherSexualDysfunctionSelected: isOtherSexualDysfunctionSelected,
+        },
+
+        // Textes personnalisés pour tous les champs "autre"
+        customTexts: {
+          chronicConditionsOtherText: chronicConditionsOtherText.trim(),
+          medicationsOtherText: medicationsOtherText.trim(),
+          antiObesityTreatmentsOtherText: antiObesityTreatmentsOtherText.trim(),
+          sexualDysfunctionOtherText: sexualDysfunctionOtherText.trim(),
+          psychologicalIssuesDetails: psychologicalIssuesDetails.trim(),
+        },
+
+        // Validation et contrôles de qualité
+        validationInfo: {
+          isFormValid: validateForm(),
+          errorCount: Object.keys(errors).length,
+          requiredFieldsCompleted: {
+            gender: !!gender,
+            familyHistory:
+              familyHeartDisease &&
+              familyDiabetes &&
+              familyObesity &&
+              familyThyroidIssues,
+            personalHistory:
+              personalDiabetesDT1 &&
+              personalDiabetesDT2 &&
+              hypothyroidism &&
+              sleepApnea &&
+              psychologicalIssues &&
+              digestiveIssues,
+            treatmentHistory: medicalTreatment && psychotherapy,
+            femaleFields:
+              gender !== 'Femme' ||
+              (gravidity &&
+                recentDeliveryAbortion &&
+                contraceptionUse &&
+                menopausalStatus &&
+                sopk),
+          },
+        },
       };
+
+      // Log complete form data after creation
+      console.log('📋 DONNÉES COMPLÈTES DU FORMULAIRE MÉDICAL:');
+      console.log('=====================================');
+      console.log('🔍 MÉTADONNÉES DU FORMULAIRE:');
+      console.log(
+        '  • Version du formulaire:',
+        formData.formMetadata.formVersion
+      );
+      console.log(
+        '  • Horodatage de soumission:',
+        formData.formMetadata.submissionTimestamp
+      );
+      console.log("  • Nombre d'erreurs:", formData.formMetadata.errorCount);
+      console.log(
+        '  • Formulaire valide:',
+        formData.formMetadata.hasMinimalData
+      );
+      console.log(
+        '  • Toutes sections complétées:',
+        formData.formMetadata.allSectionsCompleted
+      );
+      console.log(
+        '  • Section manquante:',
+        formData.formMetadata.missingSection
+      );
+
+      console.log('🩺 CONDITIONS CHRONIQUES (COMPLÈTES):');
+      console.log('  • Conditions finales:', formData.chronicConditions);
+      console.log('  • Conditions brutes:', formData.chronicConditionsRaw);
+      console.log(
+        '  • Texte autre condition:',
+        `"${formData.chronicConditionsOtherText}"`
+      );
+      console.log(
+        '  • Autre condition sélectionnée:',
+        formData.isOtherChronicConditionSelected
+      );
+
+      console.log('💊 MÉDICAMENTS (COMPLETS):');
+      console.log('  • Médicaments finaux:', formData.medications);
+      console.log('  • Médicaments bruts:', formData.medicationsRaw);
+      console.log(
+        '  • Texte autres médicaments:',
+        `"${formData.medicationsOtherText}"`
+      );
+      console.log(
+        '  • Autres médicaments sélectionnés:',
+        formData.isOtherMedicationSelected
+      );
+
+      console.log('🏋️ TRAITEMENTS ANTI-OBÉSITÉ (COMPLETS):');
+      console.log('  • Traitements finaux:', formData.antiObesityTreatments);
+      console.log('  • Traitements bruts:', formData.antiObesityTreatmentsRaw);
+      console.log(
+        '  • Texte autres traitements:',
+        `"${formData.antiObesityTreatmentsOtherText}"`
+      );
+      console.log(
+        '  • Autres traitements sélectionnés:',
+        formData.isOtherAntiObesityTreatmentSelected
+      );
+
+      console.log('🔥 DYSFONCTION SEXUELLE (COMPLÈTE):');
+      console.log(
+        '  • Dysfonctions finales:',
+        formData.sexualDysfunctionProcessed
+      );
+      console.log('  • Dysfonctions brutes:', formData.sexualDysfunctionRaw);
+      console.log(
+        '  • Texte autre dysfonction:',
+        `"${formData.sexualDysfunctionOtherText}"`
+      );
+      console.log(
+        '  • Autre dysfonction sélectionnée:',
+        formData.isOtherSexualDysfunctionSelected
+      );
+
+      console.log('👥 INFORMATIONS GÉNÉRALES:');
+      console.log('  • Sexe:', `"${formData.gender}"`);
+      console.log('  • Allergies:', `"${formData.allergies}"`);
+      console.log(
+        '  • Limitations physiques:',
+        `"${formData.physicalLimitations}"`
+      );
+      console.log('  • Zones à éviter:', formData.avoidAreas);
+
+      console.log('♀️ ATTRIBUTS FÉMININS SPÉCIFIQUES:');
+      console.log('  • Attributs féminins:', formData.femaleSpecificAttributes);
+
+      console.log('📊 ANTÉCÉDENTS MÉDICAUX PERSONNELS:');
+      console.log(
+        '  • Antécédents personnels:',
+        formData.personalMedicalHistory
+      );
+
+      console.log('👨‍👩‍👧‍👦 ANTÉCÉDENTS FAMILIAUX:');
+      console.log('  • Antécédents familiaux:', formData.familyHistory);
+
+      console.log('🏥 HISTORIQUE DES TRAITEMENTS:');
+      console.log('  • Historique traitements:', formData.treatmentHistory);
+
+      console.log('🔧 ÉTATS DE SÉLECTION:');
+      console.log('  • États de sélection "autre":', formData.selectionStates);
+
+      console.log('✏️ TEXTES PERSONNALISÉS:');
+      console.log('  • Textes personnalisés:', formData.customTexts);
+
+      console.log('✅ INFORMATIONS DE VALIDATION:');
+      console.log('  • Informations de validation:', formData.validationInfo);
+      console.log('=====================================');
 
       // Check if all required sections are completed
       const { allCompleted, missingSection } = checkAllSectionsCompleted();
-
       if (!allCompleted) {
         // If not all sections completed, continue to next section
         console.log(
-          `Missing section: ${missingSection}. Continuing with normal flow...`
+          `📋 Section manquante: ${missingSection}. Continuation avec le flux normal...`
         );
         onContinue?.(formData);
         return;
@@ -277,12 +733,13 @@ const MedicalHistoryScreen = ({
 
       // If all sections completed, navigate directly to dashboard
       console.log(
-        'All sections completed. Navigating directly to dashboard...'
+        '✅ Toutes les sections sont complétées. Navigation directe vers le tableau de bord...'
       );
+      console.log('📤 ENVOI DES DONNÉES COMPLÈTES AU BACKEND...');
       try {
         onContinue?.(formData);
       } catch (error) {
-        console.error('Error during navigation:', error);
+        console.error('❌ Erreur lors de la navigation:', error);
       }
     }
   };
@@ -311,16 +768,13 @@ const MedicalHistoryScreen = ({
 
     // Require all personal medical history fields to be completed
     const personalHistoryComplete =
-      personalDiabetes &&
-      personalObesity &&
+      personalDiabetesDT1 &&
+      personalDiabetesDT2 &&
       hypothyroidism &&
       sleepApnea &&
       psychologicalIssues &&
       digestiveIssues &&
-      gastricBalloon &&
-      bariatricSurgery &&
-      otherHealthIssues &&
-      sexualDysfunction;
+      sexualDysfunction.length > 0;
 
     // Require treatment history fields to be completed
     const treatmentHistoryComplete =
@@ -368,7 +822,6 @@ const MedicalHistoryScreen = ({
       </View>
     );
   };
-
   // Render checkbox option
   const renderCheckboxOption = (option, selectedItems, onToggle) => {
     const isSelected = selectedItems.includes(option.id);
@@ -405,23 +858,195 @@ const MedicalHistoryScreen = ({
       </TouchableOpacity>
     );
   };
+  // Render medication checkbox option (special handling for "autres")
+  const renderMedicationCheckboxOption = (option) => {
+    let isSelected;
+    if (option.id === 'autres') {
+      isSelected = isOtherMedicationSelected;
+    } else {
+      isSelected = medications.includes(option.id);
+    }
+    return (
+      <TouchableOpacity
+        key={option.id}
+        style={[
+          styles.checkboxListOption,
+          isSelected && styles.checkboxOptionSelected,
+        ]}
+        onPress={() => handleMedicationToggle(option.id)}
+        activeOpacity={0.8}
+      >
+        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+          {isSelected ? (
+            <MaterialIcons name="check" size={16} color="white" />
+          ) : null}
+        </View>
+        <MaterialIcons
+          name={option.icon}
+          size={20}
+          color={isSelected ? '#5603AD' : '#666'}
+          style={styles.checkboxIcon}
+        />
+        <Text
+          style={[
+            styles.checkboxLabel,
+            isSelected && styles.checkboxLabelSelected,
+          ]}
+        >
+          {option.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // Render chronic condition checkbox option (special handling for "autre")
+  const renderChronicConditionCheckboxOption = (option) => {
+    let isSelected;
+    if (option.id === 'autre') {
+      isSelected = isOtherChronicConditionSelected;
+    } else {
+      isSelected = chronicConditions.includes(option.id);
+    }
+    return (
+      <TouchableOpacity
+        key={option.id}
+        style={[
+          styles.checkboxListOption,
+          isSelected && styles.checkboxOptionSelected,
+        ]}
+        onPress={() => handleChronicConditionToggle(option.id)}
+        activeOpacity={0.8}
+      >
+        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+          {isSelected ? (
+            <MaterialIcons name="check" size={16} color="white" />
+          ) : null}
+        </View>
+        <MaterialIcons
+          name={option.icon}
+          size={20}
+          color={isSelected ? '#5603AD' : '#666'}
+          style={styles.checkboxIcon}
+        />
+        <Text
+          style={[
+            styles.checkboxLabel,
+            isSelected && styles.checkboxLabelSelected,
+          ]}
+        >
+          {option.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // Render anti-obesity treatment checkbox option (special handling for "autres_traitement")
+  const renderAntiObesityTreatmentCheckboxOption = (option) => {
+    let isSelected;
+    if (option.id === 'autres_traitement') {
+      isSelected = isOtherAntiObesityTreatmentSelected;
+    } else {
+      isSelected = antiObesityTreatments.includes(option.id);
+    }
+    return (
+      <TouchableOpacity
+        key={option.id}
+        style={[
+          styles.checkboxListOption,
+          isSelected && styles.checkboxOptionSelected,
+        ]}
+        onPress={() => handleAntiObesityTreatmentToggle(option.id)}
+        activeOpacity={0.8}
+      >
+        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+          {isSelected ? (
+            <MaterialIcons name="check" size={16} color="white" />
+          ) : null}
+        </View>
+        <MaterialIcons
+          name={option.icon}
+          size={20}
+          color={isSelected ? '#5603AD' : '#666'}
+          style={styles.checkboxIcon}
+        />
+        <Text
+          style={[
+            styles.checkboxLabel,
+            isSelected && styles.checkboxLabelSelected,
+          ]}
+        >
+          {option.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // Render sexual dysfunction checkbox option (special handling for "autre")
+  const renderSexualDysfunctionCheckboxOption = (option) => {
+    let isSelected;
+    if (option.id === 'autre') {
+      isSelected = isOtherSexualDysfunctionSelected;
+    } else {
+      isSelected = sexualDysfunction.includes(option.id);
+    }
+    return (
+      <TouchableOpacity
+        key={option.id}
+        style={[
+          styles.checkboxListOption,
+          isSelected && styles.checkboxOptionSelected,
+        ]}
+        onPress={() => handleSexualDysfunctionToggle(option.id)}
+        activeOpacity={0.8}
+      >
+        <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+          {isSelected ? (
+            <MaterialIcons name="check" size={16} color="white" />
+          ) : null}
+        </View>
+        <MaterialIcons
+          name={option.icon}
+          size={20}
+          color={isSelected ? '#5603AD' : '#666'}
+          style={styles.checkboxIcon}
+        />
+        <Text
+          style={[
+            styles.checkboxLabel,
+            isSelected && styles.checkboxLabelSelected,
+          ]}
+        >
+          {option.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   // Render toggle button
   const renderToggleButton = (
     value,
     onPress,
     labels,
-    fieldName = 'unknown'
+    fieldName = 'unknown',
+    listView = false
   ) => (
-    <View style={styles.toggleContainer}>
+    <View
+      style={listView ? styles.toggleContainerList : styles.toggleContainer}
+    >
       {labels.map((label, index) => (
         <TouchableOpacity
           key={label.value}
           style={[
-            styles.toggleButton,
+            listView ? styles.toggleButtonList : styles.toggleButton,
             value === label.value && styles.toggleButtonSelected,
-            index === 0 && styles.toggleButtonFirst,
-            index === labels.length - 1 && styles.toggleButtonLast,
+            index === 0 &&
+              (listView
+                ? styles.toggleButtonListFirst
+                : styles.toggleButtonFirst),
+            index === labels.length - 1 &&
+              (listView
+                ? styles.toggleButtonListLast
+                : styles.toggleButtonLast),
           ]}
           onPress={() => {
             console.log(
@@ -434,9 +1059,21 @@ const MedicalHistoryScreen = ({
           }}
           activeOpacity={0.8}
         >
+          {listView && (
+            <View
+              style={[
+                styles.checkbox,
+                value === label.value && styles.checkboxSelected,
+              ]}
+            >
+              {value === label.value && (
+                <MaterialIcons name="check" size={16} color="white" />
+              )}
+            </View>
+          )}
           <Text
             style={[
-              styles.toggleButtonText,
+              listView ? styles.toggleButtonTextList : styles.toggleButtonText,
               value === label.value && styles.toggleButtonTextSelected,
             ]}
           >
@@ -544,15 +1181,41 @@ const MedicalHistoryScreen = ({
                 "Connaître les conditions chroniques nous aide à personnaliser l'intensité et le type d'entraînement"
               )}
             </View>
-            <View style={styles.checkboxGrid}>
+            <View style={styles.checkboxList}>
               {chronicConditionsOptions.map((option) =>
-                renderCheckboxOption(
-                  option,
-                  chronicConditions,
-                  handleChronicConditionToggle
-                )
+                renderChronicConditionCheckboxOption(option)
               )}
             </View>
+            {/* Other chronic conditions text field */}
+            {isOtherChronicConditionSelected && (
+              <View style={styles.otherMedicationContainer}>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    focusedField === 'chronicConditionsOtherText' &&
+                      styles.textInputFocused,
+                    errors.chronicConditionsOtherText && styles.textInputError,
+                  ]}
+                  placeholder="Spécifiez les autres conditions chroniques..."
+                  placeholderTextColor="#999"
+                  value={chronicConditionsOtherText}
+                  onChangeText={handleOtherChronicConditionChange}
+                  onFocus={() => setFocusedField('chronicConditionsOtherText')}
+                  onBlur={() => setFocusedField('')}
+                  maxLength={200}
+                />
+                <View style={styles.textInputFooter}>
+                  <Text style={styles.characterCount}>
+                    {(chronicConditionsOtherText || '').length}/200
+                  </Text>
+                  {errors.chronicConditionsOtherText ? (
+                    <Text style={styles.errorText}>
+                      {errors.chronicConditionsOtherText}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
           </View>
           {/* Current Medications */}
           <View style={styles.fieldContainer}>
@@ -564,30 +1227,41 @@ const MedicalHistoryScreen = ({
                 "Certains médicaments peuvent affecter la capacité d'exercice ou nécessiter des considérations spéciales"
               )}
             </View>
-            <TextInput
-              style={[
-                styles.textArea,
-                focusedField === 'medications' && styles.textAreaFocused,
-                errors.medications && styles.textAreaError,
-              ]}
-              placeholder="Listez tous les médicaments que vous prenez actuellement..."
-              placeholderTextColor="#999"
-              value={medications}
-              onChangeText={setMedications}
-              onFocus={() => setFocusedField('medications')}
-              onBlur={() => setFocusedField('')}
-              multiline
-              numberOfLines={3}
-              maxLength={500}
-            />
-            <View style={styles.textAreaFooter}>
-              <Text style={styles.characterCount}>
-                {(medications || '').length}/500
-              </Text>
-              {errors.medications ? (
-                <Text style={styles.errorText}>{errors.medications}</Text>
-              ) : null}
+            <View style={styles.checkboxList}>
+              {medicationOptions.map((option) =>
+                renderMedicationCheckboxOption(option)
+              )}
             </View>
+            {/* Other medications text field */}
+            {isOtherMedicationSelected && (
+              <View style={styles.otherMedicationContainer}>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    focusedField === 'medicationsOtherText' &&
+                      styles.textInputFocused,
+                    errors.medicationsOtherText && styles.textInputError,
+                  ]}
+                  placeholder="Spécifiez les autres médicaments..."
+                  placeholderTextColor="#999"
+                  value={medicationsOtherText}
+                  onChangeText={handleOtherMedicationChange}
+                  onFocus={() => setFocusedField('medicationsOtherText')}
+                  onBlur={() => setFocusedField('')}
+                  maxLength={200}
+                />
+                <View style={styles.textInputFooter}>
+                  <Text style={styles.characterCount}>
+                    {(medicationsOtherText || '').length}/200
+                  </Text>
+                  {errors.medicationsOtherText ? (
+                    <Text style={styles.errorText}>
+                      {errors.medicationsOtherText}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
           </View>
           {/* Allergies */}
           <View style={styles.fieldContainer}>
@@ -707,11 +1381,18 @@ const MedicalHistoryScreen = ({
                     'Le statut ménopausique peut affecter le métabolisme et les besoins nutritionnels'
                   )}
                 </View>
-                {renderToggleButton(menopausalStatus, setMenopausalStatus, [
-                  { value: 'pre-menopausal', label: 'Pré-ménopause' },
-                  { value: 'peri-menopausal', label: 'Péri-ménopause' },
-                  { value: 'post-menopausal', label: 'Post-ménopause' },
-                ])}
+                {renderToggleButton(
+                  menopausalStatus,
+                  setMenopausalStatus,
+                  [
+                    { value: 'non', label: 'Non' },
+                    { value: 'peri-mono', label: 'Péri-mono' },
+                    { value: 'post-mono', label: 'Post-mono' },
+                    { value: 'unknown', label: 'Je ne sais pas' },
+                  ],
+                  'menopausalStatus',
+                  true
+                )}
               </View>
 
               {/* SOPK (Polycystic Ovary Syndrome) */}
@@ -809,32 +1490,36 @@ const MedicalHistoryScreen = ({
               'Ces informations nous aident à adapter votre programme en toute sécurité'
             )}
           </View>
-          {/* Personal Diabetes */}
+          {/* Personal Diabetes Type 1 */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
               <Text style={styles.fieldLabel}>
-                Avez-vous du diabète (DT1/DT2) ?
+                Avez-vous du diabète de type 1 (DT1) ?
               </Text>
               {renderTooltip(
-                "Le diabète nécessite une attention particulière lors de la planification de l'exercice et de la nutrition"
+                "Le diabète de type 1 nécessite une attention particulière lors de la planification de l'exercice et de la nutrition"
               )}
             </View>
-            {renderToggleButton(personalDiabetes, setPersonalDiabetes, [
+            {renderToggleButton(personalDiabetesDT1, setPersonalDiabetesDT1, [
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
             ])}
           </View>
-          {/* Personal Obesity */}
+          {/* Personal Diabetes Type 2 */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>Souffrez-vous d'obésité ?</Text>
+              <Text style={styles.fieldLabel}>
+                Avez-vous du diabète de type 2 (DT2) ?
+              </Text>
               {renderTooltip(
-                "Cette information nous aide à créer un plan d'exercice adapté et sûr"
+                "Le diabète de type 2 nécessite une attention particulière lors de la planification de l'exercice et de la nutrition"
               )}
             </View>
-            {renderToggleButton(personalObesity, setPersonalObesity, [
+            {renderToggleButton(personalDiabetesDT2, setPersonalDiabetesDT2, [
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
             ])}
           </View>
           {/* Hypothyroidism */}
@@ -850,6 +1535,7 @@ const MedicalHistoryScreen = ({
             {renderToggleButton(hypothyroidism, setHypothyroidism, [
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
+              { value: 'unknown', label: 'Je ne sais pas' },
             ])}
           </View>
           {/* Sleep Apnea */}
@@ -881,6 +1567,38 @@ const MedicalHistoryScreen = ({
               { value: 'yes', label: 'Oui' },
               { value: 'no', label: 'Non' },
             ])}
+            {/* Conditional text input for psychological issues details */}
+            {psychologicalIssues === 'yes' && (
+              <View style={styles.otherMedicationContainer}>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    focusedField === 'psychologicalIssuesDetails' &&
+                      styles.textInputFocused,
+                    errors.psychologicalIssuesDetails && styles.textInputError,
+                  ]}
+                  placeholder="Spécifiez les problèmes psychologiques..."
+                  placeholderTextColor="#999"
+                  value={psychologicalIssuesDetails}
+                  onChangeText={setPsychologicalIssuesDetails}
+                  onFocus={() => setFocusedField('psychologicalIssuesDetails')}
+                  onBlur={() => setFocusedField('')}
+                  maxLength={300}
+                  multiline
+                  numberOfLines={2}
+                />
+                <View style={styles.textInputFooter}>
+                  <Text style={styles.characterCount}>
+                    {(psychologicalIssuesDetails || '').length}/300
+                  </Text>
+                  {errors.psychologicalIssuesDetails ? (
+                    <Text style={styles.errorText}>
+                      {errors.psychologicalIssuesDetails}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
           </View>
           {/* Digestive Issues */}
           <View style={styles.fieldContainer}>
@@ -897,71 +1615,6 @@ const MedicalHistoryScreen = ({
               { value: 'no', label: 'Non' },
             ])}
           </View>
-          {/* Gastric Balloon */}
-          <View style={styles.fieldContainer}>
-            <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>
-                Avez-vous un ballon gastrique ?
-              </Text>
-              {renderTooltip(
-                "Un ballon gastrique nécessite des considérations spéciales pour l'exercice"
-              )}
-            </View>
-            {renderToggleButton(gastricBalloon, setGastricBalloon, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-            ])}
-          </View>
-          {/* Bariatric Surgery */}
-          <View style={styles.fieldContainer}>
-            <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>
-                Avez-vous subi une chirurgie bariatrique ?
-              </Text>
-              {renderTooltip(
-                "La chirurgie bariatrique nécessite des plans nutritionnels et d'exercice spécialisés"
-              )}
-            </View>
-            {renderToggleButton(bariatricSurgery, setBariatricSurgery, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-            ])}
-          </View>
-          {/* Other Health Issues */}
-          <View style={styles.fieldContainer}>
-            <View style={styles.fieldHeader}>
-              <Text style={styles.fieldLabel}>
-                Autres problèmes de santé (optionnel)
-              </Text>
-              {renderTooltip(
-                'Décrivez tout autre problème de santé que nous devrions connaître'
-              )}
-            </View>
-            <TextInput
-              style={[
-                styles.textArea,
-                focusedField === 'otherHealthIssues' && styles.textAreaFocused,
-                errors.otherHealthIssues && styles.textAreaError,
-              ]}
-              placeholder="Décrivez tout autre problème de santé..."
-              placeholderTextColor="#999"
-              value={otherHealthIssues}
-              onChangeText={setOtherHealthIssues}
-              onFocus={() => setFocusedField('otherHealthIssues')}
-              onBlur={() => setFocusedField('')}
-              multiline
-              numberOfLines={3}
-              maxLength={500}
-            />
-            <View style={styles.textAreaFooter}>
-              <Text style={styles.characterCount}>
-                {(otherHealthIssues || '').length}/500
-              </Text>
-              {errors.otherHealthIssues ? (
-                <Text style={styles.errorText}>{errors.otherHealthIssues}</Text>
-              ) : null}
-            </View>
-          </View>
           {/* Sexual Dysfunction */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
@@ -972,41 +1625,91 @@ const MedicalHistoryScreen = ({
                 'Cette information peut être importante pour adapter certains aspects de votre programme de santé'
               )}
             </View>
-            {renderToggleButton(sexualDysfunction, setSexualDysfunction, [
-              { value: 'yes', label: 'Oui' },
-              { value: 'no', label: 'Non' },
-            ])}
+            <View style={styles.checkboxList}>
+              {sexualDysfunctionOptions.map((option) =>
+                renderSexualDysfunctionCheckboxOption(option)
+              )}
+            </View>
+            {isOtherSexualDysfunctionSelected && (
+              <View style={styles.textInputContainer}>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    focusedField === 'sexualDysfunctionOtherText' &&
+                      styles.textInputFocused,
+                    errors.sexualDysfunctionOtherText && styles.textInputError,
+                  ]}
+                  placeholder="Spécifiez les autres problèmes de dysfonction sexuelle..."
+                  placeholderTextColor="#999"
+                  value={sexualDysfunctionOtherText}
+                  onChangeText={handleOtherSexualDysfunctionChange}
+                  onFocus={() => setFocusedField('sexualDysfunctionOtherText')}
+                  onBlur={() => setFocusedField('')}
+                  maxLength={200}
+                  multiline
+                  numberOfLines={2}
+                />
+                <View style={styles.textInputFooter}>
+                  <Text style={styles.characterCount}>
+                    {(sexualDysfunctionOtherText || '').length}/200
+                  </Text>
+                  {errors.sexualDysfunctionOtherText ? (
+                    <Text style={styles.errorText}>
+                      {errors.sexualDysfunctionOtherText}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
           </View>
-          {/* Water Retention Percentage */}
+          {/* Anti-Obesity Treatments */}
           <View style={styles.fieldContainer}>
             <View style={styles.fieldHeader}>
               <Text style={styles.fieldLabel}>
-                Pourcentage de rétention d'eau (optionnel)
+                Traitement anti-obésité antérieur
               </Text>
               {renderTooltip(
-                "Le pourcentage de rétention d'eau peut affecter la composition corporelle et les objectifs de perte de poids"
+                'Indiquez tous les traitements anti-obésité que vous avez suivis par le passé'
               )}
             </View>
-            <TextInput
-              style={[
-                styles.textArea,
-                focusedField === 'waterRetentionPercentage' &&
-                  styles.textAreaFocused,
-                errors.waterRetentionPercentage && styles.textAreaError,
-              ]}
-              placeholder="Entrez le pourcentage de rétention d'eau (ex: 5%)"
-              placeholderTextColor="#999"
-              value={waterRetentionPercentage}
-              onChangeText={setWaterRetentionPercentage}
-              onFocus={() => setFocusedField('waterRetentionPercentage')}
-              onBlur={() => setFocusedField('')}
-              keyboardType="numeric"
-            />
-            {errors.waterRetentionPercentage ? (
-              <Text style={styles.errorText}>
-                {errors.waterRetentionPercentage}
-              </Text>
-            ) : null}
+            <View style={styles.checkboxList}>
+              {antiObesityTreatmentOptions.map((option) =>
+                renderAntiObesityTreatmentCheckboxOption(option)
+              )}
+            </View>
+            {/* Conditional text input for other anti-obesity treatments */}
+            {isOtherAntiObesityTreatmentSelected && (
+              <View style={styles.otherMedicationContainer}>
+                <TextInput
+                  style={[
+                    styles.textInput,
+                    focusedField === 'antiObesityTreatmentsOtherText' &&
+                      styles.textInputFocused,
+                    errors.antiObesityTreatmentsOtherText &&
+                      styles.textInputError,
+                  ]}
+                  placeholder="Spécifiez les autres traitements anti-obésité..."
+                  placeholderTextColor="#999"
+                  value={antiObesityTreatmentsOtherText}
+                  onChangeText={handleOtherAntiObesityTreatmentChange}
+                  onFocus={() =>
+                    setFocusedField('antiObesityTreatmentsOtherText')
+                  }
+                  onBlur={() => setFocusedField('')}
+                  maxLength={200}
+                />
+                <View style={styles.textInputFooter}>
+                  <Text style={styles.characterCount}>
+                    {(antiObesityTreatmentsOtherText || '').length}/200
+                  </Text>
+                  {errors.antiObesityTreatmentsOtherText ? (
+                    <Text style={styles.errorText}>
+                      {errors.antiObesityTreatmentsOtherText}
+                    </Text>
+                  ) : null}
+                </View>
+              </View>
+            )}
           </View>
         </View>
 
@@ -1028,7 +1731,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Les antécédents familiaux de maladie cardiaque peuvent nécessiter une surveillance cardiovasculaire plus attentive'
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(
               familyHeartDisease,
               setFamilyHeartDisease,
@@ -1049,7 +1752,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 "Les antécédents familiaux de diabète nous aident à adapter les recommandations nutritionnelles et d'exercice"
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(
               familyDiabetes,
               setFamilyDiabetes,
@@ -1070,7 +1773,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Comprendre la prédisposition génétique aide à créer des plans de gestion du poids plus efficaces'
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(
               familyObesity,
               setFamilyObesity,
@@ -1091,7 +1794,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'Les problèmes thyroïdiens familiaux peuvent affecter le métabolisme et nécessiter une surveillance'
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(
               familyThyroidIssues,
               setFamilyThyroidIssues,
@@ -1124,7 +1827,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 "Les traitements médicaux peuvent affecter votre capacité d'exercice et vos besoins nutritionnels"
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(
               medicalTreatment,
               setMedicalTreatment,
@@ -1145,7 +1848,7 @@ const MedicalHistoryScreen = ({
               {renderTooltip(
                 'La psychothérapie peut influencer votre approche du bien-être et de la motivation'
               )}
-            </View>{' '}
+            </View>
             {renderToggleButton(
               psychotherapy,
               setPsychotherapy,
@@ -1493,6 +2196,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginHorizontal: -6,
   },
+  checkboxList: {
+    flexDirection: 'column',
+  },
   checkboxOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1505,6 +2211,17 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     backgroundColor: 'white',
     minWidth: '45%',
+  },
+  checkboxListOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: 'white',
   },
   checkboxOptionSelected: {
     borderColor: '#5603AD',
@@ -1575,6 +2292,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
   },
+  toggleContainerList: {
+    flexDirection: 'column',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
   toggleButton: {
     flex: 1,
     paddingVertical: 12,
@@ -1584,14 +2308,32 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: '#E0E0E0',
   },
+  toggleButtonList: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
   toggleButtonFirst: {
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
+  },
+  toggleButtonListFirst: {
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
   },
   toggleButtonLast: {
     borderTopRightRadius: 8,
     borderBottomRightRadius: 8,
     borderRightWidth: 0,
+  },
+  toggleButtonListLast: {
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+    borderBottomWidth: 0,
   },
   toggleButtonSelected: {
     backgroundColor: '#5603AD',
@@ -1601,9 +2343,19 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '500',
   },
+  toggleButtonTextList: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+    flex: 1,
+    textAlign: 'left',
+  },
   toggleButtonTextSelected: {
     color: 'white',
     fontWeight: '600',
+  },
+  toggleButtonIcon: {
+    marginRight: 12,
   },
   buttonContainer: {
     marginTop: 32,
@@ -1791,6 +2543,50 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#E91E63',
     marginLeft: 8,
+  },
+  // Other medication text field styles
+  otherMedicationContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  textInput: {
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    minHeight: 50,
+  },
+  textInputFocused: {
+    borderColor: '#5603AD',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#5603AD',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  textInputError: {
+    borderColor: '#FF6B6B',
+    backgroundColor: '#FFF5F5',
+  },
+  textInputFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  otherMedicationContainer: {
+    marginTop: 12,
+    padding: 12,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#5603AD',
   },
 });
 

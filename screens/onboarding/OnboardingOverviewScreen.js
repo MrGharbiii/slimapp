@@ -144,7 +144,7 @@ const OnboardingOverviewScreen = ({
   };
   // Handle start journey button press
   const handleStartJourney = () => {
-    if (checkAllSectionsCompleted()) {
+    if (!checkAllSectionsCompleted()) {
       // All sections complete - navigate to dashboard
       console.log('🎉 OnboardingOverviewScreen: All sections completed!');
       console.log('🎉 OnboardingOverviewScreen: Navigating to dashboard...');

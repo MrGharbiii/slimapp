@@ -18,6 +18,9 @@ const API_ENDPOINTS = {
   ONBOARDING_LIFESTYLE: '/api/onboarding/lifestyle',
   ONBOARDING_MEDICAL_HISTORY: '/api/onboarding/medical-history',
   ONBOARDING_GOALS: '/api/onboarding/goals',
+  ONBOARDING_PREFERENCES: '/api/onboarding/preferences',
+  ANALYSIS_LAB_RESULTS: '/api/onboarding/lab-results',
+  PLAN_REQUEST: '/api/users/plan-request',
 };
 
 /**
@@ -28,11 +31,9 @@ export const TokenStorage = {
   /**
    * Store JWT token securely
    * @param {string} token - The JWT token to store
-   */
-  async setToken(token) {
+   */ async setToken(token) {
     try {
       await SecureStore.setItemAsync('auth_token', token);
-      console.log('Token stored securely');
     } catch (error) {
       console.error('Error storing token:', error);
       // Fallback to AsyncStorage if SecureStore fails
@@ -61,7 +62,6 @@ export const TokenStorage = {
   async removeToken() {
     try {
       await SecureStore.deleteItemAsync('auth_token');
-      console.log('Token removed from secure storage');
     } catch (error) {
       console.error('Error removing token:', error);
       // Fallback to AsyncStorage
@@ -232,17 +232,7 @@ export const AuthAPI = {
    * @param {object} credentials - { email, password, confirmPassword }
    * @returns {Promise} API response with user data and token
    */ async signup(credentials) {
-    const { email, password, confirmPassword } = credentials;
-
-    // Enhanced debugging
-    console.log('🔵 Signup attempt:', {
-      email: email?.trim(),
-      passwordLength: password?.length,
-      confirmPasswordLength: confirmPassword?.length,
-      apiUrl: `${API_BASE_URL}${API_ENDPOINTS.SIGNUP}`,
-    });
-
-    // Client-side validation
+    const { email, password, confirmPassword } = credentials; // Client-side validation
     if (!email || !password || !confirmPassword) {
       throw new Error('Tous les champs sont requis');
     }
@@ -266,19 +256,10 @@ export const AuthAPI = {
         password,
         confirmPassword,
       };
-
-      console.log('🔵 Request body:', requestBody);
-      console.log(
-        '🔵 Full request URL:',
-        `${API_BASE_URL}${API_ENDPOINTS.SIGNUP}`
-      );
-
       const response = await apiRequest(API_ENDPOINTS.SIGNUP, {
         method: 'POST',
         body: JSON.stringify(requestBody),
       });
-
-      console.log('🟢 Signup response:', response);
 
       // Store token and user data on successful signup
       if (response.success && response.token) {
@@ -355,13 +336,9 @@ export const AuthAPI = {
       } catch (error) {
         // Don't throw if logout endpoint fails - still clear local data
         console.warn('Logout endpoint failed:', error);
-      }
-
-      // Clear local storage
+      } // Clear local storage
       await TokenStorage.removeToken();
       await UserStorage.removeUser();
-
-      console.log('User logged out successfully');
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
@@ -419,15 +396,15 @@ export const OnboardingAPI = {
   /**
    * Submit basic info data
    * @param {object} formData - Basic info form data
-   * @returns {Promise} API response
-   */ async submitBasicInfo(formData) {
+   * @returns {Promise} API response   */ async submitBasicInfo(formData) {
     const startTime = new Date().toISOString();
     try {
+      // Log the basic info data before submission
       console.log('====================================');
-      console.log('🚀 STARTING BASIC INFO SUBMISSION');
+      console.log('📋 BASIC INFO DATA BEFORE SUBMISSION:');
       console.log('====================================');
-      console.log('🕐 Timestamp:', startTime);
-      console.log('🚀 Submitting basic info to backend:', formData);
+      console.log('📋 Raw Basic Info Data:', JSON.stringify(formData, null, 2));
+      console.log('📋 Submission Time:', startTime);
       console.log('====================================');
 
       // Define the exact order required by the backend
@@ -487,12 +464,6 @@ export const OnboardingAPI = {
         throw new Error('Date of birth must be within the last 120 years');
       }
 
-      console.log('🔍 Date validation passed:', {
-        originalDate: formData.dateOfBirth,
-        formattedDate: dateOfBirthFormatted,
-        parsedDate: dobDate.toISOString(),
-        isValid: dobDate >= minDate && dobDate <= currentDate,
-      });
       const processedData = {
         name: String(formData.name || '').trim(),
         dateOfBirth: dateOfBirthFormatted,
@@ -513,6 +484,9 @@ export const OnboardingAPI = {
         initialMuscleMass: parseFloat(formData.initialMuscleMass) || 0,
         fatMassTarget: parseFloat(formData.fatMassTarget) || 0,
         muscleMassTarget: parseFloat(formData.muscleMassTarget) || 0,
+        waterRetentionPercentage: String(
+          formData.waterRetentionPercentage || ''
+        ).trim(),
         numberOfChildren: parseInt(formData.numberOfChildren) || 0,
       };
 
@@ -543,19 +517,6 @@ export const OnboardingAPI = {
         );
         throw new Error('Number of children must be between 0 and 20');
       }
-
-      console.log('🔍 Processed Data:', processedData);
-      console.log('🔍 Data types validation:', {
-        name: `"${processedData.name}" (${typeof processedData.name})`,
-        dateOfBirth: `"${
-          processedData.dateOfBirth
-        }" (${typeof processedData.dateOfBirth})`,
-        height: `${processedData.height} (${typeof processedData.height})`,
-        weight: `${processedData.weight} (${typeof processedData.weight})`,
-        numberOfChildren: `${
-          processedData.numberOfChildren
-        } (${typeof processedData.numberOfChildren})`,
-      });
 
       // Validate required fields (single validation block)
       const validationErrors = [];
@@ -608,87 +569,13 @@ export const OnboardingAPI = {
       // Verify order matches exactly
       const payloadKeys = Object.keys(orderedPayload);
       const orderMatch =
-        JSON.stringify(orderedFields) === JSON.stringify(payloadKeys);
-
-      console.log('📤 Expected Order:', orderedFields);
-      console.log('📤 Actual Order:', payloadKeys);
-      console.log('📤 Order Match:', orderMatch);
-      console.log('📤 Final Payload:', orderedPayload);
-
-      // Use JSON.stringify with replacer to guarantee serialization order
+        JSON.stringify(orderedFields) === JSON.stringify(payloadKeys); // Use JSON.stringify with replacer to guarantee serialization order
       const orderedJSON = JSON.stringify(orderedPayload, orderedFields);
-      console.log('📤 Serialized JSON:', orderedJSON);
-
-      // Detailed data type validation
-      console.log('🔍 Detailed Data Validation:');
-      console.log(
-        '  • Name:',
-        `"${processedData.name}" (type: ${typeof processedData.name}, length: ${
-          processedData.name.length
-        })`
-      );
-      console.log(
-        '  • Date of Birth:',
-        `"${
-          processedData.dateOfBirth
-        }" (type: ${typeof processedData.dateOfBirth})`
-      );
-      console.log(
-        '  • Height:',
-        `${processedData.height} (type: ${typeof processedData.height})`
-      );
-      console.log(
-        '  • Weight:',
-        `${processedData.weight} (type: ${typeof processedData.weight})`
-      );
-      console.log(
-        '  • Activity Level:',
-        `"${
-          processedData.activityLevel
-        }" (type: ${typeof processedData.activityLevel})`
-      );
-      console.log(
-        '  • City:',
-        `"${processedData.city}" (type: ${typeof processedData.city})`
-      );
-      console.log(
-        '  • Profession:',
-        `"${
-          processedData.profession
-        }" (type: ${typeof processedData.profession})`
-      );
-      console.log('✅ Data validation passed');
-      console.log('====================================');
-      console.log('📤 BASIC INFO PAYLOAD BEING SENT:');
-      console.log('====================================');
-      console.log(orderedJSON);
-      console.log('====================================');
-      console.log('📤 Payload Size:', new Blob([orderedJSON]).size, 'bytes');
-      console.log(
-        '📤 Request URL:',
-        `${API_BASE_URL}${API_ENDPOINTS.ONBOARDING_BASIC_INFO}`
-      );
-      console.log('📤 Request Method: PUT');
-      console.log('📤 Content-Type: application/json');
-      console.log('====================================');
 
       const response = await apiRequest(API_ENDPOINTS.ONBOARDING_BASIC_INFO, {
         method: 'PUT',
         body: orderedJSON,
       });
-
-      console.log('📥 Response:', response);
-      console.log('====================================');
-      console.log('📥 BASIC INFO RESPONSE RECEIVED:');
-      console.log('====================================');
-      console.log('📥 Response Status: SUCCESS');
-      console.log('📥 Response Data:', JSON.stringify(response, null, 2));
-      console.log(
-        '📥 Response Size:',
-        new Blob([JSON.stringify(response)]).size,
-        'bytes'
-      );
-      console.log('====================================');
 
       return {
         success: true,
@@ -697,13 +584,6 @@ export const OnboardingAPI = {
       };
     } catch (error) {
       console.error('❌ Basic info submission failed:', error);
-      console.log('====================================');
-      console.log('❌ BASIC INFO SUBMISSION ERROR:');
-      console.log('====================================');
-      console.log('❌ Error Message:', error.message);
-      console.log('❌ Error Stack:', error.stack);
-      console.log('❌ Error Details:', JSON.stringify(error, null, 2));
-      console.log('====================================');
       return {
         success: false,
         error: error.message,
@@ -716,9 +596,15 @@ export const OnboardingAPI = {
    * Submit lifestyle data
    * @param {object} formData - Lifestyle form data
    * @returns {Promise} API response
-   */
-  async submitLifestyle(formData) {
+   */ async submitLifestyle(formData) {
     try {
+      // Log the lifestyle data before submission
+      console.log('====================================');
+      console.log('🏃 LIFESTYLE DATA BEFORE SUBMISSION:');
+      console.log('====================================');
+      console.log('🏃 Raw Lifestyle Data:', JSON.stringify(formData, null, 2));
+      console.log('🏃 Submission Time:', new Date().toISOString());
+      console.log('====================================');
       console.log('🚀 Submitting lifestyle data to backend:', formData);
 
       // Define the exact order required by the backend
@@ -1214,22 +1100,69 @@ export const OnboardingAPI = {
       orderedPayload.personalMedicalHistory =
         processedData.personalMedicalHistory;
       orderedPayload.familyHistory = processedData.familyHistory;
-      orderedPayload.treatmentHistory = processedData.treatmentHistory; // Use JSON.stringify with replacer to guarantee serialization order
-      const orderedJSON = JSON.stringify(orderedPayload, orderedFields);
-      const send = JSON.stringify(orderedPayload, null, 2);
+      orderedPayload.treatmentHistory = processedData.treatmentHistory;
+
+      // Verify order matches exactly
+      const payloadKeys = Object.keys(orderedPayload);
+      const orderMatch =
+        JSON.stringify(orderedFields) === JSON.stringify(payloadKeys);
+
+      console.log('🔍 PAYLOAD ORDER VERIFICATION:');
+      console.log('📤 Expected Order:', orderedFields);
+      console.log('📤 Actual Order:', payloadKeys);
+      console.log('📤 Order Match:', orderMatch);
+      console.log('===================================='); // Use JSON.stringify WITHOUT replacer to include ALL nested objects
+      const orderedJSON = JSON.stringify(orderedPayload);
 
       console.log(
         '📤 Final ordered payload being sent:',
         JSON.stringify(orderedPayload, null, 2)
       );
-      console.log('📤 Serialized JSON:', orderedJSON);
+      console.log('📤 Serialized JSON with ALL nested objects:', orderedJSON);
+      console.log('📤 Payload Size:', new Blob([orderedJSON]).size, 'bytes');
+
+      // Verify nested objects are included
+      console.log('🔍 NESTED OBJECTS VERIFICATION:');
+      console.log(
+        '  • femaleSpecificAttributes keys:',
+        Object.keys(orderedPayload.femaleSpecificAttributes)
+      );
+      console.log(
+        '  • personalMedicalHistory keys:',
+        Object.keys(orderedPayload.personalMedicalHistory)
+      );
+      console.log(
+        '  • familyHistory keys:',
+        Object.keys(orderedPayload.familyHistory)
+      );
+      console.log(
+        '  • treatmentHistory keys:',
+        Object.keys(orderedPayload.treatmentHistory)
+      );
+      console.log('🔍 Complete nested content check:');
+      console.log(
+        '  • femaleSpecificAttributes:',
+        orderedPayload.femaleSpecificAttributes
+      );
+      console.log(
+        '  • personalMedicalHistory:',
+        orderedPayload.personalMedicalHistory
+      );
+      console.log('  • familyHistory:', orderedPayload.familyHistory);
+      console.log('  • treatmentHistory:', orderedPayload.treatmentHistory);
+      console.log(
+        '📤 Request URL:',
+        `${API_BASE_URL}${API_ENDPOINTS.ONBOARDING_MEDICAL_HISTORY}`
+      );
+      console.log('📤 Request Method: PUT');
+      console.log('📤 Content-Type: application/json');
       console.log('====================================');
 
       const response = await apiRequest(
         API_ENDPOINTS.ONBOARDING_MEDICAL_HISTORY,
         {
           method: 'PUT',
-          body: send,
+          body: orderedJSON,
         }
       );
 
@@ -1295,11 +1228,11 @@ export const OnboardingAPI = {
       console.log('====================================');
 
       // Define the exact order required by the backend
-      const orderedFields = ['primaryGoal', 'secondaryGoals'];
-
-      // Enhanced data validation and transformation
+      const orderedFields = ['primaryGoal', 'secondaryGoals']; // Enhanced data validation and transformation
       const processedData = {
-        primaryGoal: String(formData.primaryGoal || '').trim(),
+        primaryGoal: Array.isArray(formData.primaryGoal)
+          ? formData.primaryGoal
+          : [],
         secondaryGoals: Array.isArray(formData.secondaryGoals)
           ? formData.secondaryGoals
           : [],
@@ -1312,10 +1245,10 @@ export const OnboardingAPI = {
       // Log each processed field in detail
       console.log('🔍 DETAILED PROCESSED GOALS DATA ANALYSIS:');
       console.log(
-        '  • Primary Goal:',
-        `"${
+        '  • Primary Goals:',
+        `${JSON.stringify(
           processedData.primaryGoal
-        }" (type: ${typeof processedData.primaryGoal}, length: ${
+        )} (type: ${typeof processedData.primaryGoal}, length: ${
           processedData.primaryGoal.length
         })`
       );
@@ -1328,12 +1261,18 @@ export const OnboardingAPI = {
         })`
       );
 
-      console.log('====================================');
-
-      // Validate required fields
+      console.log('===================================='); // Validate required fields
       const validationErrors = [];
-      if (!processedData.primaryGoal) {
-        validationErrors.push('Primary goal is required');
+      if (
+        !Array.isArray(processedData.primaryGoal) ||
+        processedData.primaryGoal.length === 0
+      ) {
+        validationErrors.push('At least one primary goal is required');
+      }
+
+      // Validate primary goals array
+      if (!Array.isArray(processedData.primaryGoal)) {
+        validationErrors.push('Primary goals must be an array');
       }
 
       // Validate secondary goals array
@@ -1434,6 +1373,276 @@ export const OnboardingAPI = {
         success: false,
         error: error.message,
         message: 'Failed to save goals data',
+      };
+    }
+  },
+
+  /**
+   * Submit preferences data
+   * @param {object} formData - Preferences form data
+   * @returns {Promise} API response
+   */
+  async submitPreferences(formData) {
+    const startTime = new Date().toISOString();
+    try {
+      console.log('====================================');
+      console.log('🚀 STARTING PREFERENCES SUBMISSION');
+      console.log('====================================');
+      console.log('🕐 Timestamp:', startTime);
+      console.log('🚀 Submitting preferences to backend:', formData);
+      console.log('====================================');
+
+      // Validate required fields
+      const validationErrors = [];
+      if (!formData.workoutDuration) {
+        validationErrors.push('Workout duration is required');
+      }
+      if (
+        !Array.isArray(formData.equipmentAccess) ||
+        formData.equipmentAccess.length === 0
+      ) {
+        validationErrors.push('Equipment access is required');
+      }
+      if (!formData.workoutIntensity) {
+        validationErrors.push('Workout intensity is required');
+      }
+      if (
+        !Array.isArray(formData.dietaryRestrictions) ||
+        formData.dietaryRestrictions.length === 0
+      ) {
+        validationErrors.push('Dietary restrictions are required');
+      }
+      if (!formData.cookingFrequency) {
+        validationErrors.push('Cooking frequency is required');
+      }
+
+      if (validationErrors.length > 0) {
+        console.error('❌ Validation errors:', validationErrors);
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      } // Create payload in the exact order required by backend
+      const orderedPayload = {
+        cookingFrequency: String(formData.cookingFrequency),
+        dietaryRestrictions: Array.isArray(formData.dietaryRestrictions)
+          ? formData.dietaryRestrictions
+          : [],
+        equipmentAccess: Array.isArray(formData.equipmentAccess)
+          ? formData.equipmentAccess
+          : [],
+        foodAllergies: String(formData.foodAllergies || ''),
+        workoutDuration: String(formData.workoutDuration),
+        workoutIntensity: String(formData.workoutIntensity),
+      };
+
+      console.log('🔍 Ordered Payload:', orderedPayload);
+      console.log('🔍 Payload JSON:', JSON.stringify(orderedPayload, null, 2));
+
+      // Submit to backend
+      const response = await apiRequest(API_ENDPOINTS.ONBOARDING_PREFERENCES, {
+        method: 'PUT',
+        body: JSON.stringify(orderedPayload),
+      });
+
+      console.log('📥 Preferences Response:', response);
+      console.log('====================================');
+      console.log('📥 PREFERENCES RESPONSE RECEIVED:');
+      console.log('====================================');
+      console.log('📥 Response Status: SUCCESS');
+      console.log('📥 Response Data:', JSON.stringify(response, null, 2));
+      console.log(
+        '📥 Response Size:',
+        new Blob([JSON.stringify(response)]).size,
+        'bytes'
+      );
+      console.log('====================================');
+
+      return {
+        success: true,
+        data: response,
+        message: 'Preferences data saved successfully',
+      };
+    } catch (error) {
+      console.error('❌ Preferences submission failed:', error);
+      console.log('====================================');
+      console.log('❌ PREFERENCES SUBMISSION ERROR:');
+      console.log('====================================');
+      console.log('❌ Error Message:', error.message);
+      console.log('❌ Error Stack:', error.stack);
+      console.log('❌ Error Details:', JSON.stringify(error, null, 2));
+      console.log('====================================');
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to save preferences data',
+      };
+    }
+  },
+};
+
+/**
+ * Analysis API functions
+ */
+export const AnalysisAPI = {
+  /**
+   * Submit lab results data
+   * @param {object} formData - Lab results form data
+   * @returns {Promise} API response
+   */
+  async submitLabResults(formData) {
+    const startTime = new Date().toISOString();
+    try {
+      console.log('====================================');
+      console.log('🧪 LAB RESULTS SUBMISSION START');
+      console.log('====================================');
+      console.log('🧪 Timestamp:', startTime);
+      console.log(
+        '🧪 Raw lab results data:',
+        JSON.stringify(formData, null, 2)
+      );
+      console.log('===================================='); // Validate required fields for FLAT structure
+      const validationErrors = [];
+      if (!formData.gender) {
+        validationErrors.push('Gender is required');
+      }
+
+      // Validate lab results values (flat structure)
+      const requiredTests = [
+        'homaIR',
+        'vitD',
+        'ferritin',
+        'hemoglobin',
+        'a1c',
+        'tsh',
+        'testosterone',
+      ];
+
+      requiredTests.forEach((test) => {
+        if (formData[test] === undefined || formData[test] === null) {
+          validationErrors.push(`${test} is required`);
+        } else if (
+          isNaN(parseFloat(formData[test])) ||
+          parseFloat(formData[test]) < 0
+        ) {
+          validationErrors.push(`${test} must be a valid positive number`);
+        }
+      });
+
+      // Validate female-specific tests
+      if (formData.gender === 'Female' || formData.gender === 'Femme') {
+        if (formData.prolactin === undefined || formData.prolactin === null) {
+          validationErrors.push('Prolactin is required for female patients');
+        } else if (
+          isNaN(parseFloat(formData.prolactin)) ||
+          parseFloat(formData.prolactin) < 0
+        ) {
+          validationErrors.push('Prolactin must be a valid positive number');
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        console.error('❌ Lab results validation errors:', validationErrors);
+        throw new Error(`Validation failed: ${validationErrors.join(', ')}`);
+      } // Process the data - FLAT structure for backend
+      const processedData = {
+        gender: String(formData.gender).trim(),
+        homaIR: parseFloat(formData.homaIR),
+        vitD: parseFloat(formData.vitD),
+        ferritin: parseFloat(formData.ferritin),
+        hemoglobin: parseFloat(formData.hemoglobin),
+        a1c: parseFloat(formData.a1c),
+        tsh: parseFloat(formData.tsh),
+        testosterone: parseFloat(formData.testosterone),
+        ...(formData.prolactin !== undefined && {
+          prolactin: parseFloat(formData.prolactin),
+        }),
+        submittedAt: formData.submittedAt || new Date().toISOString(),
+      };
+
+      console.log(
+        '🔍 Processed lab results data:',
+        JSON.stringify(processedData, null, 2)
+      );
+
+      // Submit to backend
+      const response = await apiRequest(API_ENDPOINTS.ANALYSIS_LAB_RESULTS, {
+        method: 'POST',
+        body: JSON.stringify(processedData),
+      });
+
+      console.log(
+        '📥 Lab results response:',
+        JSON.stringify(response, null, 2)
+      );
+      console.log('====================================');
+
+      return {
+        success: true,
+        data: response,
+        message: 'Lab results saved successfully',
+      };
+    } catch (error) {
+      console.error('❌ Lab results submission failed:', error);
+      console.log('====================================');
+      console.log('❌ LAB RESULTS SUBMISSION ERROR:');
+      console.log('====================================');
+      console.log('❌ Error Message:', error.message);
+      console.log('❌ Error Stack:', error.stack);
+      console.log('❌ Error Details:', JSON.stringify(error, null, 2));
+      console.log('====================================');
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to save lab results',
+      };
+    }
+  },
+
+  /**
+   * Request action plan generation
+   * @returns {Promise} API response
+   */
+  async requestActionPlan() {
+    const startTime = new Date().toISOString();
+    try {
+      console.log('====================================');
+      console.log('🚀 ACTION PLAN REQUEST START');
+      console.log('====================================');
+      console.log('🚀 Timestamp:', startTime);
+      console.log('🚀 Sending plan request...');
+      console.log('====================================');
+
+      const response = await apiRequest(API_ENDPOINTS.PLAN_REQUEST, {
+        method: 'PUT',
+        body: JSON.stringify({ planRequest: true }),
+      });
+
+      const endTime = new Date().toISOString();
+      console.log('====================================');
+      console.log('🚀 ACTION PLAN REQUEST COMPLETE');
+      console.log('====================================');
+      console.log('🚀 End Timestamp:', endTime);
+      console.log('🚀 Response status:', response.status);
+      console.log('🚀 Success! Action plan request submitted');
+      console.log('====================================');
+
+      return {
+        success: true,
+        data: response.data,
+        message: 'Action plan request submitted successfully',
+      };
+    } catch (error) {
+      const endTime = new Date().toISOString();
+      console.error('====================================');
+      console.error('❌ ACTION PLAN REQUEST FAILED');
+      console.error('====================================');
+      console.error('❌ End Timestamp:', endTime);
+      console.error('❌ Error:', error.message);
+      console.error('❌ Stack trace:', error.stack);
+      console.error('====================================');
+
+      return {
+        success: false,
+        error: error.message,
+        message: 'Failed to submit action plan request',
       };
     }
   },

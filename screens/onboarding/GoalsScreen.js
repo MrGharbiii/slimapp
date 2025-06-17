@@ -21,7 +21,7 @@ const GoalsScreen = ({
   onNavigateToSection,
 }) => {
   // Form state
-  const [primaryGoal, setPrimaryGoal] = useState('');
+  const [primaryGoal, setPrimaryGoal] = useState([]);
   const [secondaryGoals, setSecondaryGoals] = useState([]);
   const [errors, setErrors] = useState({});
   const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
@@ -59,10 +59,10 @@ const GoalsScreen = ({
       gradient: ['#4ECDC4', '#44A08D'],
     },
     {
-      id: 'endurance',
-      title: 'Endurance',
+      id: 'performance',
+      title: 'Performance',
       icon: 'directions-run',
-      description: 'Améliorer la condition cardiovasculaire',
+      description: 'Améliorer les performances sportives',
       color: '#45B7D1',
       gradient: ['#45B7D1', '#96C93D'],
     },
@@ -75,10 +75,10 @@ const GoalsScreen = ({
       gradient: ['#F7931E', '#FFD700'],
     },
     {
-      id: 'strength',
-      title: 'Force',
-      icon: 'sports-gymnastics',
-      description: 'Augmenter la puissance et la force',
+      id: 'fertility',
+      title: 'Fertilité',
+      icon: 'child-care',
+      description: 'Améliorer la santé reproductive',
       color: '#9013FE',
       gradient: ['#9013FE', '#6200EA'],
     },
@@ -127,11 +127,15 @@ const GoalsScreen = ({
       }),
     ]).start();
   };
-
   // Handle primary goal selection
   const handlePrimaryGoalSelect = (goalId) => {
     const goalIndex = primaryGoalsData.findIndex((goal) => goal.id === goalId);
-    setPrimaryGoal(goalId);
+    setPrimaryGoal((prev) => {
+      if (prev.includes(goalId)) {
+        return prev.filter((id) => id !== goalId);
+      }
+      return [...prev, goalId];
+    });
     animateCard(goalIndex);
   }; // Handle secondary goal toggle
   const toggleSecondaryGoal = (goalId) => {
@@ -155,12 +159,12 @@ const GoalsScreen = ({
       (section) => !completedSections.includes(section)
     );
     return { allCompleted: !missingSection, missingSection };
-  };
-  // Validation
+  }; // Validation
   const validateForm = () => {
     const newErrors = {};
-    if (!primaryGoal) {
-      newErrors.primaryGoal = 'Veuillez sélectionner un objectif principal';
+    if (primaryGoal.length === 0) {
+      newErrors.primaryGoal =
+        'Veuillez sélectionner au moins un objectif principal';
     }
 
     setErrors(newErrors);
@@ -209,10 +213,9 @@ const GoalsScreen = ({
         }),
       ]).start();
     }
-  };
-  // Check if form is valid
+  }; // Check if form is valid
   const isFormValid = () => {
-    if (!primaryGoal) return false;
+    if (primaryGoal.length === 0) return false;
     return true;
   };
 
@@ -236,10 +239,9 @@ const GoalsScreen = ({
       </Animated.View>
     </View>
   );
-
   // Render primary goal card
   const renderPrimaryGoalCard = (goal, index) => {
-    const isSelected = primaryGoal === goal.id;
+    const isSelected = primaryGoal.includes(goal.id);
     const animatedStyle = {
       transform: [
         {
@@ -264,6 +266,16 @@ const GoalsScreen = ({
         >
           <View
             style={[
+              styles.primaryGoalCheckbox,
+              isSelected && styles.primaryGoalCheckboxSelected,
+            ]}
+          >
+            {isSelected ? (
+              <MaterialIcons name="check" size={16} color="white" />
+            ) : null}
+          </View>
+          <View
+            style={[
               styles.goalIconContainer,
               { backgroundColor: isSelected ? '#5603AD' : goal.color },
             ]}
@@ -278,14 +290,6 @@ const GoalsScreen = ({
             </Text>
             <Text style={styles.goalDescription}>{goal.description}</Text>
           </View>
-          {isSelected ? (
-            <MaterialIcons
-              name="check-circle"
-              size={24}
-              color="#5603AD"
-              style={styles.goalCheck}
-            />
-          ) : null}
         </TouchableOpacity>
       </Animated.View>
     );
@@ -327,10 +331,11 @@ const GoalsScreen = ({
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialIcons name="flag" size={24} color="#5603AD" />
-              <Text style={styles.sectionTitle}>Objectif Principal</Text>
+              <Text style={styles.sectionTitle}>Objectifs Principaux</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
-              Quel est votre principal objectif de remise en forme ?
+              Quels sont vos objectifs principaux de remise en forme ? (Vous
+              pouvez en sélectionner plusieurs)
             </Text>
             <View style={styles.primaryGoalsGrid}>
               {primaryGoalsData.map((goal, index) =>
@@ -392,7 +397,7 @@ const GoalsScreen = ({
                     {goal.label}
                   </Text>
                 </TouchableOpacity>
-              ))}{' '}
+              ))}
             </View>
           </View>
           {/* Buttons */}
@@ -569,6 +574,18 @@ const styles = StyleSheet.create({
   primaryGoalCardSelected: {
     backgroundColor: '#F8F4FF',
     borderColor: '#5603AD',
+  },
+  primaryGoalCheckbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#E0E0E0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  primaryGoalCheckboxSelected: {
+    backgroundColor: '#5603AD',
   },
   goalIconContainer: {
     width: 60,

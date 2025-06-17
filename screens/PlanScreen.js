@@ -11,20 +11,28 @@ import {
   Modal,
   FlatList,
   Image,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialIcons, FontAwesome5 } from '@expo/vector-icons';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import * as Animatable from 'react-native-animatable';
 import Constants from 'expo-constants';
+import { AnalysisAPI } from '../services/apiService';
 
 const { width, height } = Dimensions.get('window');
 
-const PlanScreen = ({ navigation }) => {
+const PlanScreen = ({
+  navigation,
+  isAnalysisCompleted = false,
+  isPlanRequested = false,
+  onPlanRequested,
+}) => {
   const [currentWeek, setCurrentWeek] = useState(1);
   const [selectedFilter, setSelectedFilter] = useState('All');
   const [selectedDay, setSelectedDay] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isRequestingPlan, setIsRequestingPlan] = useState(false);
 
   // Sample plan data for 14 days
   const planData = {
@@ -228,7 +236,6 @@ const PlanScreen = ({ navigation }) => {
         return '#BDC3C7';
     }
   };
-
   const getTypeColor = (type) => {
     switch (type) {
       case 'workout':
@@ -239,6 +246,49 @@ const PlanScreen = ({ navigation }) => {
         return '#FFEAA7';
       default:
         return '#BDC3C7';
+    }
+  };
+
+  // Handle action plan request
+  const handleActionPlanRequest = async () => {
+    setIsRequestingPlan(true);
+    try {
+      console.log('🚀 Requesting action plan...');
+      const result = await AnalysisAPI.requestActionPlan();
+      if (result.success) {
+        console.log('✅ Action plan request successful:', result.data);
+
+        // Notify App.js that plan was requested
+        if (onPlanRequested) {
+          onPlanRequested();
+        }
+
+        Alert.alert(
+          'Success!',
+          'Your action plan request has been submitted successfully. You will be notified when your personalized plan is ready.',
+          [
+            {
+              text: 'OK',
+              onPress: () => navigation?.goBack(),
+            },
+          ]
+        );
+      } else {
+        console.error('❌ Action plan request failed:', result.error);
+        Alert.alert(
+          'Error',
+          result.message ||
+            'Failed to submit action plan request. Please try again.'
+        );
+      }
+    } catch (error) {
+      console.error('❌ Action plan request error:', error);
+      Alert.alert(
+        'Error',
+        'Failed to submit action plan request. Please try again.'
+      );
+    } finally {
+      setIsRequestingPlan(false);
     }
   };
   const renderHeader = () => (
@@ -638,7 +688,6 @@ const PlanScreen = ({ navigation }) => {
       </Modal>
     );
   };
-
   const renderMotivationalQuote = () => {
     if (currentWeek === 1) return null;
 
@@ -656,22 +705,155 @@ const PlanScreen = ({ navigation }) => {
       </Animatable.View>
     );
   };
+
+  // Render analysis completion check content
+  const renderAnalysisCheck = () => (
+    <View style={styles.analysisCheckContainer}>
+      <Animatable.View animation="bounceIn" style={styles.analysisCheckCard}>
+        <LinearGradient
+          colors={['#FF6B6B', '#FF8E8E']}
+          style={styles.analysisCheckGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <MaterialIcons name="biotech" size={60} color="#FFF" />
+          <Text style={styles.analysisCheckTitle}>
+            Complete Your Analysis First
+          </Text>
+          <Text style={styles.analysisCheckSubtitle}>
+            To create your personalized action plan, we need your lab results
+            analysis.
+          </Text>
+          <TouchableOpacity
+            style={styles.analysisActionButton}
+            onPress={() => navigation?.navigate('analysis-results')}
+          >
+            <Text style={styles.analysisActionButtonText}>
+              Complete Lab Analysis
+            </Text>
+            <MaterialIcons name="arrow-forward" size={20} color="#FF6B6B" />
+          </TouchableOpacity>
+        </LinearGradient>
+      </Animatable.View>
+    </View>
+  );
+  // Render action plan request content
+  const renderActionPlanRequest = () => (
+    <View style={styles.actionPlanContainer}>
+      <Animatable.View animation="fadeInUp" style={styles.actionPlanCard}>
+        <LinearGradient
+          colors={['#4CAF50', '#45A049']}
+          style={styles.actionPlanGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <MaterialIcons name="assignment" size={60} color="#FFF" />
+          <Text style={styles.actionPlanTitle}>Ready for Your Action Plan</Text>
+          <Text style={styles.actionPlanSubtitle}>
+            Your analysis is complete! Now let's create your personalized action
+            plan.
+          </Text>
+          <TouchableOpacity
+            style={[
+              styles.actionPlanRequestButton,
+              isRequestingPlan && styles.disabledButton,
+            ]}
+            onPress={handleActionPlanRequest}
+            disabled={isRequestingPlan}
+          >
+            {isRequestingPlan ? (
+              <Text style={styles.actionPlanRequestButtonText}>
+                Requesting Plan...
+              </Text>
+            ) : (
+              <>
+                <Text style={styles.actionPlanRequestButtonText}>
+                  Request Action Plan
+                </Text>
+                <MaterialIcons name="rocket-launch" size={20} color="#4CAF50" />
+              </>
+            )}
+          </TouchableOpacity>
+        </LinearGradient>
+      </Animatable.View>
+    </View>
+  );
+
+  // Render plan request processing message
+  const renderPlanProcessing = () => (
+    <View style={styles.planProcessingContainer}>
+      <Animatable.View
+        animation="pulse"
+        iterationCount="infinite"
+        style={styles.planProcessingCard}
+      >
+        <LinearGradient
+          colors={['#9C27B0', '#673AB7']}
+          style={styles.planProcessingGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <MaterialIcons name="psychology" size={60} color="#FFF" />
+          <Text style={styles.planProcessingTitle}>
+            Your Plan is Being Created
+          </Text>
+          <Text style={styles.planProcessingSubtitle}>
+            Our expert team is analyzing your data and creating your
+            personalized action plan.
+          </Text>
+          <View style={styles.processingSteps}>
+            <View style={styles.stepItem}>
+              <MaterialIcons name="check-circle" size={20} color="#4CAF50" />
+              <Text style={styles.stepText}>Analysis completed</Text>
+            </View>
+            <View style={styles.stepItem}>
+              <MaterialIcons name="sync" size={20} color="#FFF" />
+              <Text style={styles.stepText}>Creating personalized plan</Text>
+            </View>
+            <View style={styles.stepItem}>
+              <MaterialIcons name="schedule" size={20} color="#FFB74D" />
+              <Text style={styles.stepText}>Review by experts</Text>
+            </View>
+          </View>
+          <Text style={styles.estimatedTime}>
+            Estimated completion: 24-48 hours
+          </Text>
+        </LinearGradient>
+      </Animatable.View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#667eea" />
       <SafeAreaView style={styles.safeAreaHeader}>
         {renderHeader()}
-      </SafeAreaView>
-
+      </SafeAreaView>{' '}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {renderWeekToggle()}
-        {renderProgressIndicator()}
-        {renderWeeklyGoals()}
-        {renderFilterTabs()}
-        {renderDayGrid()}
-        {renderMotivationalQuote()} <View style={styles.bottomPadding} />
-      </ScrollView>
+        {!isAnalysisCompleted
+          ? // Show analysis completion check if analysis not completed
+            renderAnalysisCheck()
+          : isPlanRequested
+          ? // Show plan processing message if plan has been requested
+            renderPlanProcessing()
+          : // Show action plan request if analysis completed but no plan requested yet
+            renderActionPlanRequest()}
 
+        {/* Original plan content - only show if analysis completed and plan exists */}
+        {isAnalysisCompleted &&
+          false && ( // TODO: Add condition for when plan exists
+            <>
+              {renderWeekToggle()}
+              {renderProgressIndicator()}
+              {renderWeeklyGoals()}
+              {renderFilterTabs()}
+              {renderDayGrid()}
+              {renderMotivationalQuote()}
+            </>
+          )}
+
+        <View style={styles.bottomPadding} />
+      </ScrollView>
       {renderDetailModal()}
       <SafeAreaView style={styles.safeAreaBottom} />
     </View>
@@ -1029,6 +1211,187 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 100,
+  },
+  // Analysis check styles
+  analysisCheckContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  analysisCheckCard: {
+    width: '100%',
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  analysisCheckGradient: {
+    padding: 30,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  analysisCheckTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFF',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  analysisCheckSubtitle: {
+    fontSize: 16,
+    color: '#FFF',
+    textAlign: 'center',
+    opacity: 0.9,
+    lineHeight: 24,
+    marginBottom: 30,
+  },
+  analysisActionButton: {
+    backgroundColor: '#FFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+  },
+  analysisActionButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FF6B6B',
+    marginRight: 8,
+  },
+  // Action plan request styles
+  actionPlanContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  actionPlanCard: {
+    width: '100%',
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  actionPlanGradient: {
+    padding: 30,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  actionPlanTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFF',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  actionPlanSubtitle: {
+    fontSize: 16,
+    color: '#FFF',
+    textAlign: 'center',
+    opacity: 0.9,
+    lineHeight: 24,
+    marginBottom: 30,
+  },
+  actionPlanRequestButton: {
+    backgroundColor: '#FFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+  },
+  actionPlanRequestButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#4CAF50',
+    marginRight: 8,
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  // Plan processing styles
+  planProcessingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+  },
+  planProcessingCard: {
+    width: '100%',
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  planProcessingGradient: {
+    padding: 30,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  planProcessingTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFF',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  planProcessingSubtitle: {
+    fontSize: 16,
+    color: '#FFF',
+    textAlign: 'center',
+    opacity: 0.9,
+    lineHeight: 24,
+    marginBottom: 30,
+  },
+  processingSteps: {
+    width: '100%',
+    marginBottom: 20,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 10,
+  },
+  stepText: {
+    fontSize: 16,
+    color: '#FFF',
+    marginLeft: 12,
+    flex: 1,
+  },
+  estimatedTime: {
+    fontSize: 14,
+    color: '#FFD700',
+    textAlign: 'center',
+    fontWeight: '600',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
 });
 

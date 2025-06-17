@@ -193,7 +193,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
         <View style={styles.welcomeSection}>
           <Text style={styles.welcomeTitle}>Bienvenue !</Text>
           <Text style={styles.welcomeSubtitle}>Créons votre compte</Text>
-        </View>{' '}
+        </View>
         {/* Form Section */}
         <View style={styles.formSection}>
           {/* General Error Message */}
@@ -359,7 +359,7 @@ const SignUpScreen = ({ onBack, onSignIn, onSubmit }) => {
             {errors.confirmPassword ? (
               <Text style={styles.errorText}>{errors.confirmPassword}</Text>
             ) : null}
-          </View>{' '}
+          </View>
           {/* Create Account Button */}
           <TouchableOpacity
             style={[
